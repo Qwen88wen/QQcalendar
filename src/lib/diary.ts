@@ -21,6 +21,8 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 // ========== Diaries ==========
 
 export async function createDiary(diary: DiaryInsert): Promise<Diary | null> {
+  console.log('[DB] 正在创建记录:', diary);
+
   const { data, error } = await supabase
     .from('diaries')
     .insert(diary as never)
@@ -28,10 +30,12 @@ export async function createDiary(diary: DiaryInsert): Promise<Diary | null> {
     .single();
 
   if (error) {
-    console.error('创建日记失败:', error.message);
+    console.error('[DB] 创建记录失败:', error.message, error);
+    alert(`创建失败: ${error.message}`);
     return null;
   }
 
+  console.log('[DB] 记录创建成功:', data);
   return data as Diary;
 }
 
@@ -50,6 +54,8 @@ export async function getDiaries(): Promise<Diary[]> {
 }
 
 export async function updateDiary(id: string, updates: DiaryUpdate): Promise<Diary | null> {
+  console.log('[DB] 正在更新记录:', id, updates);
+
   const { data, error } = await supabase
     .from('diaries')
     .update(updates as never)
@@ -58,10 +64,12 @@ export async function updateDiary(id: string, updates: DiaryUpdate): Promise<Dia
     .single();
 
   if (error) {
-    console.error('更新日记失败:', error.message);
+    console.error('[DB] 更新记录失败:', error.message, error);
+    alert(`更新失败: ${error.message}`);
     return null;
   }
 
+  console.log('[DB] 记录更新成功:', data);
   return data as Diary;
 }
 
