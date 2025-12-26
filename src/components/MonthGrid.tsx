@@ -2,93 +2,162 @@ import { useMemo } from 'react';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 
+// 布局常量
+export const MONTH_SPACING = 14;  // 月份间距
+export const DAY_SPACING = 1.5;   // 日期间距
+export const GRID_COLS = 4;       // 4列
+export const GRID_ROWS = 3;       // 3行
+
 const MONTHS = [
-  '一月', '二月', '三月', '四月',
-  '五月', '六月', '七月', '八月',
-  '九月', '十月', '十一月', '十二月'
+  '2025.01', '2025.02', '2025.03', '2025.04',
+  '2025.05', '2025.06', '2025.07', '2025.08',
+  '2025.09', '2025.10', '2025.11', '2025.12'
 ];
 
-// 4列 x 3行 布局
-const GRID_COLS = 4;
-const GRID_ROWS = 3;
-const CELL_WIDTH = 10;
-const CELL_HEIGHT = 10;
+const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-// 计算月份在网格中的位置
-export function getMonthPosition(month: number): { x: number; z: number } {
-  const col = (month - 1) % GRID_COLS;
-  const row = Math.floor((month - 1) / GRID_COLS);
+// 获取月份基础坐标
+export function getMonthBasePosition(monthIndex: number): { x: number; z: number } {
+  const col = monthIndex % GRID_COLS;
+  const row = Math.floor(monthIndex / GRID_COLS);
 
   // 居中整个网格
-  const offsetX = ((GRID_COLS - 1) * CELL_WIDTH) / 2;
-  const offsetZ = ((GRID_ROWS - 1) * CELL_HEIGHT) / 2;
+  const offsetX = ((GRID_COLS - 1) * MONTH_SPACING) / 2;
+  const offsetZ = ((GRID_ROWS - 1) * MONTH_SPACING) / 2;
 
   return {
-    x: col * CELL_WIDTH - offsetX,
-    z: row * CELL_HEIGHT - offsetZ,
+    x: col * MONTH_SPACING - offsetX,
+    z: row * MONTH_SPACING - offsetZ,
   };
 }
 
-// 根据日期计算在月份方格内的位置 (带 jitter)
+// 根据日期计算在月份内的偏移
+export function getDayOffset(day: number): { x: number; z: number } {
+  const dayCol = (day - 1) % 7;
+  const dayRow = Math.floor((day - 1) / 7);
+
+  return {
+    x: (dayCol - 3) * DAY_SPACING,
+    z: (dayRow - 2.5) * DAY_SPACING,
+  };
+}
+
+// 计算花朵的绝对位置 (兼容旧接口)
 export function getDayPosition(
   month: number,
   day: number,
   jitterIndex: number = 0
 ): { x: number; y: number; z: number } {
-  const { x: monthX, z: monthZ } = getMonthPosition(month);
+  const monthBase = getMonthBasePosition(month - 1);
+  const dayOffset = getDayOffset(day);
 
-  // 在方格内按日期分布 (7x5 网格，类似日历)
-  const dayCol = (day - 1) % 7;
-  const dayRow = Math.floor((day - 1) / 7);
-
-  // 日期在方格内的相对位置
-  const dayOffsetX = (dayCol - 3) * 1.2;
-  const dayOffsetZ = (dayRow - 2) * 1.2;
-
-  // 添加随机 jitter 防止重叠
-  const jitterX = (Math.sin(jitterIndex * 1234.5) * 0.5);
-  const jitterZ = (Math.cos(jitterIndex * 5678.9) * 0.5);
+  // Jitter 随机偏移 (使用 seed 保持一致性)
+  const jitterX = Math.sin(jitterIndex * 12345.67) * 0.35;
+  const jitterZ = Math.cos(jitterIndex * 67890.12) * 0.35;
 
   return {
-    x: monthX + dayOffsetX + jitterX,
+    x: monthBase.x + dayOffset.x + jitterX,
     y: 0,
-    z: monthZ + dayOffsetZ + jitterZ,
+    z: monthBase.z + dayOffset.z + jitterZ,
   };
 }
 
-function MonthCell({ month, name }: { month: number; name: string }) {
-  const { x, z } = getMonthPosition(month);
+// 日期数字组件
+function DayNumbers({ monthIndex, daysCount }: { monthIndex: number; daysCount: number }) {
+  const { x: baseX, z: baseZ } = getMonthBasePosition(monthIndex);
 
-  const edgeGeometry = useMemo(() => {
-    const plane = new THREE.PlaneGeometry(CELL_WIDTH - 0.5, CELL_HEIGHT - 0.5);
-    return new THREE.EdgesGeometry(plane);
+  return (
+    <group>
+      {Array.from({ length: daysCount }, (_, i) => {
+        const day = i + 1;
+        const { x: offsetX, z: offsetZ } = getDayOffset(day);
+
+        return (
+          <Text
+            key={day}
+            position={[baseX + offsetX, 0.02, baseZ + offsetZ]}
+            rotation={[-Math.PI / 2, 0, 0]}
+            fontSize={0.32}
+            color="#5a7a52"
+            anchorX="center"
+            anchorY="middle"
+            fillOpacity={0.5}
+          >
+            {day}
+          </Text>
+        );
+      })}
+    </group>
+  );
+}
+
+// 网格线组件
+function GridLines({ monthIndex }: { monthIndex: number }) {
+  const { x: baseX, z: baseZ } = getMonthBasePosition(monthIndex);
+
+  const gridGeometry = useMemo(() => {
+    const points: THREE.Vector3[] = [];
+
+    // 横向线 (6条)
+    for (let row = 0; row <= 5; row++) {
+      const z = (row - 2.5) * DAY_SPACING;
+      points.push(new THREE.Vector3(-3.5 * DAY_SPACING, 0, z));
+      points.push(new THREE.Vector3(3.5 * DAY_SPACING, 0, z));
+    }
+
+    // 纵向线 (8条)
+    for (let col = 0; col <= 7; col++) {
+      const x = (col - 3.5) * DAY_SPACING;
+      points.push(new THREE.Vector3(x, 0, -3 * DAY_SPACING));
+      points.push(new THREE.Vector3(x, 0, 3 * DAY_SPACING));
+    }
+
+    return new THREE.BufferGeometry().setFromPoints(points);
   }, []);
 
   return (
-    <group position={[x, 0, z]}>
-      {/* 月份方格背景 */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
-        <planeGeometry args={[CELL_WIDTH - 0.5, CELL_HEIGHT - 0.5]} />
+    <lineSegments position={[baseX, 0.01, baseZ]} geometry={gridGeometry}>
+      <lineBasicMaterial color="#4a6a42" opacity={0.35} transparent />
+    </lineSegments>
+  );
+}
+
+// 月份地块组件
+function MonthPlot({ monthIndex, name, daysCount }: { monthIndex: number; name: string; daysCount: number }) {
+  const { x, z } = getMonthBasePosition(monthIndex);
+
+  return (
+    <group>
+      {/* 月份地面 */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.005, z]} receiveShadow>
+        <planeGeometry args={[MONTH_SPACING - 1.5, MONTH_SPACING - 1.5]} />
         <meshStandardMaterial
-          color="#3a7d32"
+          color="#3a5a32"
           transparent
-          opacity={0.3}
+          opacity={0.35}
         />
       </mesh>
 
-      {/* 边框线 */}
-      <lineSegments position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <primitive object={edgeGeometry} attach="geometry" />
-        <lineBasicMaterial color="#5a9d52" />
-      </lineSegments>
+      {/* 网格线 */}
+      <GridLines monthIndex={monthIndex} />
 
-      {/* 月份名称 */}
+      {/* 日期数字 */}
+      <DayNumbers monthIndex={monthIndex} daysCount={daysCount} />
+
+      {/* 月份标签背景 */}
+      <mesh position={[x, 2.8, z - MONTH_SPACING / 2 + 1.5]} rotation={[0, 0, 0]}>
+        <planeGeometry args={[3.5, 1.2]} />
+        <meshBasicMaterial color="#1a3a15" transparent opacity={0.7} side={THREE.DoubleSide} />
+      </mesh>
+
+      {/* 月份标签 - 悬浮在上方 */}
       <Text
-        position={[0, 0.1, -CELL_HEIGHT / 2 + 0.8]}
-        fontSize={0.8}
-        color="#ffffff"
+        position={[x, 2.85, z - MONTH_SPACING / 2 + 1.5]}
+        fontSize={0.9}
+        color="#a8d4a0"
         anchorX="center"
         anchorY="middle"
+        font="/fonts/Inter-Bold.woff"
       >
         {name}
       </Text>
@@ -100,7 +169,12 @@ export function MonthGrid() {
   return (
     <group>
       {MONTHS.map((name, index) => (
-        <MonthCell key={index + 1} month={index + 1} name={name} />
+        <MonthPlot
+          key={index}
+          monthIndex={index}
+          name={name}
+          daysCount={DAYS_IN_MONTH[index]}
+        />
       ))}
     </group>
   );
