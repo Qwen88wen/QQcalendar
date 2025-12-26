@@ -1,25 +1,9 @@
 import { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, GradientTexture } from '@react-three/drei';
-import * as THREE from 'three';
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import { MonthGrid } from './MonthGrid';
 import { Flowers } from './Flowers';
 import { useAppStore } from '../stores/appStore';
-
-// 天空背景组件
-function SkyBackground() {
-  return (
-    <mesh scale={[100, 100, 1]} position={[0, 30, -50]}>
-      <planeGeometry />
-      <meshBasicMaterial side={THREE.DoubleSide}>
-        <GradientTexture
-          stops={[0, 0.5, 1]}
-          colors={['#87CEEB', '#B8E0F0', '#E0F6FF']}
-        />
-      </meshBasicMaterial>
-    </mesh>
-  );
-}
 
 // 圆形草地组件
 function CircularGround() {
@@ -99,9 +83,8 @@ export function Scene3D() {
       {/* 相机 - 45度俯视角 */}
       <PerspectiveCamera makeDefault position={[0, 30, 40]} fov={50} />
 
-      {/* 天空背景 */}
+      {/* 天空背景 - 纯净蓝天 */}
       <color attach="background" args={['#87CEEB']} />
-      <SkyBackground />
 
       {/* 光照 - 温暖阳光 */}
       <ambientLight intensity={0.8} color="#fff8e7" />
