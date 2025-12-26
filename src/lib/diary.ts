@@ -15,7 +15,7 @@ export async function getProfile(userId: string): Promise<Profile | null> {
     return null;
   }
 
-  return data;
+  return data as Profile;
 }
 
 // ========== Diaries ==========
@@ -23,7 +23,7 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 export async function createDiary(diary: DiaryInsert): Promise<Diary | null> {
   const { data, error } = await supabase
     .from('diaries')
-    .insert(diary)
+    .insert(diary as never)
     .select()
     .single();
 
@@ -32,7 +32,7 @@ export async function createDiary(diary: DiaryInsert): Promise<Diary | null> {
     return null;
   }
 
-  return data;
+  return data as Diary;
 }
 
 export async function getDiaries(): Promise<Diary[]> {
@@ -46,13 +46,13 @@ export async function getDiaries(): Promise<Diary[]> {
     return [];
   }
 
-  return data || [];
+  return (data as Diary[]) || [];
 }
 
 export async function updateDiary(id: string, updates: DiaryUpdate): Promise<Diary | null> {
   const { data, error } = await supabase
     .from('diaries')
-    .update(updates)
+    .update(updates as never)
     .eq('id', id)
     .select()
     .single();
@@ -62,7 +62,7 @@ export async function updateDiary(id: string, updates: DiaryUpdate): Promise<Dia
     return null;
   }
 
-  return data;
+  return data as Diary;
 }
 
 export async function deleteDiary(id: string): Promise<boolean> {
@@ -93,13 +93,13 @@ export async function getRemarks(diaryId: string): Promise<DiaryRemark[]> {
     return [];
   }
 
-  return data || [];
+  return (data as DiaryRemark[]) || [];
 }
 
 export async function createRemark(remark: DiaryRemarkInsert): Promise<DiaryRemark | null> {
   const { data, error } = await supabase
     .from('diary_remarks')
-    .insert(remark)
+    .insert(remark as never)
     .select()
     .single();
 
@@ -108,5 +108,5 @@ export async function createRemark(remark: DiaryRemarkInsert): Promise<DiaryRema
     return null;
   }
 
-  return data;
+  return data as DiaryRemark;
 }
