@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { useAppStore, FlowerFilter } from '../stores/appStore';
+import { exportAllData } from '../lib/export';
 import './TitleBar.css';
 
 export function TitleBar() {
   const { diaries, flowerFilter, setFlowerFilter, toggleRecordList, showRecordList } = useAppStore();
+  const [isExporting, setIsExporting] = useState(false);
 
   // 统计花朵数量 (基于 user_name 判断)
   const lavenderCount = diaries.filter(d =>
@@ -22,6 +25,19 @@ export function TitleBar() {
       setFlowerFilter('all');
     } else {
       setFlowerFilter(filter);
+    }
+  };
+
+  const handleExport = async () => {
+    if (isExporting) return;
+    setIsExporting(true);
+    try {
+      await exportAllData();
+    } catch (error) {
+      console.error('导出失败:', error);
+      alert('导出失败，请重试');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -54,6 +70,15 @@ export function TitleBar() {
         onClick={toggleRecordList}
       >
         📋
+      </button>
+
+      <button
+        className={`export-btn ${isExporting ? 'exporting' : ''}`}
+        onClick={handleExport}
+        disabled={isExporting}
+        title="导出数据备份"
+      >
+        {isExporting ? '⏳' : '💾'}
       </button>
     </div>
   );
