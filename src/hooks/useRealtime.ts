@@ -7,6 +7,8 @@ export function useRealtime() {
   const { addDiary, updateDiary, removeDiary, addRemark, selectedDiary } = useAppStore();
 
   useEffect(() => {
+    console.log('[Realtime] 正在建立实时连接...');
+
     // 监听 diaries 表变更
     const diariesChannel = supabase
       .channel('diaries-changes')
@@ -18,6 +20,7 @@ export function useRealtime() {
           table: 'diaries',
         },
         (payload) => {
+          console.log('[Realtime] 收到数据变更:', payload.eventType, payload.new);
           if (payload.eventType === 'INSERT') {
             addDiary(payload.new as Diary);
           } else if (payload.eventType === 'UPDATE') {
@@ -27,7 +30,9 @@ export function useRealtime() {
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[Realtime] diaries 订阅状态:', status);
+      });
 
     // 监听 diary_remarks 表变更
     const remarksChannel = supabase

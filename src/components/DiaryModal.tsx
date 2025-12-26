@@ -62,10 +62,19 @@ export function DiaryModal() {
       operators: newOperators,
     };
 
-    await updateDiary(selectedDiary.id, diaryData);
+    console.log('[DiaryModal] 正在保存记录:', selectedDiary.id, diaryData);
+
+    const result = await updateDiary(selectedDiary.id, diaryData);
 
     setIsSubmitting(false);
-    closeModal();
+
+    if (result) {
+      console.log('[DiaryModal] 保存成功');
+      closeModal();
+    } else {
+      console.error('[DiaryModal] 保存失败 - 请检查网络连接或刷新页面重试');
+      // 注意: updateDiary 函数已经显示了 alert，这里只记录日志
+    }
   };
 
   if (!isModalOpen) return null;

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAppStore, FlowerFilter } from '../stores/appStore';
 import { exportAllData } from '../lib/export';
+import { getDiaries } from '../lib/diary';
 import './TitleBar.css';
 
 export function TitleBar() {
@@ -12,8 +13,26 @@ export function TitleBar() {
     showRecordList,
     showOnlyMissingVehicle,
     toggleMissingVehicleFilter,
+    setDiaries,
   } = useAppStore();
   const [isExporting, setIsExporting] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // 手动刷新数据
+  const handleRefresh = async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    try {
+      const freshDiaries = await getDiaries();
+      setDiaries(freshDiaries);
+      console.log('[刷新] 成功获取', freshDiaries.length, '条记录');
+    } catch (error) {
+      console.error('[刷新] 失败:', error);
+      alert('刷新失败，请检查网络连接');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   // 统计花朵数量 (基于 user_name 判断)
   const lavenderCount = diaries.filter(d =>
@@ -93,6 +112,15 @@ export function TitleBar() {
         onClick={toggleRecordList}
       >
         📋
+      </button>
+
+      <button
+        className={`refresh-btn ${isRefreshing ? 'refreshing' : ''}`}
+        onClick={handleRefresh}
+        disabled={isRefreshing}
+        title="刷新数据 (从其他设备同步)"
+      >
+        {isRefreshing ? '⏳' : '🔄'}
       </button>
 
       <button
