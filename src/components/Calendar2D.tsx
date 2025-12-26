@@ -19,9 +19,31 @@ const FLOWER_ICONS: Record<number, string> = {
 };
 
 export function Calendar2D() {
-  const { diaries, openModal } = useAppStore();
+  const { diaries, openModal, selectedDate, setSelectedDate } = useAppStore();
   const [currentYear] = useState(2025);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+
+  // 点击日期选择
+  const handleDayClick = (day: number) => {
+    const clickedDate = new Date(currentYear, selectedMonth, day);
+    // 如果点击同一天，取消选择（回到今天）
+    if (selectedDate &&
+        selectedDate.getFullYear() === clickedDate.getFullYear() &&
+        selectedDate.getMonth() === clickedDate.getMonth() &&
+        selectedDate.getDate() === clickedDate.getDate()) {
+      setSelectedDate(null);
+    } else {
+      setSelectedDate(clickedDate);
+    }
+  };
+
+  // 检查日期是否被选中
+  const isSelected = (day: number) => {
+    if (!selectedDate) return false;
+    return selectedDate.getFullYear() === currentYear &&
+           selectedDate.getMonth() === selectedMonth &&
+           selectedDate.getDate() === day;
+  };
 
   // 按日期分组日记
   const diariesByDate = useMemo(() => {
@@ -68,7 +90,8 @@ export function Calendar2D() {
       days.push(
         <div
           key={day}
-          className={`calendar-day ${dayDiaries.length > 0 ? 'has-records' : ''} ${isToday ? 'today' : ''}`}
+          className={`calendar-day ${dayDiaries.length > 0 ? 'has-records' : ''} ${isToday ? 'today' : ''} ${isSelected(day) ? 'selected' : ''}`}
+          onClick={() => handleDayClick(day)}
         >
           <span className="day-number">{day}</span>
           {dayDiaries.length > 0 && (
@@ -77,7 +100,10 @@ export function Calendar2D() {
                 <span
                   key={diary.id}
                   className="flower-icon"
-                  onClick={() => openModal(diary)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openModal(diary);
+                  }}
                   title={diary.customer || diary.user_name || ''}
                 >
                   {FLOWER_ICONS[diary.flower_type || 1]}

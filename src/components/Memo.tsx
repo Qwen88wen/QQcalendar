@@ -18,9 +18,27 @@ interface QuickTodo {
 }
 
 export function Memo() {
-  const { diaries, openModal } = useAppStore();
+  const { diaries, openModal, selectedDate } = useAppStore();
   const [activeTab, setActiveTab] = useState<'records' | 'todos'>('records');
   const [filter, setFilter] = useState<'all' | 'incomplete' | 'complete'>('all');
+
+  // 获取当前查看的日期（选中日期或今天）
+  const viewDate = selectedDate || new Date();
+
+  // 格式化显示日期
+  const formatViewDate = () => {
+    const today = new Date();
+    if (viewDate.toDateString() === today.toDateString()) {
+      return '今天';
+    }
+    return `${viewDate.getMonth() + 1}月${viewDate.getDate()}日`;
+  };
+
+  // 按选中日期筛选记录
+  const dateFilteredDiaries = useMemo(() => {
+    const viewDateStr = viewDate.toDateString();
+    return diaries.filter(d => new Date(d.created_at).toDateString() === viewDateStr);
+  }, [diaries, viewDate]);
 
   // 快速待办
   const [todos, setTodos] = useState<QuickTodo[]>([]);
@@ -66,7 +84,7 @@ export function Memo() {
 
   // 按状态筛选并排序（最新的在前）
   const filteredDiaries = useMemo(() => {
-    let filtered = [...diaries];
+    let filtered = [...dateFilteredDiaries];
     if (filter === 'incomplete') {
       filtered = filtered.filter(d => d.status === 'incomplete');
     } else if (filter === 'complete') {
@@ -75,15 +93,15 @@ export function Memo() {
     return filtered.sort((a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-  }, [diaries, filter]);
+  }, [dateFilteredDiaries, filter]);
 
-  // 统计数据
+  // 统计数据（基于选中日期）
   const stats = useMemo(() => {
-    const total = diaries.length;
-    const complete = diaries.filter(d => d.status === 'complete').length;
-    const incomplete = diaries.filter(d => d.status === 'incomplete').length;
+    const total = dateFilteredDiaries.length;
+    const complete = dateFilteredDiaries.filter(d => d.status === 'complete').length;
+    const incomplete = dateFilteredDiaries.filter(d => d.status === 'incomplete').length;
     return { total, complete, incomplete };
-  }, [diaries]);
+  }, [dateFilteredDiaries]);
 
   // 待办统计
   const todoStats = useMemo(() => {
@@ -117,6 +135,12 @@ export function Memo() {
 
       {activeTab === 'records' ? (
         <>
+          {/* 日期标题 */}
+          <div className="memo-date-header">
+            <span className="date-label">{formatViewDate()}</span>
+            <span className="date-hint">的记录</span>
+          </div>
+
           {/* 统计卡片 */}
           <div className="memo-stats">
             <div className="stat-card total">

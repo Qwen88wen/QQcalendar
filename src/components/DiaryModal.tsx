@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAppStore } from '../stores/appStore';
-import { createDiary, updateDiary, getRemarks, createRemark } from '../lib/diary';
+import { updateDiary, getRemarks, createRemark } from '../lib/diary';
 import type { FlowerType, DiaryRemark, DiaryStatus } from '../types/database';
 import './DiaryModal.css';
 
@@ -18,9 +18,8 @@ export function DiaryModal() {
     selectedDiary,
     isEditing,
     closeModal,
-    userId,
     userName,
-    userRole,
+    activeInputUser,
   } = useAppStore();
 
   // 表单状态
@@ -37,7 +36,8 @@ export function DiaryModal() {
   const [newRemark, setNewRemark] = useState('');
   const [isLoadingRemarks, setIsLoadingRemarks] = useState(false);
 
-  const isEditor = userRole === 'editor';
+  // 只有 QQrou 能保存修改
+  const canSave = activeInputUser === 'QQrou';
 
   // 加载已有数据
   useEffect(() => {
@@ -72,7 +72,8 @@ export function DiaryModal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userId || !isEditor) return;
+    // 只有 QQrou 能保存修改，且必须是编辑模式（查看已有记录）
+    if (!canSave || !isEditing || !selectedDiary) return;
 
     setIsSubmitting(true);
 
@@ -85,15 +86,7 @@ export function DiaryModal() {
       flower_type: flowerType,
     };
 
-    if (isEditing && selectedDiary) {
-      await updateDiary(selectedDiary.id, diaryData);
-    } else {
-      await createDiary({
-        ...diaryData,
-        user_id: userId,
-        user_name: userName,
-      });
-    }
+    await updateDiary(selectedDiary.id, diaryData);
 
     setIsSubmitting(false);
     closeModal();
@@ -123,9 +116,17 @@ export function DiaryModal() {
           ×
         </button>
 
-        <h2>{isEditing ? '编辑记录' : '新增记录'}</h2>
+        <h2>{isEditing ? '查看/编辑记录' : '新增记录'}</h2>
 
-        {/* 表单 - 仅 Editor 可编辑 */}
+        {/* 当前操作用户提示 */}
+        <div className="current-user-hint">
+          当前用户: <strong>{activeInputUser}</strong>
+          {!canSave && isEditing && (
+            <span className="permission-hint">（只有 QQrou 能保存修改）</span>
+          )}
+        </div>
+
+        {/* 表单 - 所有用户都可编辑 */}
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
             <div className="form-group">
@@ -134,7 +135,6 @@ export function DiaryModal() {
                 type="text"
                 value={customer}
                 onChange={(e) => setCustomer(e.target.value)}
-                disabled={!isEditor}
                 placeholder="输入园主名称"
               />
             </div>
@@ -145,7 +145,6 @@ export function DiaryModal() {
                 type="text"
                 value={remark}
                 onChange={(e) => setRemark(e.target.value)}
-                disabled={!isEditor}
                 placeholder="输入备注"
               />
             </div>
@@ -156,7 +155,6 @@ export function DiaryModal() {
                 type="text"
                 value={worker}
                 onChange={(e) => setWorker(e.target.value)}
-                disabled={!isEditor}
                 placeholder="输入工人信息"
               />
             </div>
@@ -167,7 +165,6 @@ export function DiaryModal() {
                 type="text"
                 value={vehicle}
                 onChange={(e) => setVehicle(e.target.value)}
-                disabled={!isEditor}
                 placeholder="输入车号"
               />
             </div>
@@ -179,16 +176,14 @@ export function DiaryModal() {
               <button
                 type="button"
                 className={`status-option ${status === 'incomplete' ? 'active incomplete' : ''}`}
-                onClick={() => isEditor && setStatus('incomplete')}
-                disabled={!isEditor}
+                onClick={() => setStatus('incomplete')}
               >
                 未完成
               </button>
               <button
                 type="button"
                 className={`status-option ${status === 'complete' ? 'active complete' : ''}`}
-                onClick={() => isEditor && setStatus('complete')}
-                disabled={!isEditor}
+                onClick={() => setStatus('complete')}
               >
                 已完成
               </button>
@@ -203,8 +198,7 @@ export function DiaryModal() {
                   key={option.value}
                   type="button"
                   className={`flower-option ${flowerType === option.value ? 'active' : ''}`}
-                  onClick={() => isEditor && setFlowerType(option.value)}
-                  disabled={!isEditor}
+                  onClick={() => setFlowerType(option.value)}
                 >
                   <span className="flower-emoji">{option.emoji}</span>
                   <span className="flower-label">{option.label}</span>
@@ -213,13 +207,14 @@ export function DiaryModal() {
             </div>
           </div>
 
-          {isEditor && (
+          {isEditing && (
             <button
               type="submit"
-              className="submit-btn"
-              disabled={isSubmitting}
+              className={`submit-btn ${!canSave ? 'disabled-hint' : ''}`}
+              disabled={isSubmitting || !canSave}
+              title={!canSave ? '只有 QQrou 能保存修改' : ''}
             >
-              {isSubmitting ? '提交中...' : isEditing ? '保存修改' : '创建记录'}
+              {isSubmitting ? '提交中...' : canSave ? '保存修改' : '无权限保存'}
             </button>
           )}
         </form>

@@ -104,7 +104,12 @@
   display: flex;
   flex-direction: column;
   transition: all 0.2s;
-  cursor: default;
+  cursor: pointer;
+}
+
+.calendar-day:not(.empty):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .calendar-day.empty {
@@ -124,6 +129,17 @@
 .calendar-day.today {
   border: 2px solid #4a8f3c;
   background: rgba(74, 143, 60, 0.05);
+}
+
+.calendar-day.selected {
+  border: 2px solid #2196f3;
+  background: rgba(33, 150, 243, 0.1);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.calendar-day.selected .day-number {
+  color: #2196f3;
+  font-weight: 700;
 }
 
 .day-number {

@@ -31,6 +31,9 @@ interface AppState {
   showRecordList: boolean;
   focusedFlowerId: string | null;
 
+  // 选中的日期 (用于查看记录)
+  selectedDate: Date | null;
+
   // Actions
   loginUser: (user: LocalUser) => void;
   logoutUser: () => void;
@@ -50,6 +53,7 @@ interface AppState {
   setActiveInputUser: (user: InputUser) => void;
   toggleRecordList: () => void;
   setFocusedFlower: (id: string | null) => void;
+  setSelectedDate: (date: Date | null) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -71,6 +75,7 @@ export const useAppStore = create<AppState>()(
       activeInputUser: 'QQrou',
       showRecordList: false,
       focusedFlowerId: null,
+      selectedDate: null,
 
       // Actions
       loginUser: (user) => set({
@@ -128,6 +133,7 @@ export const useAppStore = create<AppState>()(
       setActiveInputUser: (user) => set({ activeInputUser: user }),
       toggleRecordList: () => set((state) => ({ showRecordList: !state.showRecordList })),
       setFocusedFlower: (id) => set({ focusedFlowerId: id }),
+      setSelectedDate: (date) => set({ selectedDate: date }),
     }),
     {
       name: 'qq-calendar-auth',
