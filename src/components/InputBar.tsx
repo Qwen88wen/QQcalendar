@@ -14,7 +14,7 @@ const USER_FLOWER_CONFIG: Record<string, { icon: string; flowerType: FlowerType 
 
 export function InputBar() {
   const { activeInputUser, setActiveInputUser, addDiary } = useAppStore();
-  const [content, setContent] = useState('');
+  const [customer, setCustomer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleUserSwitch = (user: InputUser) => {
@@ -22,7 +22,7 @@ export function InputBar() {
   };
 
   const handleSubmit = async () => {
-    if (!content.trim() || isSubmitting) return;
+    if (!customer.trim() || isSubmitting) return;
 
     setIsSubmitting(true);
     try {
@@ -32,13 +32,14 @@ export function InputBar() {
       const newDiary = await createDiary({
         user_id: user?.id || `user-${activeInputUser.toLowerCase()}`,
         user_name: user?.displayName || activeInputUser,
-        content: content.trim(),
+        customer: customer.trim(),
+        status: 'incomplete',
         flower_type: config?.flowerType || 1 as FlowerType,
       });
 
       if (newDiary) {
         addDiary(newDiary);
-        setContent('');
+        setCustomer('');
       }
     } catch (error) {
       console.error('Failed to create diary:', error);
@@ -73,18 +74,18 @@ export function InputBar() {
       </div>
 
       <div className="input-area">
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
+        <input
+          type="text"
+          value={customer}
+          onChange={(e) => setCustomer(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="写点什么，种一朵花..."
-          rows={1}
+          placeholder="输入园主名称..."
           disabled={isSubmitting}
         />
         <button
           className="submit-btn"
           onClick={handleSubmit}
-          disabled={!content.trim() || isSubmitting}
+          disabled={!customer.trim() || isSubmitting}
         >
           {isSubmitting ? '🌱' : '🌱 种花'}
         </button>

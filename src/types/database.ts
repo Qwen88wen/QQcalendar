@@ -4,6 +4,9 @@ export type UserRole = 'editor' | 'viewer';
 // 花类型 (1-5)
 export type FlowerType = 1 | 2 | 3 | 4 | 5;
 
+// 状态类型
+export type DiaryStatus = 'complete' | 'incomplete';
+
 // profiles 表
 export interface Profile {
   id: string;
@@ -15,11 +18,11 @@ export interface Diary {
   id: string;
   user_id: string;
   user_name: string | null;
-  content: string;
-  customer: string | null;      // 园主
-  remark: string | null;        // 备注
-  worker: string | null;        // 工人
-  vehicle: string | null;       // 车号
+  status: DiaryStatus;            // 状态: complete/incomplete
+  customer: string | null;        // 园主
+  remark: string | null;          // 备注
+  worker: string | null;          // 工人
+  vehicle: string | null;         // 车号
   flower_type: FlowerType | null;
   created_at: string;
   updated_at: string;
@@ -28,7 +31,7 @@ export interface Diary {
 export interface DiaryInsert {
   user_id: string;
   user_name?: string | null;
-  content: string;
+  status?: DiaryStatus;
   customer?: string | null;
   remark?: string | null;
   worker?: string | null;
@@ -37,7 +40,7 @@ export interface DiaryInsert {
 }
 
 export interface DiaryUpdate {
-  content?: string;
+  status?: DiaryStatus;
   customer?: string | null;
   remark?: string | null;
   worker?: string | null;

@@ -99,8 +99,8 @@ function FlowerSprite({ diary, position, onClick, randomSeed }: FlowerSpriteProp
     }
   });
 
-  // 内容摘要
-  const contentSummary = diary.content?.slice(0, 30) + (diary.content?.length > 30 ? '...' : '') || '';
+  // 状态显示
+  const statusText = diary.status === 'complete' ? '已完成' : '未完成';
 
   return (
     <group
@@ -184,8 +184,12 @@ function FlowerSprite({ diary, position, onClick, randomSeed }: FlowerSpriteProp
             <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#c8f4c0' }}>
               {diary.customer || diary.user_name || '匿名'}
             </div>
-            <div style={{ fontSize: '12px', opacity: 0.9, whiteSpace: 'pre-wrap' }}>
-              {contentSummary || '暂无内容'}
+            <div style={{
+              fontSize: '12px',
+              opacity: 0.9,
+              color: diary.status === 'complete' ? '#4caf50' : '#ff9800'
+            }}>
+              {statusText}
             </div>
           </div>
         </Html>

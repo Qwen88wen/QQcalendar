@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { createDiary, updateDiary, getRemarks, createRemark } from '../lib/diary';
-import type { FlowerType, DiaryRemark } from '../types/database';
+import type { FlowerType, DiaryRemark, DiaryStatus } from '../types/database';
 import './DiaryModal.css';
 
 const FLOWER_OPTIONS: { value: FlowerType; label: string; emoji: string }[] = [
@@ -28,7 +28,7 @@ export function DiaryModal() {
   const [remark, setRemark] = useState('');
   const [worker, setWorker] = useState('');
   const [vehicle, setVehicle] = useState('');
-  const [content, setContent] = useState('');
+  const [status, setStatus] = useState<DiaryStatus>('incomplete');
   const [flowerType, setFlowerType] = useState<FlowerType>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -46,7 +46,7 @@ export function DiaryModal() {
       setRemark(selectedDiary.remark || '');
       setWorker(selectedDiary.worker || '');
       setVehicle(selectedDiary.vehicle || '');
-      setContent(selectedDiary.content || '');
+      setStatus(selectedDiary.status || 'incomplete');
       setFlowerType((selectedDiary.flower_type as FlowerType) || 1);
 
       // 加载备注
@@ -57,7 +57,7 @@ export function DiaryModal() {
       setRemark('');
       setWorker('');
       setVehicle('');
-      setContent('');
+      setStatus('incomplete');
       setFlowerType(1);
       setRemarks([]);
     }
@@ -81,7 +81,7 @@ export function DiaryModal() {
       remark: remark || null,
       worker: worker || null,
       vehicle: vehicle || null,
-      content,
+      status,
       flower_type: flowerType,
     };
 
@@ -174,14 +174,25 @@ export function DiaryModal() {
           </div>
 
           <div className="form-group">
-            <label>内容</label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              disabled={!isEditor}
-              placeholder="输入记录内容"
-              rows={3}
-            />
+            <label>状态</label>
+            <div className="status-options">
+              <button
+                type="button"
+                className={`status-option ${status === 'incomplete' ? 'active incomplete' : ''}`}
+                onClick={() => isEditor && setStatus('incomplete')}
+                disabled={!isEditor}
+              >
+                未完成
+              </button>
+              <button
+                type="button"
+                className={`status-option ${status === 'complete' ? 'active complete' : ''}`}
+                onClick={() => isEditor && setStatus('complete')}
+                disabled={!isEditor}
+              >
+                已完成
+              </button>
+            </div>
           </div>
 
           <div className="form-group">
@@ -206,7 +217,7 @@ export function DiaryModal() {
             <button
               type="submit"
               className="submit-btn"
-              disabled={isSubmitting || !content.trim()}
+              disabled={isSubmitting}
             >
               {isSubmitting ? '提交中...' : isEditing ? '保存修改' : '创建记录'}
             </button>

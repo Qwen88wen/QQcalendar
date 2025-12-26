@@ -123,11 +123,22 @@
   margin-bottom: 4px;
 }
 
-.record-text {
-  font-size: 0.9rem;
-  color: #666;
-  line-height: 1.4;
-  word-break: break-word;
+.record-status {
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+.record-status.incomplete {
+  background: rgba(255, 152, 0, 0.15);
+  color: #e65100;
+}
+
+.record-status.complete {
+  background: rgba(76, 175, 80, 0.15);
+  color: #2e7d32;
 }
 
 .record-time {

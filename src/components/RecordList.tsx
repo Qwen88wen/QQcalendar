@@ -64,10 +64,9 @@ export function RecordList() {
               >
                 <span className="record-icon">{getFlowerIcon(diary)}</span>
                 <div className="record-content">
-                  <div className="record-user">{diary.user_name || '匿名'}</div>
-                  <div className="record-text">
-                    {diary.content?.slice(0, 50) || '暂无内容'}
-                    {diary.content?.length > 50 ? '...' : ''}
+                  <div className="record-user">{diary.customer || diary.user_name || '匿名'}</div>
+                  <div className={`record-status ${diary.status}`}>
+                    {diary.status === 'complete' ? '已完成' : '未完成'}
                   </div>
                 </div>
                 <div className="record-time">{formatTime(diary.created_at)}</div>

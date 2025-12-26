@@ -94,6 +94,46 @@
   cursor: not-allowed;
 }
 
+/* 状态选项 */
+.status-options {
+  display: flex;
+  gap: 12px;
+}
+
+.status-option {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #333;
+  border-radius: 10px;
+  background: #0f0f1a;
+  color: #aaa;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.status-option:hover:not(:disabled) {
+  border-color: #666;
+}
+
+.status-option.active.incomplete {
+  border-color: #ff9800;
+  background: rgba(255, 152, 0, 0.15);
+  color: #ff9800;
+}
+
+.status-option.active.complete {
+  border-color: #4caf50;
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+}
+
+.status-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .flower-options {
   display: flex;
   gap: 8px;
