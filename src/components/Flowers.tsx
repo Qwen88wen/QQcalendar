@@ -1,49 +1,54 @@
 import { useRef, useMemo } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useLoader } from '@react-three/fiber';
+import { Billboard } from '@react-three/drei';
 import * as THREE from 'three';
 import { useAppStore } from '../stores/appStore';
 import { getDayPosition } from './MonthGrid';
 import type { Diary, FlowerType } from '../types/database';
 
-// 花朵颜色配置 (根据 flower_type 1-5)
-const FLOWER_COLORS: Record<FlowerType, { petal: string; center: string }> = {
-  1: { petal: '#ff6b6b', center: '#ffd93d' }, // 红玫瑰
-  2: { petal: '#4ecdc4', center: '#ffe66d' }, // 青色郁金香
-  3: { petal: '#a855f7', center: '#fbbf24' }, // 紫色薰衣草
-  4: { petal: '#f472b6', center: '#fde047' }, // 粉色樱花
-  5: { petal: '#fbbf24', center: '#92400e' }, // 向日葵
+// 花朵图片路径配置 (根据 flower_type 1-5)
+const FLOWER_IMAGES: Record<FlowerType, string> = {
+  1: '/flowers/rose.png',       // 粉色玫瑰
+  2: '/flowers/tulip.png',      // 郁金香
+  3: '/flowers/lavender.png',   // 薰衣草
+  4: '/flowers/sakura.png',     // 樱花
+  5: '/flowers/sunflower.png',  // 向日葵
 };
 
-interface FlowerProps {
+// 备用颜色 (当图片加载失败时)
+const FLOWER_COLORS: Record<FlowerType, string> = {
+  1: '#ffb6c1', // 粉色
+  2: '#ff6347', // 红色
+  3: '#9370db', // 紫色
+  4: '#ffc0cb', // 淡粉
+  5: '#ffd700', // 金色
+};
+
+interface FlowerSpriteProps {
   diary: Diary;
   position: [number, number, number];
   onClick: () => void;
 }
 
-function Flower({ diary, position, onClick }: FlowerProps) {
+function FlowerSprite({ diary, position, onClick }: FlowerSpriteProps) {
   const groupRef = useRef<THREE.Group>(null);
   const flowerType = (diary.flower_type || 1) as FlowerType;
-  const colors = FLOWER_COLORS[flowerType];
+  const imagePath = FLOWER_IMAGES[flowerType];
+
+  // 加载纹理
+  let texture: THREE.Texture | null = null;
+  try {
+    texture = useLoader(THREE.TextureLoader, imagePath);
+  } catch {
+    // 纹理加载失败，使用备用方案
+  }
 
   // 轻微摇摆动画
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 2 + position[0]) * 0.05;
+      groupRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 2 + position[0]) * 0.02;
     }
   });
-
-  // 花瓣几何体
-  const petalShape = useMemo(() => {
-    const shape = new THREE.Shape();
-    shape.moveTo(0, 0);
-    shape.quadraticCurveTo(0.2, 0.3, 0, 0.6);
-    shape.quadraticCurveTo(-0.2, 0.3, 0, 0);
-    return shape;
-  }, []);
-
-  const petalGeometry = useMemo(() => {
-    return new THREE.ShapeGeometry(petalShape);
-  }, [petalShape]);
 
   return (
     <group
@@ -62,38 +67,39 @@ function Flower({ diary, position, onClick }: FlowerProps) {
     >
       {/* 茎 */}
       <mesh position={[0, 0.4, 0]}>
-        <cylinderGeometry args={[0.03, 0.05, 0.8, 8]} />
+        <cylinderGeometry args={[0.02, 0.03, 0.8, 6]} />
         <meshStandardMaterial color="#228b22" />
       </mesh>
 
-      {/* 花朵头部 */}
-      <group position={[0, 0.85, 0]}>
-        {/* 花瓣 - 围绕中心排列 */}
-        {[0, 1, 2, 3, 4, 5].map((i) => (
-          <mesh
-            key={i}
-            geometry={petalGeometry}
-            position={[0, 0, 0]}
-            rotation={[0.3, 0, (i * Math.PI * 2) / 6]}
-          >
-            <meshStandardMaterial
-              color={colors.petal}
+      {/* 花朵 - 使用 Billboard 始终面向相机 */}
+      <Billboard position={[0, 1, 0]} follow={true} lockX={false} lockY={false} lockZ={false}>
+        {texture ? (
+          <mesh>
+            <planeGeometry args={[1.2, 1.2]} />
+            <meshBasicMaterial
+              map={texture}
+              transparent={true}
+              alphaTest={0.1}
               side={THREE.DoubleSide}
             />
           </mesh>
-        ))}
-
-        {/* 花心 */}
-        <mesh position={[0, 0.05, 0]}>
-          <sphereGeometry args={[0.15, 16, 16]} />
-          <meshStandardMaterial color={colors.center} />
-        </mesh>
-      </group>
+        ) : (
+          // 备用: 简单圆形
+          <mesh>
+            <circleGeometry args={[0.4, 32]} />
+            <meshBasicMaterial color={FLOWER_COLORS[flowerType]} />
+          </mesh>
+        )}
+      </Billboard>
 
       {/* 叶子 */}
-      <mesh position={[0.15, 0.3, 0]} rotation={[0, 0, -0.5]}>
-        <planeGeometry args={[0.3, 0.15]} />
+      <mesh position={[0.12, 0.35, 0]} rotation={[0, 0, -0.6]}>
+        <planeGeometry args={[0.25, 0.12]} />
         <meshStandardMaterial color="#32cd32" side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[-0.1, 0.25, 0]} rotation={[0, 0, 0.5]}>
+        <planeGeometry args={[0.2, 0.1]} />
+        <meshStandardMaterial color="#228b22" side={THREE.DoubleSide} />
       </mesh>
     </group>
   );
@@ -139,7 +145,7 @@ export function Flowers() {
   return (
     <group>
       {flowerPositions.map(({ diary, position }) => (
-        <Flower
+        <FlowerSprite
           key={diary.id}
           diary={diary}
           position={position}
