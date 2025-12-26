@@ -194,15 +194,58 @@ function FlowerSprite({ diary, position, onClick, randomSeed }: FlowerSpriteProp
   );
 }
 
+// 单个草叶动画组件
+function AnimatedGrass({ position, index }: { position: [number, number, number]; index: number }) {
+  const meshRef = useRef<THREE.Mesh>(null);
+
+  // 基于index生成稳定的随机参数
+  const params = useMemo(() => ({
+    speed: 0.8 + (index % 10) * 0.15,
+    amplitude: 0.08 + (index % 5) * 0.02,
+    phase: index * 0.5,
+    hue: 100 + (index % 20),
+    saturation: 50 + (index % 20),
+    lightness: 25 + (index % 15),
+    rotation: (index * 1.234) % Math.PI,
+  }), [index]);
+
+  // 悬浮动画
+  useFrame((state) => {
+    if (meshRef.current) {
+      const t = state.clock.elapsedTime;
+      // 上下浮动
+      meshRef.current.position.y = position[1] + Math.sin(t * params.speed + params.phase) * params.amplitude;
+      // 轻微摇摆
+      meshRef.current.rotation.z = Math.sin(t * params.speed * 0.7 + params.phase) * 0.1;
+    }
+  });
+
+  return (
+    <mesh
+      ref={meshRef}
+      position={position}
+      rotation={[0, params.rotation, 0]}
+    >
+      <planeGeometry args={[0.15, 0.3]} />
+      <meshBasicMaterial
+        color={`hsl(${params.hue}, ${params.saturation}%, ${params.lightness}%)`}
+        side={THREE.DoubleSide}
+        transparent
+        opacity={0.7}
+      />
+    </mesh>
+  );
+}
+
 // 草地装饰组件
 function GrassDecoration() {
   const grassPositions = useMemo(() => {
     const positions: [number, number, number][] = [];
     // 在整个花园区域随机分布草
-    for (let i = 0; i < 200; i++) {
-      const x = (Math.random() - 0.5) * 60;
-      const z = (Math.random() - 0.5) * 50;
-      positions.push([x, 0, z]);
+    for (let i = 0; i < 150; i++) {
+      const x = (Math.sin(i * 12.9898) * 43758.5453) % 1 * 60 - 30;
+      const z = (Math.sin(i * 78.233) * 43758.5453) % 1 * 50 - 25;
+      positions.push([x, 0.1, z]);
     }
     return positions;
   }, []);
@@ -210,15 +253,7 @@ function GrassDecoration() {
   return (
     <group>
       {grassPositions.map((pos, i) => (
-        <mesh key={i} position={pos} rotation={[0, Math.random() * Math.PI, 0]}>
-          <planeGeometry args={[0.15, 0.3]} />
-          <meshBasicMaterial
-            color={`hsl(${100 + Math.random() * 20}, ${50 + Math.random() * 20}%, ${25 + Math.random() * 15}%)`}
-            side={THREE.DoubleSide}
-            transparent
-            opacity={0.7}
-          />
-        </mesh>
+        <AnimatedGrass key={i} position={pos} index={i} />
       ))}
     </group>
   );
