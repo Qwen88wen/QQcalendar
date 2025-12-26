@@ -28,7 +28,7 @@ export function TitleBar() {
   return (
     <div className="title-bar">
       <div className="title-main">
-        <h1>QQrou <span className="flower-icon lavender">🪻</span> & QQfang <span className="flower-icon rose">🌹</span> 的花园</h1>
+        <h1>QQcalendar</h1>
       </div>
 
       <div className="flower-stats">
