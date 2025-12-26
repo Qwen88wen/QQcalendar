@@ -18,7 +18,7 @@ export interface Diary {
   user_name: string | null;
   content: string;
   owners: string | null;      // 园主
-  area: number | null;        // 面积
+  remark: string | null;      // 备注
   workers: string | null;     // 工人
   vehicles: string | null;    // 车号
   flower_type: FlowerType | null;
@@ -30,7 +30,7 @@ export interface DiaryInsert {
   user_name?: string | null;
   content: string;
   owners?: string | null;
-  area?: number | null;
+  remark?: string | null;
   workers?: string | null;
   vehicles?: string | null;
   flower_type?: FlowerType | null;
@@ -39,7 +39,7 @@ export interface DiaryInsert {
 export interface DiaryUpdate {
   content?: string;
   owners?: string | null;
-  area?: number | null;
+  remark?: string | null;
   workers?: string | null;
   vehicles?: string | null;
   flower_type?: FlowerType | null;

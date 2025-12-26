@@ -25,7 +25,7 @@ export function DiaryModal() {
 
   // 表单状态
   const [owners, setOwners] = useState('');
-  const [area, setArea] = useState('');
+  const [remark, setRemark] = useState('');
   const [workers, setWorkers] = useState('');
   const [vehicles, setVehicles] = useState('');
   const [content, setContent] = useState('');
@@ -43,7 +43,7 @@ export function DiaryModal() {
   useEffect(() => {
     if (selectedDiary) {
       setOwners(selectedDiary.owners || '');
-      setArea(selectedDiary.area?.toString() || '');
+      setRemark(selectedDiary.remark || '');
       setWorkers(selectedDiary.workers || '');
       setVehicles(selectedDiary.vehicles || '');
       setContent(selectedDiary.content || '');
@@ -54,7 +54,7 @@ export function DiaryModal() {
     } else {
       // 新建时清空表单
       setOwners('');
-      setArea('');
+      setRemark('');
       setWorkers('');
       setVehicles('');
       setContent('');
@@ -78,7 +78,7 @@ export function DiaryModal() {
 
     const diaryData = {
       owners: owners || null,
-      area: area ? parseFloat(area) : null,
+      remark: remark || null,
       workers: workers || null,
       vehicles: vehicles || null,
       content,
@@ -141,14 +141,13 @@ export function DiaryModal() {
             </div>
 
             <div className="form-group">
-              <label>面积 (亩)</label>
+              <label>备注</label>
               <input
-                type="number"
-                step="0.1"
-                value={area}
-                onChange={(e) => setArea(e.target.value)}
+                type="text"
+                value={remark}
+                onChange={(e) => setRemark(e.target.value)}
                 disabled={!isEditor}
-                placeholder="输入面积"
+                placeholder="输入备注"
               />
             </div>
 
