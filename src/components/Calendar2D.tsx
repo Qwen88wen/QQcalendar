@@ -1,0 +1,149 @@
+import { useMemo, useState } from 'react';
+import { useAppStore } from '../stores/appStore';
+import type { Diary } from '../types/database';
+import './Calendar2D.css';
+
+const MONTHS = [
+  '一月', '二月', '三月', '四月', '五月', '六月',
+  '七月', '八月', '九月', '十月', '十一月', '十二月'
+];
+
+const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
+
+const FLOWER_ICONS: Record<number, string> = {
+  1: '🌹',
+  2: '🌷',
+  3: '🪻',
+  4: '🌸',
+  5: '🌻',
+};
+
+export function Calendar2D() {
+  const { diaries, openModal } = useAppStore();
+  const [currentYear] = useState(2025);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+
+  // 按日期分组日记
+  const diariesByDate = useMemo(() => {
+    const map: Record<string, Diary[]> = {};
+    diaries.forEach(diary => {
+      const date = new Date(diary.created_at);
+      const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+      if (!map[key]) map[key] = [];
+      map[key].push(diary);
+    });
+    return map;
+  }, [diaries]);
+
+  // 获取某月的天数
+  const getDaysInMonth = (year: number, month: number) => {
+    return new Date(year, month + 1, 0).getDate();
+  };
+
+  // 获取某月第一天是星期几
+  const getFirstDayOfMonth = (year: number, month: number) => {
+    return new Date(year, month, 1).getDay();
+  };
+
+  // 渲染日历格子
+  const renderCalendarDays = () => {
+    const daysInMonth = getDaysInMonth(currentYear, selectedMonth);
+    const firstDay = getFirstDayOfMonth(currentYear, selectedMonth);
+    const days = [];
+
+    // 空白格子
+    for (let i = 0; i < firstDay; i++) {
+      days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
+    }
+
+    // 日期格子
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateKey = `${currentYear}-${selectedMonth}-${day}`;
+      const dayDiaries = diariesByDate[dateKey] || [];
+      const isToday =
+        new Date().getFullYear() === currentYear &&
+        new Date().getMonth() === selectedMonth &&
+        new Date().getDate() === day;
+
+      days.push(
+        <div
+          key={day}
+          className={`calendar-day ${dayDiaries.length > 0 ? 'has-records' : ''} ${isToday ? 'today' : ''}`}
+        >
+          <span className="day-number">{day}</span>
+          {dayDiaries.length > 0 && (
+            <div className="day-flowers">
+              {dayDiaries.slice(0, 3).map((diary) => (
+                <span
+                  key={diary.id}
+                  className="flower-icon"
+                  onClick={() => openModal(diary)}
+                  title={diary.customer || diary.user_name || ''}
+                >
+                  {FLOWER_ICONS[diary.flower_type || 1]}
+                </span>
+              ))}
+              {dayDiaries.length > 3 && (
+                <span className="more-count">+{dayDiaries.length - 3}</span>
+              )}
+            </div>
+          )}
+          {dayDiaries.length > 0 && (
+            <div className="day-summary">
+              <span className={`status-dot ${dayDiaries.every(d => d.status === 'complete') ? 'complete' : 'incomplete'}`}></span>
+              <span className="record-count">{dayDiaries.length}条</span>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return days;
+  };
+
+  return (
+    <div className="calendar-2d">
+      {/* 月份选择器 */}
+      <div className="month-selector">
+        <button
+          className="month-nav"
+          onClick={() => setSelectedMonth(m => m > 0 ? m - 1 : 11)}
+        >
+          ◀
+        </button>
+        <div className="month-tabs">
+          {MONTHS.map((month, idx) => (
+            <button
+              key={month}
+              className={`month-tab ${selectedMonth === idx ? 'active' : ''}`}
+              onClick={() => setSelectedMonth(idx)}
+            >
+              {month}
+            </button>
+          ))}
+        </div>
+        <button
+          className="month-nav"
+          onClick={() => setSelectedMonth(m => m < 11 ? m + 1 : 0)}
+        >
+          ▶
+        </button>
+      </div>
+
+      {/* 年份标题 */}
+      <h2 className="year-title">{currentYear}年 {MONTHS[selectedMonth]}</h2>
+
+      {/* 星期标题 */}
+      <div className="weekday-header">
+        {WEEKDAYS.map(day => (
+          <div key={day} className="weekday">{day}</div>
+        ))}
+      </div>
+
+      {/* 日历格子 */}
+      <div className="calendar-grid">
+        {renderCalendarDays()}
+      </div>
+    </div>
+  );
+}

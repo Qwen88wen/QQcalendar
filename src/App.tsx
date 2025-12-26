@@ -1,7 +1,7 @@
-import { Scene3D } from './components/Scene3D';
+import { Calendar2D } from './components/Calendar2D';
+import { Memo } from './components/Memo';
 import { TitleBar } from './components/TitleBar';
 import { InputBar } from './components/InputBar';
-import { RecordList } from './components/RecordList';
 import { DiaryModal } from './components/DiaryModal';
 import { useAuth } from './hooks/useAuth';
 import { useRealtime } from './hooks/useRealtime';
@@ -17,11 +17,15 @@ export default function App() {
   return (
     <div className="app">
       <TitleBar />
-      <div className="scene-container">
-        <Scene3D />
+      <div className="main-container">
+        <div className="calendar-section">
+          <Calendar2D />
+        </div>
+        <div className="memo-section">
+          <Memo />
+        </div>
       </div>
       <InputBar />
-      <RecordList />
       <DiaryModal />
     </div>
   );
