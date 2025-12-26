@@ -36,9 +36,6 @@ export function DiaryModal() {
   const [newRemark, setNewRemark] = useState('');
   const [isLoadingRemarks, setIsLoadingRemarks] = useState(false);
 
-  // 只有 QQrou 能保存修改
-  const canSave = activeInputUser === 'QQrou';
-
   // 加载已有数据
   useEffect(() => {
     if (selectedDiary) {
@@ -72,8 +69,8 @@ export function DiaryModal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // 只有 QQrou 能保存修改，且必须是编辑模式（查看已有记录）
-    if (!canSave || !isEditing || !selectedDiary) return;
+    // 必须是编辑模式（查看已有记录）
+    if (!isEditing || !selectedDiary) return;
 
     setIsSubmitting(true);
 
@@ -121,9 +118,6 @@ export function DiaryModal() {
         {/* 当前操作用户提示 */}
         <div className="current-user-hint">
           当前用户: <strong>{activeInputUser}</strong>
-          {!canSave && isEditing && (
-            <span className="permission-hint">（只有 QQrou 能保存修改）</span>
-          )}
         </div>
 
         {/* 表单 - 所有用户都可编辑 */}
@@ -210,11 +204,10 @@ export function DiaryModal() {
           {isEditing && (
             <button
               type="submit"
-              className={`submit-btn ${!canSave ? 'disabled-hint' : ''}`}
-              disabled={isSubmitting || !canSave}
-              title={!canSave ? '只有 QQrou 能保存修改' : ''}
+              className="submit-btn"
+              disabled={isSubmitting}
             >
-              {isSubmitting ? '提交中...' : canSave ? '保存修改' : '无权限保存'}
+              {isSubmitting ? '提交中...' : '保存修改'}
             </button>
           )}
         </form>
