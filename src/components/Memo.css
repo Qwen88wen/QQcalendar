@@ -225,6 +225,46 @@
   color: #2e7d32;
 }
 
+/* 警告标签 */
+.memo-item.has-warning {
+  background: #fff8f8;
+}
+
+.memo-warnings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.warning-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  animation: warningPulse 2s infinite;
+}
+
+.warning-tag.vehicle {
+  background: rgba(255, 68, 68, 0.15);
+  color: #d32f2f;
+  border: 1px solid rgba(255, 68, 68, 0.3);
+}
+
+.warning-tag.status {
+  background: rgba(255, 152, 0, 0.15);
+  color: #e65100;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+@keyframes warningPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
 .memo-item-details {
   display: flex;
   gap: 12px;

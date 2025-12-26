@@ -187,33 +187,56 @@ export function Memo() {
                 <p>暂无记录</p>
               </div>
             ) : (
-              filteredDiaries.map(diary => (
-                <div
-                  key={diary.id}
-                  className={`memo-item ${diary.status}`}
-                  onClick={() => openModal(diary)}
-                >
-                  <div className="memo-item-header">
-                    <span className="memo-flower">
-                      {FLOWER_ICONS[diary.flower_type || 1]}
-                    </span>
-                    <span className="memo-customer">
-                      {diary.customer || diary.user_name || '未命名'}
-                    </span>
-                    <span className={`memo-status ${diary.status}`}>
-                      {diary.status === 'complete' ? '✓' : '○'}
-                    </span>
+              filteredDiaries.map(diary => {
+                const needsVehicle = !diary.vehicle;
+                const isIncomplete = diary.status === 'incomplete';
+                const hasWarning = needsVehicle || isIncomplete;
+
+                return (
+                  <div
+                    key={diary.id}
+                    className={`memo-item ${diary.status} ${hasWarning ? 'has-warning' : ''}`}
+                    onClick={() => openModal(diary)}
+                  >
+                    <div className="memo-item-header">
+                      <span className="memo-flower">
+                        {FLOWER_ICONS[diary.flower_type || 1]}
+                      </span>
+                      <span className="memo-customer">
+                        {diary.customer || diary.user_name || '未命名'}
+                      </span>
+                      <span className={`memo-status ${diary.status}`}>
+                        {diary.status === 'complete' ? '✓' : '○'}
+                      </span>
+                    </div>
+
+                    {/* 警告标签 */}
+                    {hasWarning && (
+                      <div className="memo-warnings">
+                        {needsVehicle && (
+                          <span className="warning-tag vehicle">
+                            🚗 未填车号
+                          </span>
+                        )}
+                        {isIncomplete && (
+                          <span className="warning-tag status">
+                            ⏳ 未完成割果
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="memo-item-details">
+                      {diary.worker && <span className="detail">👷 {diary.worker}</span>}
+                      {diary.vehicle && <span className="detail">🚗 {diary.vehicle}</span>}
+                    </div>
+                    {diary.remark && (
+                      <div className="memo-item-remark">{diary.remark}</div>
+                    )}
+                    <div className="memo-item-time">{formatDate(diary.created_at)}</div>
                   </div>
-                  <div className="memo-item-details">
-                    {diary.worker && <span className="detail">👷 {diary.worker}</span>}
-                    {diary.vehicle && <span className="detail">🚗 {diary.vehicle}</span>}
-                  </div>
-                  {diary.remark && (
-                    <div className="memo-item-remark">{diary.remark}</div>
-                  )}
-                  <div className="memo-item-time">{formatDate(diary.created_at)}</div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </>
