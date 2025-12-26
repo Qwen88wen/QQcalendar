@@ -24,10 +24,10 @@ export function DiaryModal() {
   } = useAppStore();
 
   // 表单状态
-  const [owners, setOwners] = useState('');
+  const [customer, setCustomer] = useState('');
   const [remark, setRemark] = useState('');
-  const [workers, setWorkers] = useState('');
-  const [vehicles, setVehicles] = useState('');
+  const [worker, setWorker] = useState('');
+  const [vehicle, setVehicle] = useState('');
   const [content, setContent] = useState('');
   const [flowerType, setFlowerType] = useState<FlowerType>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,10 +42,10 @@ export function DiaryModal() {
   // 加载已有数据
   useEffect(() => {
     if (selectedDiary) {
-      setOwners(selectedDiary.owners || '');
+      setCustomer(selectedDiary.customer || '');
       setRemark(selectedDiary.remark || '');
-      setWorkers(selectedDiary.workers || '');
-      setVehicles(selectedDiary.vehicles || '');
+      setWorker(selectedDiary.worker || '');
+      setVehicle(selectedDiary.vehicle || '');
       setContent(selectedDiary.content || '');
       setFlowerType((selectedDiary.flower_type as FlowerType) || 1);
 
@@ -53,10 +53,10 @@ export function DiaryModal() {
       loadRemarks(selectedDiary.id);
     } else {
       // 新建时清空表单
-      setOwners('');
+      setCustomer('');
       setRemark('');
-      setWorkers('');
-      setVehicles('');
+      setWorker('');
+      setVehicle('');
       setContent('');
       setFlowerType(1);
       setRemarks([]);
@@ -77,10 +77,10 @@ export function DiaryModal() {
     setIsSubmitting(true);
 
     const diaryData = {
-      owners: owners || null,
+      customer: customer || null,
       remark: remark || null,
-      workers: workers || null,
-      vehicles: vehicles || null,
+      worker: worker || null,
+      vehicle: vehicle || null,
       content,
       flower_type: flowerType,
     };
@@ -100,17 +100,16 @@ export function DiaryModal() {
   };
 
   const handleAddRemark = async () => {
-    if (!userId || !selectedDiary || !newRemark.trim()) return;
+    if (!userName || !selectedDiary || !newRemark.trim()) return;
 
-    const remark = await createRemark({
+    const remarkData = await createRemark({
       diary_id: selectedDiary.id,
-      user_id: userId,
       user_name: userName,
       content: newRemark.trim(),
     });
 
-    if (remark) {
-      setRemarks([...remarks, remark]);
+    if (remarkData) {
+      setRemarks([...remarks, remarkData]);
       setNewRemark('');
     }
   };
@@ -133,8 +132,8 @@ export function DiaryModal() {
               <label>园主</label>
               <input
                 type="text"
-                value={owners}
-                onChange={(e) => setOwners(e.target.value)}
+                value={customer}
+                onChange={(e) => setCustomer(e.target.value)}
                 disabled={!isEditor}
                 placeholder="输入园主名称"
               />
@@ -155,8 +154,8 @@ export function DiaryModal() {
               <label>工人</label>
               <input
                 type="text"
-                value={workers}
-                onChange={(e) => setWorkers(e.target.value)}
+                value={worker}
+                onChange={(e) => setWorker(e.target.value)}
                 disabled={!isEditor}
                 placeholder="输入工人信息"
               />
@@ -166,8 +165,8 @@ export function DiaryModal() {
               <label>车号</label>
               <input
                 type="text"
-                value={vehicles}
-                onChange={(e) => setVehicles(e.target.value)}
+                value={vehicle}
+                onChange={(e) => setVehicle(e.target.value)}
                 disabled={!isEditor}
                 placeholder="输入车号"
               />
@@ -226,24 +225,24 @@ export function DiaryModal() {
                 {remarks.length === 0 ? (
                   <p className="no-remarks">暂无备注</p>
                 ) : (
-                  remarks.map((remark) => (
-                    <div key={remark.id} className="remark-item">
+                  remarks.map((remarkItem) => (
+                    <div key={remarkItem.id} className="remark-item">
                       <div className="remark-header">
                         <span className="remark-author">
-                          {remark.user_name || '匿名'}
+                          {remarkItem.user_name || '匿名'}
                         </span>
                         <span className="remark-time">
-                          {new Date(remark.created_at).toLocaleString('zh-CN')}
+                          {new Date(remarkItem.created_at).toLocaleString('zh-CN')}
                         </span>
                       </div>
-                      <p className="remark-content">{remark.content}</p>
+                      <p className="remark-content">{remarkItem.content}</p>
                     </div>
                   ))
                 )}
               </div>
             )}
 
-            {userId && (
+            {userName && (
               <div className="add-remark">
                 <textarea
                   value={newRemark}

@@ -182,7 +182,7 @@ function FlowerSprite({ diary, position, onClick, randomSeed }: FlowerSpriteProp
             border: '1px solid rgba(100, 160, 100, 0.3)',
           }}>
             <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#c8f4c0' }}>
-              {diary.owners || diary.user_name || '匿名'}
+              {diary.customer || diary.user_name || '匿名'}
             </div>
             <div style={{ fontSize: '12px', opacity: 0.9, whiteSpace: 'pre-wrap' }}>
               {contentSummary || '暂无内容'}
