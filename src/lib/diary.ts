@@ -3,6 +3,7 @@ import type { Diary, DiaryInsert, DiaryUpdate } from '../types/database';
 
 /**
  * 创建新日记
+ * @param diary - 日记数据，包含 user_id, content, 可选的 user_name 和 flower_type (1-5)
  */
 export async function createDiary(diary: DiaryInsert): Promise<Diary | null> {
   const { data, error } = await supabase
@@ -20,14 +21,15 @@ export async function createDiary(diary: DiaryInsert): Promise<Diary | null> {
 }
 
 /**
- * 获取用户所有日记
+ * 获取用户所有日记，按 created_at 倒序排列（用于3D时间轴布局）
+ * @param userId - 用户ID
  */
 export async function getDiaries(userId: string): Promise<Diary[]> {
   const { data, error } = await supabase
     .from('diaries')
     .select('*')
     .eq('user_id', userId)
-    .order('date', { ascending: false });
+    .order('created_at', { ascending: false });
 
   if (error) {
     console.error('获取日记列表失败:', error.message);
@@ -45,25 +47,6 @@ export async function getDiary(id: string): Promise<Diary | null> {
     .from('diaries')
     .select('*')
     .eq('id', id)
-    .single();
-
-  if (error) {
-    console.error('获取日记失败:', error.message);
-    return null;
-  }
-
-  return data;
-}
-
-/**
- * 根据日期获取日记
- */
-export async function getDiaryByDate(userId: string, date: string): Promise<Diary | null> {
-  const { data, error } = await supabase
-    .from('diaries')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('date', date)
     .single();
 
   if (error) {
@@ -108,23 +91,4 @@ export async function deleteDiary(id: string): Promise<boolean> {
   }
 
   return true;
-}
-
-/**
- * 搜索日记
- */
-export async function searchDiaries(userId: string, query: string): Promise<Diary[]> {
-  const { data, error } = await supabase
-    .from('diaries')
-    .select('*')
-    .eq('user_id', userId)
-    .or(`title.ilike.%${query}%,content.ilike.%${query}%`)
-    .order('date', { ascending: false });
-
-  if (error) {
-    console.error('搜索日记失败:', error.message);
-    return [];
-  }
-
-  return data || [];
 }
