@@ -109,7 +109,10 @@ export function InputBar() {
                     <td>{record.customer || '-'}</td>
                     <td>{record.worker || '-'}</td>
                     <td>{record.remark || '-'}</td>
-                    <td>{record.vehicle || '-'}</td>
+                    <td className={!record.vehicle ? 'needs-vehicle' : ''}>
+                      {record.vehicle || '-'}
+                      {!record.vehicle && <span className="vehicle-warning-dot"></span>}
+                    </td>
                     <td>
                       <span className={`status-badge ${record.status}`}>
                         {record.status === 'complete' ? '完成' : '未完成'}

@@ -96,10 +96,12 @@ export function Calendar2D() {
                 const flowers = getFlowersByOperators(diary.operators);
                 const displayFlowers = flowers.length > 0 ? flowers : [FLOWER_ICONS[diary.flower_type || 1]];
 
+                const needsVehicle = !diary.vehicle;
+
                 return (
                   <span
                     key={diary.id}
-                    className="flower-group"
+                    className={`flower-group ${needsVehicle ? 'needs-vehicle' : ''}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       openModal(diary);
@@ -109,6 +111,7 @@ export function Calendar2D() {
                     {displayFlowers.map((f, i) => (
                       <span key={i} className="flower-icon">{f}</span>
                     ))}
+                    {needsVehicle && <span className="vehicle-dot"></span>}
                   </span>
                 );
               })}

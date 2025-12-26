@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAppStore } from '../stores/appStore';
-import { updateDiary, getRemarks, createRemark } from '../lib/diary';
+import { updateDiary } from '../lib/diary';
 import { USER_FLOWERS } from '../lib/flowers';
-import type { DiaryRemark, DiaryStatus } from '../types/database';
+import type { DiaryStatus } from '../types/database';
 import './DiaryModal.css';
 
 export function DiaryModal() {
@@ -11,7 +11,6 @@ export function DiaryModal() {
     selectedDiary,
     isEditing,
     closeModal,
-    userName,
     activeInputUser,
   } = useAppStore();
 
@@ -23,11 +22,6 @@ export function DiaryModal() {
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 备注状态
-  const [remarks, setRemarks] = useState<DiaryRemark[]>([]);
-  const [newRemark, setNewRemark] = useState('');
-  const [isLoadingRemarks, setIsLoadingRemarks] = useState(false);
-
   // 加载已有数据
   useEffect(() => {
     if (selectedDiary) {
@@ -36,9 +30,6 @@ export function DiaryModal() {
       setWorker(selectedDiary.worker || '');
       setVehicle(selectedDiary.vehicle || '');
       setStatus(selectedDiary.status || 'incomplete');
-
-      // 加载备注
-      loadRemarks(selectedDiary.id);
     } else {
       // 新建时清空表单
       setCustomer('');
@@ -46,16 +37,8 @@ export function DiaryModal() {
       setWorker('');
       setVehicle('');
       setStatus('incomplete');
-      setRemarks([]);
     }
   }, [selectedDiary]);
-
-  const loadRemarks = async (diaryId: string) => {
-    setIsLoadingRemarks(true);
-    const data = await getRemarks(diaryId);
-    setRemarks(data);
-    setIsLoadingRemarks(false);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,21 +66,6 @@ export function DiaryModal() {
 
     setIsSubmitting(false);
     closeModal();
-  };
-
-  const handleAddRemark = async () => {
-    if (!userName || !selectedDiary || !newRemark.trim()) return;
-
-    const remarkData = await createRemark({
-      diary_id: selectedDiary.id,
-      user_name: userName,
-      content: newRemark.trim(),
-    });
-
-    if (remarkData) {
-      setRemarks([...remarks, remarkData]);
-      setNewRemark('');
-    }
   };
 
   if (!isModalOpen) return null;
@@ -161,7 +129,7 @@ export function DiaryModal() {
           </div>
 
           <div className="form-group">
-            <label>状态</label>
+            <label>割果状态</label>
             <div className="status-options">
               <button
                 type="button"
@@ -213,54 +181,6 @@ export function DiaryModal() {
             </button>
           )}
         </form>
-
-        {/* 备注区域 - 所有人可见和添加 */}
-        {selectedDiary && (
-          <div className="remarks-section">
-            <h3>协作备注</h3>
-
-            {isLoadingRemarks ? (
-              <p className="loading">加载中...</p>
-            ) : (
-              <div className="remarks-list">
-                {remarks.length === 0 ? (
-                  <p className="no-remarks">暂无备注</p>
-                ) : (
-                  remarks.map((remarkItem) => (
-                    <div key={remarkItem.id} className="remark-item">
-                      <div className="remark-header">
-                        <span className="remark-author">
-                          {remarkItem.user_name || '匿名'}
-                        </span>
-                        <span className="remark-time">
-                          {new Date(remarkItem.created_at).toLocaleString('zh-CN')}
-                        </span>
-                      </div>
-                      <p className="remark-content">{remarkItem.content}</p>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-
-            {userName && (
-              <div className="add-remark">
-                <textarea
-                  value={newRemark}
-                  onChange={(e) => setNewRemark(e.target.value)}
-                  placeholder="添加备注..."
-                  rows={2}
-                />
-                <button
-                  onClick={handleAddRemark}
-                  disabled={!newRemark.trim()}
-                >
-                  发送
-                </button>
-              </div>
-            )}
-          </div>
-        )}
 
         {/* 时间信息 */}
         {selectedDiary && (

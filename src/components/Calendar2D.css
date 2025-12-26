@@ -198,10 +198,24 @@
   padding: 2px;
   border-radius: 4px;
   transition: background 0.2s;
+  position: relative;
 }
 
 .flower-group:hover {
   background: rgba(74, 143, 60, 0.1);
+}
+
+/* 未填车号红点 */
+.vehicle-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background: #ff4444;
+  border-radius: 50%;
+  border: 1px solid white;
+  content: '';
 }
 
 .flower-icon {
