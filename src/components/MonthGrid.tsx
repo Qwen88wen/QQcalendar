@@ -144,20 +144,21 @@ function MonthPlot({ monthIndex, name, daysCount }: { monthIndex: number; name: 
       {/* 日期数字 */}
       <DayNumbers monthIndex={monthIndex} daysCount={daysCount} />
 
-      {/* 月份标签背景 */}
+      {/* 月份标签背景 - 浪漫风格 */}
       <mesh position={[x, 2.8, z - MONTH_SPACING / 2 + 1.5]} rotation={[0, 0, 0]}>
-        <planeGeometry args={[3.5, 1.2]} />
-        <meshBasicMaterial color="#1a3a15" transparent opacity={0.7} side={THREE.DoubleSide} />
+        <planeGeometry args={[4.5, 1.4]} />
+        <meshBasicMaterial color="#fef6f0" transparent opacity={0.9} side={THREE.DoubleSide} />
       </mesh>
 
-      {/* 月份标签 - 悬浮在上方 */}
+      {/* 月份标签 - 静态浪漫字体 */}
       <Text
         position={[x, 2.85, z - MONTH_SPACING / 2 + 1.5]}
-        fontSize={0.9}
-        color="#a8d4a0"
+        fontSize={1.0}
+        color="#d4707a"
         anchorX="center"
         anchorY="middle"
-        fontWeight="bold"
+        font="https://fonts.gstatic.com/s/dancingscript/v25/If2cXTr6YS-zF4S-kcSWSVi_sxjsohD9F50Ruu7BMSo3Sup6hNX6plRP.woff"
+        letterSpacing={0.05}
       >
         {name}
       </Text>
