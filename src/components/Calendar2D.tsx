@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useAppStore } from '../stores/appStore';
+import { getFlowersByOperators, FLOWER_ICONS } from '../lib/flowers';
 import type { Diary } from '../types/database';
 import './Calendar2D.css';
 
@@ -10,17 +11,11 @@ const MONTHS = [
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
 
-const FLOWER_ICONS: Record<number, string> = {
-  1: '🌹',
-  2: '🌷',
-  3: '🪻',
-  4: '🌸',
-  5: '🌻',
-};
+const YEARS = [2025, 2026];
 
 export function Calendar2D() {
   const { diaries, openModal, selectedDate, setSelectedDate } = useAppStore();
-  const [currentYear] = useState(2025);
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
 
   // 点击日期选择
@@ -96,19 +91,27 @@ export function Calendar2D() {
           <span className="day-number">{day}</span>
           {dayDiaries.length > 0 && (
             <div className="day-flowers">
-              {dayDiaries.slice(0, 3).map((diary) => (
-                <span
-                  key={diary.id}
-                  className="flower-icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openModal(diary);
-                  }}
-                  title={diary.customer || diary.user_name || ''}
-                >
-                  {FLOWER_ICONS[diary.flower_type || 1]}
-                </span>
-              ))}
+              {dayDiaries.slice(0, 3).map((diary) => {
+                // 显示所有操作者的花朵
+                const flowers = getFlowersByOperators(diary.operators);
+                const displayFlowers = flowers.length > 0 ? flowers : [FLOWER_ICONS[diary.flower_type || 1]];
+
+                return (
+                  <span
+                    key={diary.id}
+                    className="flower-group"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openModal(diary);
+                    }}
+                    title={diary.customer || diary.user_name || ''}
+                  >
+                    {displayFlowers.map((f, i) => (
+                      <span key={i} className="flower-icon">{f}</span>
+                    ))}
+                  </span>
+                );
+              })}
               {dayDiaries.length > 3 && (
                 <span className="more-count">+{dayDiaries.length - 3}</span>
               )}
@@ -156,7 +159,20 @@ export function Calendar2D() {
         </button>
       </div>
 
-      {/* 年份标题 */}
+      {/* 年份选择器 */}
+      <div className="year-selector">
+        {YEARS.map(year => (
+          <button
+            key={year}
+            className={`year-btn ${currentYear === year ? 'active' : ''}`}
+            onClick={() => setCurrentYear(year)}
+          >
+            {year}年
+          </button>
+        ))}
+      </div>
+
+      {/* 年月标题 */}
       <h2 className="year-title">{currentYear}年 {MONTHS[selectedMonth]}</h2>
 
       {/* 星期标题 */}

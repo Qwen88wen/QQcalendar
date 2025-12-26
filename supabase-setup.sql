@@ -25,6 +25,7 @@ CREATE TABLE diaries (
   worker TEXT,
   vehicle TEXT,
   flower_type INT4 DEFAULT 1 CHECK (flower_type BETWEEN 1 AND 5),
+  operators TEXT[] DEFAULT '{}',  -- 操作过的用户列表
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

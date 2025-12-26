@@ -2,15 +2,9 @@ import { useState, useMemo } from 'react';
 import { useAppStore, InputUser } from '../stores/appStore';
 import { createDiary } from '../lib/diary';
 import { LOCAL_USERS } from '../lib/users';
-import type { FlowerType, DiaryStatus } from '../types/database';
+import { USER_FLOWERS, getFlowerTypeByUser } from '../lib/flowers';
+import type { DiaryStatus } from '../types/database';
 import './InputBar.css';
-
-// 用户花朵配置
-const USER_FLOWER_CONFIG: Record<string, { icon: string; flowerType: FlowerType }> = {
-  'QQrou': { icon: '🪻', flowerType: 3 },
-  'QQfang': { icon: '🌹', flowerType: 1 },
-  'QQwen': { icon: '🌸', flowerType: 4 },
-};
 
 export function InputBar() {
   const { activeInputUser, setActiveInputUser, diaries } = useAppStore();
@@ -39,7 +33,6 @@ export function InputBar() {
 
     setIsSubmitting(true);
     try {
-      const config = USER_FLOWER_CONFIG[activeInputUser];
       const user = LOCAL_USERS.find(u => u.username === activeInputUser);
 
       const newDiary = await createDiary({
@@ -50,7 +43,8 @@ export function InputBar() {
         remark: remark.trim() || null,
         vehicle: vehicle.trim() || null,
         status,
-        flower_type: config?.flowerType || 1 as FlowerType,
+        flower_type: getFlowerTypeByUser(activeInputUser),
+        operators: [activeInputUser],  // 初始操作者
       });
 
       if (newDiary) {
@@ -74,14 +68,14 @@ export function InputBar() {
       {/* 用户切换 */}
       <div className="user-switcher">
         {LOCAL_USERS.map((user) => {
-          const config = USER_FLOWER_CONFIG[user.username];
+          const flower = USER_FLOWERS[user.username];
           return (
             <button
               key={user.id}
               className={`user-btn ${user.username.toLowerCase()} ${activeInputUser === user.username ? 'active' : ''}`}
               onClick={() => handleUserSwitch(user.username as InputUser)}
             >
-              <span className="user-icon">{config?.icon || '🌸'}</span>
+              <span className="user-icon">{flower?.icon || '🌸'}</span>
               <span className="user-name">{user.displayName}</span>
             </button>
           );

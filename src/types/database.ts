@@ -24,6 +24,7 @@ export interface Diary {
   worker: string | null;          // 工人
   vehicle: string | null;         // 车号
   flower_type: FlowerType | null;
+  operators: string[] | null;     // 操作过的用户列表
   created_at: string;
   updated_at: string;
 }
@@ -37,6 +38,7 @@ export interface DiaryInsert {
   worker?: string | null;
   vehicle?: string | null;
   flower_type?: FlowerType | null;
+  operators?: string[] | null;
 }
 
 export interface DiaryUpdate {
@@ -46,6 +48,7 @@ export interface DiaryUpdate {
   worker?: string | null;
   vehicle?: string | null;
   flower_type?: FlowerType | null;
+  operators?: string[] | null;
 }
 
 // diary_remarks 表 (无 user_id，只有 user_name)

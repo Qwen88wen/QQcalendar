@@ -1,16 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { updateDiary, getRemarks, createRemark } from '../lib/diary';
-import type { FlowerType, DiaryRemark, DiaryStatus } from '../types/database';
+import { USER_FLOWERS } from '../lib/flowers';
+import type { DiaryRemark, DiaryStatus } from '../types/database';
 import './DiaryModal.css';
-
-const FLOWER_OPTIONS: { value: FlowerType; label: string; emoji: string }[] = [
-  { value: 1, label: '红玫瑰', emoji: '🌹' },
-  { value: 2, label: '郁金香', emoji: '🌷' },
-  { value: 3, label: '薰衣草', emoji: '💜' },
-  { value: 4, label: '樱花', emoji: '🌸' },
-  { value: 5, label: '向日葵', emoji: '🌻' },
-];
 
 export function DiaryModal() {
   const {
@@ -28,7 +21,6 @@ export function DiaryModal() {
   const [worker, setWorker] = useState('');
   const [vehicle, setVehicle] = useState('');
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
-  const [flowerType, setFlowerType] = useState<FlowerType>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 备注状态
@@ -44,7 +36,6 @@ export function DiaryModal() {
       setWorker(selectedDiary.worker || '');
       setVehicle(selectedDiary.vehicle || '');
       setStatus(selectedDiary.status || 'incomplete');
-      setFlowerType((selectedDiary.flower_type as FlowerType) || 1);
 
       // 加载备注
       loadRemarks(selectedDiary.id);
@@ -55,7 +46,6 @@ export function DiaryModal() {
       setWorker('');
       setVehicle('');
       setStatus('incomplete');
-      setFlowerType(1);
       setRemarks([]);
     }
   }, [selectedDiary]);
@@ -74,13 +64,19 @@ export function DiaryModal() {
 
     setIsSubmitting(true);
 
+    // 更新操作者列表 - 添加当前用户（如果不存在）
+    const currentOperators = selectedDiary.operators || [];
+    const newOperators = currentOperators.includes(activeInputUser)
+      ? currentOperators
+      : [...currentOperators, activeInputUser];
+
     const diaryData = {
       customer: customer || null,
       remark: remark || null,
       worker: worker || null,
       vehicle: vehicle || null,
       status,
-      flower_type: flowerType,
+      operators: newOperators,
     };
 
     await updateDiary(selectedDiary.id, diaryData);
@@ -184,20 +180,26 @@ export function DiaryModal() {
             </div>
           </div>
 
+          {/* 操作者花朵显示 */}
+          {selectedDiary && selectedDiary.operators && selectedDiary.operators.length > 0 && (
+            <div className="form-group">
+              <label>参与者</label>
+              <div className="operators-display">
+                {selectedDiary.operators.map((op, idx) => (
+                  <span key={idx} className="operator-flower" title={op}>
+                    {USER_FLOWERS[op]?.icon || '🌸'} {op}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 当前用户花朵提示 */}
           <div className="form-group">
-            <label>选择花朵</label>
-            <div className="flower-options">
-              {FLOWER_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  className={`flower-option ${flowerType === option.value ? 'active' : ''}`}
-                  onClick={() => setFlowerType(option.value)}
-                >
-                  <span className="flower-emoji">{option.emoji}</span>
-                  <span className="flower-label">{option.label}</span>
-                </button>
-              ))}
+            <label>你的花朵</label>
+            <div className="your-flower">
+              <span className="flower-icon">{USER_FLOWERS[activeInputUser]?.icon || '🌸'}</span>
+              <span className="flower-name">{USER_FLOWERS[activeInputUser]?.name || '樱花'}</span>
             </div>
           </div>
 

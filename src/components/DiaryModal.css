@@ -201,6 +201,41 @@
   margin-top: 4px;
 }
 
+/* 操作者显示 */
+.operators-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.operator-flower {
+  padding: 6px 12px;
+  background: rgba(78, 205, 196, 0.1);
+  border-radius: 16px;
+  font-size: 0.9rem;
+  color: #4ecdc4;
+}
+
+/* 你的花朵 */
+.your-flower {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(78, 205, 196, 0.1);
+  border-radius: 10px;
+}
+
+.your-flower .flower-icon {
+  font-size: 2rem;
+}
+
+.your-flower .flower-name {
+  font-size: 1rem;
+  color: #4ecdc4;
+  font-weight: 600;
+}
+
 .submit-btn {
   width: 100%;
   padding: 12px;
