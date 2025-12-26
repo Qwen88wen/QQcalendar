@@ -1,7 +1,16 @@
 import { useState } from 'react';
 import { useAppStore, InputUser } from '../stores/appStore';
 import { createDiary } from '../lib/diary';
+import { LOCAL_USERS } from '../lib/users';
+import type { FlowerType } from '../types/database';
 import './InputBar.css';
+
+// 用户花朵配置
+const USER_FLOWER_CONFIG: Record<string, { icon: string; flowerType: FlowerType }> = {
+  'QQrou': { icon: '🪻', flowerType: 3 },   // 薰衣草
+  'QQfang': { icon: '🌹', flowerType: 1 },  // 玫瑰
+  'QQwen': { icon: '🌸', flowerType: 4 },   // 樱花
+};
 
 export function InputBar() {
   const { activeInputUser, setActiveInputUser, addDiary } = useAppStore();
@@ -17,14 +26,14 @@ export function InputBar() {
 
     setIsSubmitting(true);
     try {
-      // 根据选中用户确定 flower_type
-      const flowerType = activeInputUser === 'QQrou' ? 3 : 1; // 薰衣草 or 玫瑰
+      const config = USER_FLOWER_CONFIG[activeInputUser];
+      const user = LOCAL_USERS.find(u => u.username === activeInputUser);
 
       const newDiary = await createDiary({
-        user_id: `user-${activeInputUser.toLowerCase()}`,
-        user_name: activeInputUser,
+        user_id: user?.id || `user-${activeInputUser.toLowerCase()}`,
+        user_name: user?.displayName || activeInputUser,
         content: content.trim(),
-        flower_type: flowerType,
+        flower_type: config?.flowerType || 1 as FlowerType,
       });
 
       if (newDiary) {
@@ -48,20 +57,19 @@ export function InputBar() {
   return (
     <div className="input-bar">
       <div className="user-switcher">
-        <button
-          className={`user-btn qqrou ${activeInputUser === 'QQrou' ? 'active' : ''}`}
-          onClick={() => handleUserSwitch('QQrou')}
-        >
-          <span className="user-icon">🪻</span>
-          <span className="user-name">QQrou</span>
-        </button>
-        <button
-          className={`user-btn qqfang ${activeInputUser === 'QQfang' ? 'active' : ''}`}
-          onClick={() => handleUserSwitch('QQfang')}
-        >
-          <span className="user-icon">🌹</span>
-          <span className="user-name">QQfang</span>
-        </button>
+        {LOCAL_USERS.map((user) => {
+          const config = USER_FLOWER_CONFIG[user.username];
+          return (
+            <button
+              key={user.id}
+              className={`user-btn ${user.username.toLowerCase()} ${activeInputUser === user.username ? 'active' : ''}`}
+              onClick={() => handleUserSwitch(user.username as InputUser)}
+            >
+              <span className="user-icon">{config?.icon || '🌸'}</span>
+              <span className="user-name">{user.displayName}</span>
+            </button>
+          );
+        })}
       </div>
 
       <div className="input-area">

@@ -6,8 +6,8 @@ import type { LocalUser } from '../lib/users';
 // 花朵筛选类型
 export type FlowerFilter = 'all' | FlowerType;
 
-// 输入用户类型
-export type InputUser = 'QQrou' | 'QQfang';
+// 输入用户类型 (对应 LOCAL_USERS)
+export type InputUser = 'QQrou' | 'QQfang' | 'QQwen';
 
 interface AppState {
   // 用户状态

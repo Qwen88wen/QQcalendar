@@ -45,6 +45,12 @@
   box-shadow: 0 2px 8px rgba(255, 107, 122, 0.3);
 }
 
+.user-btn.qqwen.active {
+  background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+  border-color: #f48fb1;
+  box-shadow: 0 2px 8px rgba(244, 143, 177, 0.3);
+}
+
 .user-icon {
   font-size: 1.2rem;
 }
