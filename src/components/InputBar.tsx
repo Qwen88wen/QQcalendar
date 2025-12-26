@@ -13,7 +13,7 @@ const USER_FLOWER_CONFIG: Record<string, { icon: string; flowerType: FlowerType 
 };
 
 export function InputBar() {
-  const { activeInputUser, setActiveInputUser, addDiary, diaries } = useAppStore();
+  const { activeInputUser, setActiveInputUser, diaries } = useAppStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -54,7 +54,7 @@ export function InputBar() {
       });
 
       if (newDiary) {
-        addDiary(newDiary);
+        // 不手动添加，让 realtime 订阅处理
         // 清空表单
         setCustomer('');
         setWorker('');
