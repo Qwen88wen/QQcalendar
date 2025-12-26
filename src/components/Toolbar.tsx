@@ -13,7 +13,7 @@ export function Toolbar() {
     <>
       <div className="toolbar">
         <div className="toolbar-left">
-          <h1 className="app-title">QQcalendar</h1>
+          <h1 className="app-title">QQcalendar v2</h1>
         </div>
 
         <div className="toolbar-right">
