@@ -191,10 +191,37 @@ export function DiaryModal() {
           )}
         </form>
 
-        {/* 时间信息 */}
+        {/* 操作记录 */}
         {selectedDiary && (
           <div className="diary-meta">
-            <span>创建时间: {new Date(selectedDiary.created_at).toLocaleString('zh-CN')}</span>
+            <div className="meta-item">
+              <span className="meta-label">创建者:</span>
+              <span className="meta-value">
+                {USER_FLOWERS[selectedDiary.user_name || '']?.icon || '🌸'} {selectedDiary.user_name || '未知'}
+              </span>
+            </div>
+            <div className="meta-item">
+              <span className="meta-label">创建时间:</span>
+              <span className="meta-value">{new Date(selectedDiary.created_at).toLocaleString('zh-CN')}</span>
+            </div>
+            {selectedDiary.updated_at && selectedDiary.updated_at !== selectedDiary.created_at && (
+              <div className="meta-item">
+                <span className="meta-label">最后修改:</span>
+                <span className="meta-value">{new Date(selectedDiary.updated_at).toLocaleString('zh-CN')}</span>
+              </div>
+            )}
+            {selectedDiary.operators && selectedDiary.operators.length > 0 && (
+              <div className="meta-item operators">
+                <span className="meta-label">操作过的用户:</span>
+                <div className="meta-operators">
+                  {selectedDiary.operators.map((op, idx) => (
+                    <span key={idx} className="meta-operator">
+                      {USER_FLOWERS[op]?.icon || '🌸'} {op}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
