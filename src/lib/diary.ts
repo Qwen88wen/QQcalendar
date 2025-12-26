@@ -1,10 +1,25 @@
 import { supabase } from './supabase';
-import type { Diary, DiaryInsert, DiaryUpdate } from '../types/database';
+import type { Diary, DiaryInsert, DiaryUpdate, DiaryRemark, DiaryRemarkInsert, Profile } from '../types/database';
 
-/**
- * 创建新日记
- * @param diary - 日记数据，包含 user_id, content, 可选的 user_name 和 flower_type (1-5)
- */
+// ========== Profile ==========
+
+export async function getProfile(userId: string): Promise<Profile | null> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (error) {
+    console.error('获取用户角色失败:', error.message);
+    return null;
+  }
+
+  return data;
+}
+
+// ========== Diaries ==========
+
 export async function createDiary(diary: DiaryInsert): Promise<Diary | null> {
   const { data, error } = await supabase
     .from('diaries')
@@ -20,15 +35,10 @@ export async function createDiary(diary: DiaryInsert): Promise<Diary | null> {
   return data;
 }
 
-/**
- * 获取用户所有日记，按 created_at 倒序排列（用于3D时间轴布局）
- * @param userId - 用户ID
- */
-export async function getDiaries(userId: string): Promise<Diary[]> {
+export async function getDiaries(): Promise<Diary[]> {
   const { data, error } = await supabase
     .from('diaries')
     .select('*')
-    .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -39,27 +49,6 @@ export async function getDiaries(userId: string): Promise<Diary[]> {
   return data || [];
 }
 
-/**
- * 获取单篇日记
- */
-export async function getDiary(id: string): Promise<Diary | null> {
-  const { data, error } = await supabase
-    .from('diaries')
-    .select('*')
-    .eq('id', id)
-    .single();
-
-  if (error) {
-    console.error('获取日记失败:', error.message);
-    return null;
-  }
-
-  return data;
-}
-
-/**
- * 更新日记
- */
 export async function updateDiary(id: string, updates: DiaryUpdate): Promise<Diary | null> {
   const { data, error } = await supabase
     .from('diaries')
@@ -76,9 +65,6 @@ export async function updateDiary(id: string, updates: DiaryUpdate): Promise<Dia
   return data;
 }
 
-/**
- * 删除日记
- */
 export async function deleteDiary(id: string): Promise<boolean> {
   const { error } = await supabase
     .from('diaries')
@@ -91,4 +77,36 @@ export async function deleteDiary(id: string): Promise<boolean> {
   }
 
   return true;
+}
+
+// ========== Remarks ==========
+
+export async function getRemarks(diaryId: string): Promise<DiaryRemark[]> {
+  const { data, error } = await supabase
+    .from('diary_remarks')
+    .select('*')
+    .eq('diary_id', diaryId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('获取备注失败:', error.message);
+    return [];
+  }
+
+  return data || [];
+}
+
+export async function createRemark(remark: DiaryRemarkInsert): Promise<DiaryRemark | null> {
+  const { data, error } = await supabase
+    .from('diary_remarks')
+    .insert(remark)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('创建备注失败:', error.message);
+    return null;
+  }
+
+  return data;
 }

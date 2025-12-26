@@ -1,0 +1,38 @@
+.app {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
+  overflow: hidden;
+}
+
+.scene-container {
+  width: 100%;
+  height: 100%;
+  padding-top: 60px; /* Toolbar 高度 */
+}
+
+/* 全局滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a2e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4ecdc4;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #44a08d;
+}
+
+/* 触摸反馈 */
+@media (hover: none) {
+  button:active {
+    opacity: 0.8;
+  }
+}

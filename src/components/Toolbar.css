@@ -1,0 +1,128 @@
+.toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: rgba(26, 26, 46, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 100;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.app-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .app-title {
+    font-size: 1rem;
+  }
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.loading-text {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.role-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.role-badge.editor {
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: #000;
+}
+
+.role-badge.viewer {
+  background: #444;
+  color: #ccc;
+}
+
+.add-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: #000;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.add-btn:hover {
+  transform: scale(1.05);
+}
+
+.add-btn:active {
+  transform: scale(0.98);
+}
+
+.login-btn,
+.logout-btn {
+  padding: 8px 16px;
+  border: 1px solid #4ecdc4;
+  border-radius: 8px;
+  background: transparent;
+  color: #4ecdc4;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.login-btn:hover,
+.logout-btn:hover {
+  background: rgba(78, 205, 196, 0.1);
+}
+
+@media (max-width: 480px) {
+  .toolbar {
+    padding: 0 12px;
+  }
+
+  .toolbar-right {
+    gap: 8px;
+  }
+
+  .user-info {
+    display: none;
+  }
+
+  .add-btn,
+  .login-btn,
+  .logout-btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+}
