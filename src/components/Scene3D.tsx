@@ -1,44 +1,127 @@
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
+import { useRef } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, PerspectiveCamera, GradientTexture } from '@react-three/drei';
+import * as THREE from 'three';
 import { MonthGrid } from './MonthGrid';
 import { Flowers } from './Flowers';
+import { useAppStore } from '../stores/appStore';
+
+// 天空背景组件
+function SkyBackground() {
+  return (
+    <mesh scale={[100, 100, 1]} position={[0, 30, -50]}>
+      <planeGeometry />
+      <meshBasicMaterial side={THREE.DoubleSide}>
+        <GradientTexture
+          stops={[0, 0.5, 1]}
+          colors={['#87CEEB', '#B8E0F0', '#E0F6FF']}
+        />
+      </meshBasicMaterial>
+    </mesh>
+  );
+}
+
+// 圆形草地组件
+function CircularGround() {
+  return (
+    <group>
+      {/* 主草地 - 圆形 */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]} receiveShadow>
+        <circleGeometry args={[40, 64]} />
+        <meshStandardMaterial color="#4a8f3c" />
+      </mesh>
+
+      {/* 边缘装饰圈 */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.04, 0]}>
+        <ringGeometry args={[38, 42, 64]} />
+        <meshStandardMaterial color="#3d7a32" transparent opacity={0.6} />
+      </mesh>
+
+      {/* 小花装饰边缘 */}
+      {Array.from({ length: 30 }).map((_, i) => {
+        const angle = (i / 30) * Math.PI * 2;
+        const radius = 39;
+        const x = Math.cos(angle) * radius;
+        const z = Math.sin(angle) * radius;
+        const colors = ['#ffb6c1', '#ffd700', '#9370db', '#ff6347', '#ffc0cb'];
+        return (
+          <mesh key={i} position={[x, 0.1, z]}>
+            <sphereGeometry args={[0.15, 8, 8]} />
+            <meshBasicMaterial color={colors[i % colors.length]} />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+}
+
+// 相机控制器 (支持飞到指定花朵)
+function CameraController() {
+  const controlsRef = useRef<any>(null);
+  const { focusedFlowerId, setFocusedFlower } = useAppStore();
+
+  useFrame(() => {
+    if (focusedFlowerId && controlsRef.current) {
+      // TODO: 实现相机飞行到指定位置
+      setFocusedFlower(null);
+    }
+  });
+
+  return (
+    <OrbitControls
+      ref={controlsRef}
+      enablePan={true}
+      enableZoom={true}
+      enableRotate={true}
+      minDistance={10}
+      maxDistance={70}
+      maxPolarAngle={Math.PI / 2.05}
+      minPolarAngle={Math.PI / 8}
+      target={[0, 0, 0]}
+      panSpeed={0.8}
+      rotateSpeed={0.5}
+      zoomSpeed={1.0}
+      touches={{
+        ONE: 1,
+        TWO: 2,
+      }}
+    />
+  );
+}
 
 export function Scene3D() {
   return (
     <Canvas
       style={{ width: '100%', height: '100%', touchAction: 'none' }}
-      gl={{ antialias: true, alpha: true }}
+      gl={{ antialias: true, alpha: false }}
       shadows
     >
-      {/* 相机 - 俯视花园视角 */}
-      <PerspectiveCamera makeDefault position={[0, 25, 35]} fov={55} />
+      {/* 相机 - 45度俯视角 */}
+      <PerspectiveCamera makeDefault position={[0, 30, 40]} fov={50} />
 
-      {/* 天空背景色 - 深蓝绿色 */}
-      <color attach="background" args={['#1a3040']} />
+      {/* 天空背景 */}
+      <color attach="background" args={['#87CEEB']} />
+      <SkyBackground />
 
-      {/* 光照 - 明亮的环境光 */}
-      <ambientLight intensity={1.2} color="#ffffff" />
+      {/* 光照 - 温暖阳光 */}
+      <ambientLight intensity={0.8} color="#fff8e7" />
       <directionalLight
-        position={[15, 30, 20]}
-        intensity={1.2}
-        color="#fff5e6"
+        position={[20, 40, 30]}
+        intensity={1.5}
+        color="#fff5e0"
         castShadow
         shadow-mapSize={[2048, 2048]}
-        shadow-camera-far={100}
-        shadow-camera-left={-50}
-        shadow-camera-right={50}
-        shadow-camera-top={50}
-        shadow-camera-bottom={-50}
+        shadow-camera-far={120}
+        shadow-camera-left={-60}
+        shadow-camera-right={60}
+        shadow-camera-top={60}
+        shadow-camera-bottom={-60}
       />
-      {/* 补光 - 柔和的侧面光 */}
-      <directionalLight position={[-20, 15, -10]} intensity={0.4} color="#e6f0ff" />
-      <pointLight position={[0, 10, 0]} intensity={0.3} color="#ffe4b5" />
+      <directionalLight position={[-15, 20, -15]} intensity={0.3} color="#e0f0ff" />
+      <hemisphereLight args={['#87CEEB', '#4a8f3c', 0.4]} />
 
-      {/* 地面 - 扩展到覆盖整个花园 */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]} receiveShadow>
-        <planeGeometry args={[70, 60]} />
-        <meshStandardMaterial color="#2a4a24" />
-      </mesh>
+      {/* 圆形草地 */}
+      <CircularGround />
 
       {/* 12个月份网格 */}
       <MonthGrid />
@@ -46,24 +129,8 @@ export function Scene3D() {
       {/* 花朵 */}
       <Flowers />
 
-      {/* 控制器 - 支持触屏 */}
-      <OrbitControls
-        enablePan={true}
-        enableZoom={true}
-        enableRotate={true}
-        minDistance={8}
-        maxDistance={60}
-        maxPolarAngle={Math.PI / 2.1}
-        minPolarAngle={Math.PI / 6}
-        target={[0, 0, 0]}
-        panSpeed={0.8}
-        rotateSpeed={0.6}
-        zoomSpeed={1.2}
-        touches={{
-          ONE: 1, // ROTATE
-          TWO: 2, // DOLLY_PAN
-        }}
-      />
+      {/* 相机控制器 */}
+      <CameraController />
     </Canvas>
   );
 }

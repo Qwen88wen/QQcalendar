@@ -1,5 +1,7 @@
 import { Scene3D } from './components/Scene3D';
-import { Toolbar } from './components/Toolbar';
+import { TitleBar } from './components/TitleBar';
+import { InputBar } from './components/InputBar';
+import { RecordList } from './components/RecordList';
 import { DiaryModal } from './components/DiaryModal';
 import { useAuth } from './hooks/useAuth';
 import { useRealtime } from './hooks/useRealtime';
@@ -14,10 +16,12 @@ export default function App() {
 
   return (
     <div className="app">
-      <Toolbar />
+      <TitleBar />
       <div className="scene-container">
         <Scene3D />
       </div>
+      <InputBar />
+      <RecordList />
       <DiaryModal />
     </div>
   );
