@@ -13,12 +13,11 @@ export function Scene3D() {
       {/* 相机 - 俯视花园视角 */}
       <PerspectiveCamera makeDefault position={[0, 25, 35]} fov={55} />
 
-      {/* 天空背景色 */}
-      <color attach="background" args={['#1a2f1a']} />
-      <fog attach="fog" args={['#1a2f1a', 40, 80]} />
+      {/* 天空背景色 - 深蓝绿色 */}
+      <color attach="background" args={['#1a3040']} />
 
-      {/* 光照 - 温暖的太阳光 */}
-      <ambientLight intensity={0.8} color="#fffaf0" />
+      {/* 光照 - 明亮的环境光 */}
+      <ambientLight intensity={1.2} color="#ffffff" />
       <directionalLight
         position={[15, 30, 20]}
         intensity={1.2}
