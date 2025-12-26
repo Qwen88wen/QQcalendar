@@ -75,13 +75,14 @@ function DayNumbers({ monthIndex, daysCount }: { monthIndex: number; daysCount: 
         return (
           <Text
             key={day}
-            position={[baseX + offsetX, 0.02, baseZ + offsetZ]}
+            position={[baseX + offsetX, 0.05, baseZ + offsetZ]}
             rotation={[-Math.PI / 2, 0, 0]}
-            fontSize={0.32}
-            color="#5a7a52"
+            fontSize={0.55}
+            color="#ffffff"
             anchorX="center"
             anchorY="middle"
-            fillOpacity={0.5}
+            outlineWidth={0.03}
+            outlineColor="#2d5a27"
           >
             {day}
           </Text>
