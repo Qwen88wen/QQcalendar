@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useAppStore } from '../stores/appStore';
+import { deleteDiary } from '../lib/diary';
 import './Memo.css';
 
 const FLOWER_ICONS: Record<number, string> = {
@@ -18,9 +19,14 @@ interface QuickTodo {
 }
 
 export function Memo() {
-  const { diaries, openModal, selectedDate } = useAppStore();
+  const { diaries, openModal, selectedDate, removeDiary } = useAppStore();
   const [activeTab, setActiveTab] = useState<'records' | 'todos'>('records');
   const [filter, setFilter] = useState<'all' | 'incomplete' | 'complete'>('all');
+
+  // 选择模式状态
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // 获取当前查看的日期（选中日期或今天）
   const viewDate = selectedDate || new Date();
@@ -115,6 +121,78 @@ export function Memo() {
     return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
   };
 
+  // 切换选择
+  const toggleSelect = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  // 全选/取消全选
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredDiaries.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredDiaries.map(d => d.id)));
+    }
+  };
+
+  // 退出选择模式
+  const exitSelectMode = () => {
+    setIsSelectMode(false);
+    setSelectedIds(new Set());
+  };
+
+  // 删除单条记录
+  const handleDeleteSingle = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm('确定要删除这条记录吗？')) return;
+
+    setIsDeleting(true);
+    const success = await deleteDiary(id);
+    if (success) {
+      removeDiary(id);
+    } else {
+      alert('删除失败，请重试');
+    }
+    setIsDeleting(false);
+  };
+
+  // 批量删除
+  const handleDeleteSelected = async () => {
+    if (selectedIds.size === 0) return;
+    if (!confirm(`确定要删除选中的 ${selectedIds.size} 条记录吗？`)) return;
+
+    setIsDeleting(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const id of selectedIds) {
+      const success = await deleteDiary(id);
+      if (success) {
+        removeDiary(id);
+        successCount++;
+      } else {
+        failCount++;
+      }
+    }
+
+    setIsDeleting(false);
+    setSelectedIds(new Set());
+
+    if (failCount > 0) {
+      alert(`删除完成: 成功 ${successCount} 条, 失败 ${failCount} 条`);
+    }
+
+    if (successCount > 0 && selectedIds.size === successCount) {
+      exitSelectMode();
+    }
+  };
+
   return (
     <div className="memo">
       {/* 标签切换 */}
@@ -157,26 +235,63 @@ export function Memo() {
             </div>
           </div>
 
-          {/* 筛选器 */}
+          {/* 筛选器和操作栏 */}
           <div className="memo-filter">
-            <button
-              className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-              onClick={() => setFilter('all')}
-            >
-              全部
-            </button>
-            <button
-              className={`filter-btn ${filter === 'incomplete' ? 'active' : ''}`}
-              onClick={() => setFilter('incomplete')}
-            >
-              未完成
-            </button>
-            <button
-              className={`filter-btn ${filter === 'complete' ? 'active' : ''}`}
-              onClick={() => setFilter('complete')}
-            >
-              已完成
-            </button>
+            {isSelectMode ? (
+              <>
+                <button
+                  className="filter-btn select-all"
+                  onClick={toggleSelectAll}
+                >
+                  {selectedIds.size === filteredDiaries.length ? '取消全选' : '全选'}
+                </button>
+                <span className="selected-count">
+                  已选 {selectedIds.size} 项
+                </span>
+                <button
+                  className="filter-btn delete-btn"
+                  onClick={handleDeleteSelected}
+                  disabled={selectedIds.size === 0 || isDeleting}
+                >
+                  {isDeleting ? '删除中...' : '🗑️ 删除'}
+                </button>
+                <button
+                  className="filter-btn cancel-btn"
+                  onClick={exitSelectMode}
+                >
+                  取消
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+                  onClick={() => setFilter('all')}
+                >
+                  全部
+                </button>
+                <button
+                  className={`filter-btn ${filter === 'incomplete' ? 'active' : ''}`}
+                  onClick={() => setFilter('incomplete')}
+                >
+                  未完成
+                </button>
+                <button
+                  className={`filter-btn ${filter === 'complete' ? 'active' : ''}`}
+                  onClick={() => setFilter('complete')}
+                >
+                  已完成
+                </button>
+                {filteredDiaries.length > 0 && (
+                  <button
+                    className="filter-btn select-mode-btn"
+                    onClick={() => setIsSelectMode(true)}
+                  >
+                    选择
+                  </button>
+                )}
+              </>
+            )}
           </div>
 
           {/* 记录列表 */}
@@ -191,14 +306,26 @@ export function Memo() {
                 const needsVehicle = !diary.vehicle;
                 const isIncomplete = diary.status === 'incomplete';
                 const hasWarning = needsVehicle || isIncomplete;
+                const isSelected = selectedIds.has(diary.id);
 
                 return (
                   <div
                     key={diary.id}
-                    className={`memo-item ${diary.status} ${hasWarning ? 'has-warning' : ''}`}
-                    onClick={() => openModal(diary)}
+                    className={`memo-item ${diary.status} ${hasWarning ? 'has-warning' : ''} ${isSelectMode && isSelected ? 'selected' : ''}`}
+                    onClick={() => isSelectMode ? toggleSelect(diary.id) : openModal(diary)}
                   >
                     <div className="memo-item-header">
+                      {isSelectMode && (
+                        <button
+                          className={`memo-checkbox ${isSelected ? 'checked' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleSelect(diary.id);
+                          }}
+                        >
+                          {isSelected ? '✓' : ''}
+                        </button>
+                      )}
                       <span className="memo-flower">
                         {FLOWER_ICONS[diary.flower_type || 1]}
                       </span>
@@ -208,6 +335,16 @@ export function Memo() {
                       <span className={`memo-status ${diary.status}`}>
                         {diary.status === 'complete' ? '✓' : '○'}
                       </span>
+                      {!isSelectMode && (
+                        <button
+                          className="memo-delete-btn"
+                          onClick={(e) => handleDeleteSingle(diary.id, e)}
+                          disabled={isDeleting}
+                          title="删除记录"
+                        >
+                          🗑️
+                        </button>
+                      )}
                     </div>
 
                     {/* 警告标签 */}

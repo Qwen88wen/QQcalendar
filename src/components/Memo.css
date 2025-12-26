@@ -290,6 +290,118 @@
   color: #aaa;
 }
 
+/* ========== 选择模式和删除功能 ========== */
+
+/* 选择模式筛选器 */
+.filter-btn.select-mode-btn {
+  background: #fff3e0;
+  border-color: #ff9800;
+  color: #e65100;
+}
+
+.filter-btn.select-mode-btn:hover {
+  background: #ffe0b2;
+}
+
+.filter-btn.select-all {
+  background: #e3f2fd;
+  border-color: #2196f3;
+  color: #1565c0;
+}
+
+.filter-btn.delete-btn {
+  background: #ffebee;
+  border-color: #f44336;
+  color: #c62828;
+}
+
+.filter-btn.delete-btn:hover:not(:disabled) {
+  background: #ffcdd2;
+}
+
+.filter-btn.delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.filter-btn.cancel-btn {
+  background: #f5f5f5;
+  border-color: #9e9e9e;
+  color: #616161;
+}
+
+.selected-count {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #1565c0;
+  font-weight: 600;
+  padding: 0 8px;
+}
+
+/* 选中的记录样式 */
+.memo-item.selected {
+  background: #e3f2fd;
+  border-left-color: #2196f3;
+}
+
+/* 复选框 */
+.memo-checkbox {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #bdbdbd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: white;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.memo-checkbox:hover {
+  border-color: #2196f3;
+}
+
+.memo-checkbox.checked {
+  background: #2196f3;
+  border-color: #2196f3;
+}
+
+/* 删除按钮 */
+.memo-delete-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  opacity: 0;
+}
+
+.memo-item:hover .memo-delete-btn {
+  opacity: 1;
+}
+
+.memo-delete-btn:hover:not(:disabled) {
+  background: #ffebee;
+  transform: scale(1.1);
+}
+
+.memo-delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* ========== 待办相关样式 ========== */
 
 /* 待办输入 */
