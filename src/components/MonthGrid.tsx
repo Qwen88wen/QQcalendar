@@ -157,7 +157,7 @@ function MonthPlot({ monthIndex, name, daysCount }: { monthIndex: number; name: 
         color="#a8d4a0"
         anchorX="center"
         anchorY="middle"
-        font="/fonts/Inter-Bold.woff"
+        fontWeight="bold"
       >
         {name}
       </Text>
