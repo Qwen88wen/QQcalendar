@@ -34,6 +34,9 @@ interface AppState {
   // 选中的日期 (用于查看记录)
   selectedDate: Date | null;
 
+  // 只显示未填车号的记录
+  showOnlyMissingVehicle: boolean;
+
   // Actions
   loginUser: (user: LocalUser) => void;
   logoutUser: () => void;
@@ -54,6 +57,7 @@ interface AppState {
   toggleRecordList: () => void;
   setFocusedFlower: (id: string | null) => void;
   setSelectedDate: (date: Date | null) => void;
+  toggleMissingVehicleFilter: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -76,6 +80,7 @@ export const useAppStore = create<AppState>()(
       showRecordList: false,
       focusedFlowerId: null,
       selectedDate: null,
+      showOnlyMissingVehicle: false,
 
       // Actions
       loginUser: (user) => set({
@@ -134,6 +139,7 @@ export const useAppStore = create<AppState>()(
       toggleRecordList: () => set((state) => ({ showRecordList: !state.showRecordList })),
       setFocusedFlower: (id) => set({ focusedFlowerId: id }),
       setSelectedDate: (date) => set({ selectedDate: date }),
+      toggleMissingVehicleFilter: () => set((state) => ({ showOnlyMissingVehicle: !state.showOnlyMissingVehicle })),
     }),
     {
       name: 'qq-calendar-auth',

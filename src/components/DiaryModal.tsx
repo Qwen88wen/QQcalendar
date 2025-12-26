@@ -117,14 +117,23 @@ export function DiaryModal() {
               />
             </div>
 
-            <div className="form-group">
-              <label>车号</label>
+            <div className={`form-group ${!vehicle ? 'warning' : ''}`}>
+              <label>
+                车号
+                {!vehicle && <span className="required-dot">*</span>}
+              </label>
               <input
                 type="text"
                 value={vehicle}
                 onChange={(e) => setVehicle(e.target.value)}
                 placeholder="输入车号"
+                className={!vehicle ? 'input-warning' : ''}
               />
+              {!vehicle && (
+                <div className="vehicle-warning">
+                  请记得填写车号！
+                </div>
+              )}
             </div>
           </div>
 

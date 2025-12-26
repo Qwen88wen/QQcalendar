@@ -113,6 +113,43 @@
   border-color: #4ecdc4;
 }
 
+/* 车号警告样式 */
+.form-group.warning label {
+  color: #ff4444;
+}
+
+.required-dot {
+  color: #ff4444;
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+.input-warning {
+  border-color: #ff4444 !important;
+  background: rgba(255, 68, 68, 0.1) !important;
+}
+
+.input-warning:focus {
+  border-color: #ff4444 !important;
+  box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.2);
+}
+
+.vehicle-warning {
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 68, 68, 0.15);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  border-radius: 6px;
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
 .form-group input:disabled,
 .form-group textarea:disabled {
   opacity: 0.6;

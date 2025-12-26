@@ -14,9 +14,17 @@ const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
 const YEARS = [2025, 2026];
 
 export function Calendar2D() {
-  const { diaries, openModal, selectedDate, setSelectedDate } = useAppStore();
+  const { diaries, openModal, selectedDate, setSelectedDate, showOnlyMissingVehicle } = useAppStore();
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+
+  // 根据筛选条件过滤日记
+  const filteredDiaries = useMemo(() => {
+    if (showOnlyMissingVehicle) {
+      return diaries.filter(d => !d.vehicle);
+    }
+    return diaries;
+  }, [diaries, showOnlyMissingVehicle]);
 
   // 点击日期选择
   const handleDayClick = (day: number) => {
@@ -43,14 +51,14 @@ export function Calendar2D() {
   // 按日期分组日记
   const diariesByDate = useMemo(() => {
     const map: Record<string, Diary[]> = {};
-    diaries.forEach(diary => {
+    filteredDiaries.forEach(diary => {
       const date = new Date(diary.created_at);
       const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
       if (!map[key]) map[key] = [];
       map[key].push(diary);
     });
     return map;
-  }, [diaries]);
+  }, [filteredDiaries]);
 
   // 获取某月的天数
   const getDaysInMonth = (year: number, month: number) => {

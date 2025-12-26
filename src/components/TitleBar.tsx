@@ -4,7 +4,15 @@ import { exportAllData } from '../lib/export';
 import './TitleBar.css';
 
 export function TitleBar() {
-  const { diaries, flowerFilter, setFlowerFilter, toggleRecordList, showRecordList } = useAppStore();
+  const {
+    diaries,
+    flowerFilter,
+    setFlowerFilter,
+    toggleRecordList,
+    showRecordList,
+    showOnlyMissingVehicle,
+    toggleMissingVehicleFilter,
+  } = useAppStore();
   const [isExporting, setIsExporting] = useState(false);
 
   // 统计花朵数量 (基于 user_name 判断)
@@ -19,6 +27,9 @@ export function TitleBar() {
     d.user_id?.toLowerCase().includes('qqfang') ||
     d.flower_type === 1
   ).length;
+
+  // 统计未填车号的记录数
+  const missingVehicleCount = diaries.filter(d => !d.vehicle).length;
 
   const handleFilterClick = (filter: FlowerFilter) => {
     if (flowerFilter === filter) {
@@ -64,6 +75,18 @@ export function TitleBar() {
           <span className="count">{roseCount}</span>
         </button>
       </div>
+
+      {/* 未填车号提醒按钮 */}
+      {missingVehicleCount > 0 && (
+        <button
+          className={`missing-vehicle-btn ${showOnlyMissingVehicle ? 'active' : ''}`}
+          onClick={toggleMissingVehicleFilter}
+          title={`${missingVehicleCount} 条记录未填车号`}
+        >
+          <span className="warning-icon">🚗</span>
+          <span className="warning-count">{missingVehicleCount}</span>
+        </button>
+      )}
 
       <button
         className={`record-toggle ${showRecordList ? 'active' : ''}`}
