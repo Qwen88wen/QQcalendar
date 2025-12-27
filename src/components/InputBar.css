@@ -11,14 +11,6 @@
   z-index: 100;
   box-shadow: 0 -4px 20px rgba(255, 182, 193, 0.25);
   border-top: 2px solid #FFD1DC;
-  transition: max-height 0.3s ease;
-  max-height: 180px;
-  overflow: hidden;
-}
-
-.input-bar.expanded {
-  max-height: 60vh;
-  overflow-y: auto;
 }
 
 .user-switcher {
@@ -72,113 +64,6 @@
 .user-name {
   font-weight: 600;
   color: #555;
-}
-
-.expand-btn {
-  margin-left: auto;
-  padding: 10px 18px;
-  border: 2px solid #FFD1DC;
-  border-radius: 20px;
-  background: white;
-  cursor: pointer;
-  font-size: 0.9rem;
-  color: #B08B93;
-  transition: all 0.3s ease;
-  font-weight: 500;
-}
-
-.expand-btn:hover {
-  background: linear-gradient(135deg, #FFF0F5 0%, #FFE4EC 100%);
-  border-color: #FFB6C1;
-  transform: translateY(-2px);
-}
-
-/* 今日记录 */
-.today-records {
-  margin-bottom: 16px;
-  background: white;
-  border-radius: 16px;
-  padding: 14px;
-  border: 2px solid #FFE4EC;
-  box-shadow: 0 2px 10px rgba(255, 182, 193, 0.15);
-}
-
-.today-records h4 {
-  margin: 0 0 12px;
-  font-size: 1rem;
-  color: #D4838F;
-  font-weight: 600;
-}
-
-.records-table-wrapper {
-  overflow-x: auto;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.records-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-.records-table th,
-.records-table td {
-  padding: 10px 12px;
-  text-align: left;
-  border-bottom: 1px solid #FFE4EC;
-}
-
-.records-table th {
-  background: linear-gradient(135deg, #FFF0F5 0%, #FFE4EC 100%);
-  font-weight: 600;
-  color: #D4838F;
-  position: sticky;
-  top: 0;
-}
-
-.records-table tr:hover {
-  background: linear-gradient(135deg, #FFF5F8 0%, #FFFAF5 100%);
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.status-badge.incomplete {
-  background: linear-gradient(135deg, #FFF8E1 0%, #FFE082 100%);
-  color: #E65100;
-}
-
-.status-badge.complete {
-  background: linear-gradient(135deg, #E8F5E9 0%, #A5D6A7 100%);
-  color: #2E7D32;
-}
-
-/* 未填车号警告 */
-.records-table td.needs-vehicle {
-  position: relative;
-  color: #B08B93;
-}
-
-.vehicle-warning-dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
-  border-radius: 50%;
-  margin-left: 8px;
-  vertical-align: middle;
-  animation: pulse-warning 1.5s infinite;
-}
-
-@keyframes pulse-warning {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.8; }
 }
 
 /* 输入表格 */
@@ -278,10 +163,6 @@
   .add-btn {
     padding: 10px 16px;
     font-size: 0.9rem;
-  }
-
-  .records-table {
-    font-size: 0.85rem;
   }
 }
 

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useAppStore, InputUser } from '../stores/appStore';
 import { createDiary } from '../lib/diary';
 import { LOCAL_USERS } from '../lib/users';
@@ -7,9 +7,8 @@ import type { DiaryStatus } from '../types/database';
 import './InputBar.css';
 
 export function InputBar() {
-  const { activeInputUser, setActiveInputUser, diaries, selectedDate } = useAppStore();
+  const { activeInputUser, setActiveInputUser, selectedDate } = useAppStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
 
   // 表单字段
   const [customer, setCustomer] = useState('');
@@ -20,22 +19,6 @@ export function InputBar() {
 
   // 庆祝动画状态
   const [showCelebration, setShowCelebration] = useState(false);
-
-  // 获取当前查看日期的记录
-  const viewDate = selectedDate || new Date();
-  const viewDateRecords = useMemo(() => {
-    const dateStr = viewDate.toDateString();
-    return diaries.filter(d => new Date(d.created_at).toDateString() === dateStr);
-  }, [diaries, viewDate]);
-
-  // 格式化日期标题
-  const formatViewDate = () => {
-    const today = new Date();
-    if (viewDate.toDateString() === today.toDateString()) {
-      return '今日';
-    }
-    return `${viewDate.getMonth() + 1}月${viewDate.getDate()}日`;
-  };
 
   const handleUserSwitch = (user: InputUser) => {
     setActiveInputUser(user);
@@ -92,7 +75,7 @@ export function InputBar() {
   };
 
   return (
-    <div className={`input-bar ${isExpanded ? 'expanded' : ''}`}>
+    <div className="input-bar">
       {/* 添加记录庆祝动画 */}
       {showCelebration && (
         <div className="add-celebration-overlay">
@@ -125,51 +108,7 @@ export function InputBar() {
             </button>
           );
         })}
-        <button
-          className="expand-btn"
-          onClick={() => setIsExpanded(!isExpanded)}
-        >
-          {isExpanded ? '收起 ▼' : '展开 ▲'}
-        </button>
       </div>
-
-      {/* 当日记录表格 */}
-      {isExpanded && viewDateRecords.length > 0 && (
-        <div className="today-records">
-          <h4>{formatViewDate()}记录 ({viewDateRecords.length})</h4>
-          <div className="records-table-wrapper">
-            <table className="records-table">
-              <thead>
-                <tr>
-                  <th>园主</th>
-                  <th>工人</th>
-                  <th>备注</th>
-                  <th>车号</th>
-                  <th>状态</th>
-                </tr>
-              </thead>
-              <tbody>
-                {viewDateRecords.map((record) => (
-                  <tr key={record.id}>
-                    <td>{record.customer || '-'}</td>
-                    <td>{record.worker || '-'}</td>
-                    <td>{record.remark || '-'}</td>
-                    <td className={!record.vehicle ? 'needs-vehicle' : ''}>
-                      {record.vehicle || '-'}
-                      {!record.vehicle && <span className="vehicle-warning-dot"></span>}
-                    </td>
-                    <td>
-                      <span className={`status-badge ${record.status}`}>
-                        {record.status === 'complete' ? '完成' : '未完成'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
 
       {/* 输入表格 */}
       <div className="input-table">
