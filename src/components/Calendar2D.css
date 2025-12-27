@@ -5,8 +5,29 @@
   display: flex;
   flex-direction: column;
   padding: 20px;
-  background: linear-gradient(135deg, #FFF5F8 0%, #FFF0F5 50%, #FFFAF5 100%);
+  background:
+    url('/images/chiikawa-bg.png') center bottom / contain no-repeat,
+    linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 50%, #A5D6A7 100%);
   overflow-y: auto;
+  position: relative;
+}
+
+/* 如果没有背景图片，使用纯渐变 */
+.calendar-2d::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 30%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.calendar-2d > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* 月份选择器 */
