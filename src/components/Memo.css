@@ -4,9 +4,31 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #FFFAF5 0%, #FFF5F8 100%);
+  /* GIF背景 + 渐变备用 */
+  background:
+    url('/images/memo-bg.gif') center center / cover no-repeat,
+    linear-gradient(180deg, #FFFAF5 0%, #FFF5F8 100%);
   border-left: 2px dashed #FFD1DC;
   overflow: hidden;
+  position: relative;
+}
+
+/* 半透明遮罩层，确保内容清晰可读 */
+.memo::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 250, 245, 0.85);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.memo > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* 标签切换 */
