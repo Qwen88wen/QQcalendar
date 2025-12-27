@@ -21,11 +21,21 @@ export function InputBar() {
   // 庆祝动画状态
   const [showCelebration, setShowCelebration] = useState(false);
 
-  // 获取今天的记录
-  const todayRecords = useMemo(() => {
-    const today = new Date().toDateString();
-    return diaries.filter(d => new Date(d.created_at).toDateString() === today);
-  }, [diaries]);
+  // 获取当前查看日期的记录
+  const viewDate = selectedDate || new Date();
+  const viewDateRecords = useMemo(() => {
+    const dateStr = viewDate.toDateString();
+    return diaries.filter(d => new Date(d.created_at).toDateString() === dateStr);
+  }, [diaries, viewDate]);
+
+  // 格式化日期标题
+  const formatViewDate = () => {
+    const today = new Date();
+    if (viewDate.toDateString() === today.toDateString()) {
+      return '今日';
+    }
+    return `${viewDate.getMonth() + 1}月${viewDate.getDate()}日`;
+  };
 
   const handleUserSwitch = (user: InputUser) => {
     setActiveInputUser(user);
@@ -123,10 +133,10 @@ export function InputBar() {
         </button>
       </div>
 
-      {/* 今日记录表格 */}
-      {isExpanded && todayRecords.length > 0 && (
+      {/* 当日记录表格 */}
+      {isExpanded && viewDateRecords.length > 0 && (
         <div className="today-records">
-          <h4>今日记录 ({todayRecords.length})</h4>
+          <h4>{formatViewDate()}记录 ({viewDateRecords.length})</h4>
           <div className="records-table-wrapper">
             <table className="records-table">
               <thead>
@@ -139,7 +149,7 @@ export function InputBar() {
                 </tr>
               </thead>
               <tbody>
-                {todayRecords.map((record) => (
+                {viewDateRecords.map((record) => (
                   <tr key={record.id}>
                     <td>{record.customer || '-'}</td>
                     <td>{record.worker || '-'}</td>
