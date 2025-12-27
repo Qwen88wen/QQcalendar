@@ -39,6 +39,7 @@ export interface DiaryInsert {
   vehicle?: string | null;
   flower_type?: FlowerType | null;
   operators?: string[] | null;
+  created_at?: string;  // 允许指定创建日期
 }
 
 export interface DiaryUpdate {

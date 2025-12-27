@@ -72,11 +72,18 @@ export function Memo() {
   // 添加待办
   const addTodo = () => {
     if (!newTodoText.trim()) return;
+    // 使用当前查看的日期（选中日期或今天）
+    const todoDate = new Date(
+      viewDate.getFullYear(),
+      viewDate.getMonth(),
+      viewDate.getDate(),
+      12, 0, 0
+    );
     const newTodo: QuickTodo = {
       id: Date.now().toString(),
       text: newTodoText.trim(),
       done: false,
-      createdAt: new Date().toISOString(),
+      createdAt: todoDate.toISOString(),
     };
     setTodos([newTodo, ...todos]);
     setNewTodoText('');
@@ -125,12 +132,18 @@ export function Memo() {
     return { total, complete, incomplete };
   }, [dateFilteredDiaries]);
 
-  // 待办统计
+  // 按日期筛选待办事项
+  const filteredTodos = useMemo(() => {
+    const viewDateStr = viewDate.toDateString();
+    return todos.filter(t => new Date(t.createdAt).toDateString() === viewDateStr);
+  }, [todos, viewDate]);
+
+  // 待办统计（基于选中日期）
   const todoStats = useMemo(() => {
-    const total = todos.length;
-    const done = todos.filter(t => t.done).length;
+    const total = filteredTodos.length;
+    const done = filteredTodos.filter(t => t.done).length;
     return { total, done, pending: total - done };
-  }, [todos]);
+  }, [filteredTodos]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -432,14 +445,14 @@ export function Memo() {
 
           {/* 待办列表 */}
           <div className="todo-list">
-            {todos.length === 0 ? (
+            {filteredTodos.length === 0 ? (
               <div className="memo-empty">
                 <span className="empty-icon">📝</span>
-                <p>暂无待办</p>
+                <p>{formatViewDate()}暂无待办</p>
                 <p className="empty-hint">添加一些待办事项吧</p>
               </div>
             ) : (
-              todos.map(todo => (
+              filteredTodos.map(todo => (
                 <div
                   key={todo.id}
                   className={`todo-item ${todo.done ? 'done' : ''}`}

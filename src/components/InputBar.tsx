@@ -7,7 +7,7 @@ import type { DiaryStatus } from '../types/database';
 import './InputBar.css';
 
 export function InputBar() {
-  const { activeInputUser, setActiveInputUser, diaries } = useAppStore();
+  const { activeInputUser, setActiveInputUser, diaries, selectedDate } = useAppStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -38,6 +38,16 @@ export function InputBar() {
     try {
       const user = LOCAL_USERS.find(u => u.username === activeInputUser);
 
+      // 使用选中的日期，如果没有选中则使用今天
+      const targetDate = selectedDate || new Date();
+      // 设置为当天的中午12点，避免时区问题
+      const createdAt = new Date(
+        targetDate.getFullYear(),
+        targetDate.getMonth(),
+        targetDate.getDate(),
+        12, 0, 0
+      ).toISOString();
+
       const newDiary = await createDiary({
         user_id: user?.id || `user-${activeInputUser.toLowerCase()}`,
         user_name: user?.displayName || activeInputUser,
@@ -48,6 +58,7 @@ export function InputBar() {
         status,
         flower_type: getFlowerTypeByUser(activeInputUser),
         operators: [activeInputUser],  // 初始操作者
+        created_at: createdAt,  // 使用选中的日期
       });
 
       if (newDiary) {
