@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import type { Diary, DiaryInsert, DiaryUpdate, DiaryRemark, DiaryRemarkInsert, Profile } from '../types/database';
+import type { Diary, DiaryInsert, DiaryUpdate, DiaryRemark, DiaryRemarkInsert, Profile, Todo, TodoInsert, TodoUpdate } from '../types/database';
 
 // ========== Profile ==========
 
@@ -117,4 +117,68 @@ export async function createRemark(remark: DiaryRemarkInsert): Promise<DiaryRema
   }
 
   return data as DiaryRemark;
+}
+
+// ========== Todos ==========
+
+export async function getTodos(): Promise<Todo[]> {
+  const { data, error } = await supabase
+    .from('todos')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('[DB] 获取待办失败:', error.message);
+    return [];
+  }
+
+  return (data as Todo[]) || [];
+}
+
+export async function createTodo(todo: TodoInsert): Promise<Todo | null> {
+  console.log('[DB] 正在创建待办:', todo);
+
+  const { data, error } = await supabase
+    .from('todos')
+    .insert(todo as never)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('[DB] 创建待办失败:', error.message, error);
+    return null;
+  }
+
+  console.log('[DB] 待办创建成功:', data);
+  return data as Todo;
+}
+
+export async function updateTodo(id: string, updates: TodoUpdate): Promise<Todo | null> {
+  const { data, error } = await supabase
+    .from('todos')
+    .update(updates as never)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('[DB] 更新待办失败:', error.message);
+    return null;
+  }
+
+  return data as Todo;
+}
+
+export async function deleteTodo(id: string): Promise<boolean> {
+  const { error } = await supabase
+    .from('todos')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('[DB] 删除待办失败:', error.message);
+    return false;
+  }
+
+  return true;
 }

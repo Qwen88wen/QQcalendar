@@ -67,6 +67,27 @@ export interface DiaryRemarkInsert {
   content: string;
 }
 
+// todos 表
+export interface Todo {
+  id: string;
+  text: string;
+  done: boolean;
+  created_at: string;
+  user_name: string | null;
+}
+
+export interface TodoInsert {
+  text: string;
+  done?: boolean;
+  created_at?: string;
+  user_name?: string | null;
+}
+
+export interface TodoUpdate {
+  text?: string;
+  done?: boolean;
+}
+
 // Database 类型定义
 export interface Database {
   public: {

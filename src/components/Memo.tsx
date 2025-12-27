@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useAppStore } from '../stores/appStore';
-import { deleteDiary } from '../lib/diary';
+import { deleteDiary, createTodo as createTodoInDB, updateTodo as updateTodoInDB, deleteTodo as deleteTodoInDB } from '../lib/diary';
 import './Memo.css';
 
 const FLOWER_ICONS: Record<number, string> = {
@@ -11,15 +11,8 @@ const FLOWER_ICONS: Record<number, string> = {
   5: '🌻',
 };
 
-interface QuickTodo {
-  id: string;
-  text: string;
-  done: boolean;
-  createdAt: string;
-}
-
 export function Memo() {
-  const { diaries, openModal, selectedDate, removeDiary } = useAppStore();
+  const { diaries, openModal, selectedDate, removeDiary, todos, activeInputUser } = useAppStore();
   const [activeTab, setActiveTab] = useState<'records' | 'todos'>('records');
   const [filter, setFilter] = useState<'all' | 'incomplete' | 'complete'>('all');
 
@@ -46,8 +39,7 @@ export function Memo() {
     return diaries.filter(d => new Date(d.created_at).toDateString() === viewDateStr);
   }, [diaries, viewDate]);
 
-  // 快速待办
-  const [todos, setTodos] = useState<QuickTodo[]>([]);
+  // 待办输入
   const [newTodoText, setNewTodoText] = useState('');
 
   // 添加待办庆祝动画
@@ -56,21 +48,8 @@ export function Memo() {
   // 完成待办庆祝动画
   const [showCelebration, setShowCelebration] = useState(false);
 
-  // 从 localStorage 加载待办
-  useEffect(() => {
-    const saved = localStorage.getItem('qq-calendar-todos');
-    if (saved) {
-      setTodos(JSON.parse(saved));
-    }
-  }, []);
-
-  // 保存待办到 localStorage
-  useEffect(() => {
-    localStorage.setItem('qq-calendar-todos', JSON.stringify(todos));
-  }, [todos]);
-
   // 添加待办
-  const addTodo = () => {
+  const addTodo = async () => {
     if (!newTodoText.trim()) return;
     // 使用当前查看的日期（选中日期或今天）
     const todoDate = new Date(
@@ -79,36 +58,43 @@ export function Memo() {
       viewDate.getDate(),
       12, 0, 0
     );
-    const newTodo: QuickTodo = {
-      id: Date.now().toString(),
+
+    const newTodo = await createTodoInDB({
       text: newTodoText.trim(),
       done: false,
-      createdAt: todoDate.toISOString(),
-    };
-    setTodos([newTodo, ...todos]);
-    setNewTodoText('');
+      created_at: todoDate.toISOString(),
+      user_name: activeInputUser,
+    });
 
-    // 显示添加庆祝动画
-    setShowAddTodoCelebration(true);
-    setTimeout(() => setShowAddTodoCelebration(false), 1500);
+    if (newTodo) {
+      // 不手动添加到状态，让 realtime 订阅处理
+      setNewTodoText('');
+
+      // 显示添加庆祝动画
+      setShowAddTodoCelebration(true);
+      setTimeout(() => setShowAddTodoCelebration(false), 1500);
+    }
   };
 
   // 切换待办状态
-  const toggleTodo = (id: string) => {
+  const toggleTodo = async (id: string) => {
     const todo = todos.find(t => t.id === id);
+    if (!todo) return;
+
     // 如果从未完成变成完成，显示庆祝动画
-    if (todo && !todo.done) {
+    if (!todo.done) {
       setShowCelebration(true);
       setTimeout(() => setShowCelebration(false), 1500); // 1.5秒后隐藏
     }
-    setTodos(todos.map(t =>
-      t.id === id ? { ...t, done: !t.done } : t
-    ));
+
+    await updateTodoInDB(id, { done: !todo.done });
+    // 让 realtime 订阅处理状态更新
   };
 
   // 删除待办
-  const deleteTodo = (id: string) => {
-    setTodos(todos.filter(todo => todo.id !== id));
+  const handleDeleteTodo = async (id: string) => {
+    await deleteTodoInDB(id);
+    // 让 realtime 订阅处理状态更新
   };
 
   // 按状态筛选并排序（最新的在前）
@@ -135,7 +121,7 @@ export function Memo() {
   // 按日期筛选待办事项
   const filteredTodos = useMemo(() => {
     const viewDateStr = viewDate.toDateString();
-    return todos.filter(t => new Date(t.createdAt).toDateString() === viewDateStr);
+    return todos.filter(t => new Date(t.created_at).toDateString() === viewDateStr);
   }, [todos, viewDate]);
 
   // 待办统计（基于选中日期）
@@ -466,7 +452,7 @@ export function Memo() {
                   <span className="todo-text">{todo.text}</span>
                   <button
                     className="todo-delete"
-                    onClick={() => deleteTodo(todo.id)}
+                    onClick={() => handleDeleteTodo(todo.id)}
                   >
                     ×
                   </button>

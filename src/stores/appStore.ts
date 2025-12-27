@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Diary, DiaryRemark, UserRole, FlowerType } from '../types/database';
+import type { Diary, DiaryRemark, UserRole, FlowerType, Todo } from '../types/database';
 import type { LocalUser } from '../lib/users';
 
 // 花朵筛选类型
@@ -18,6 +18,7 @@ interface AppState {
   // 数据
   diaries: Diary[];
   remarks: DiaryRemark[];
+  todos: Todo[];
 
   // UI 状态
   selectedDiary: Diary | null;
@@ -50,6 +51,10 @@ interface AppState {
   removeDiary: (id: string) => void;
   setRemarks: (remarks: DiaryRemark[]) => void;
   addRemark: (remark: DiaryRemark) => void;
+  setTodos: (todos: Todo[]) => void;
+  addTodo: (todo: Todo) => void;
+  updateTodo: (todo: Todo) => void;
+  removeTodo: (id: string) => void;
   setSelectedDiary: (diary: Diary | null) => void;
   openModal: (diary?: Diary) => void;
   closeModal: () => void;
@@ -75,6 +80,7 @@ export const useAppStore = create<AppState>()(
       userRole: null,
       diaries: [],
       remarks: [],
+      todos: [],
       selectedDiary: null,
       isModalOpen: false,
       isEditing: false,
@@ -123,6 +129,20 @@ export const useAppStore = create<AppState>()(
 
       addRemark: (remark) => set((state) => ({
         remarks: [...state.remarks, remark],
+      })),
+
+      setTodos: (todos) => set({ todos }),
+
+      addTodo: (todo) => set((state) => ({
+        todos: [todo, ...state.todos]
+      })),
+
+      updateTodo: (todo) => set((state) => ({
+        todos: state.todos.map((t) => t.id === todo.id ? todo : t),
+      })),
+
+      removeTodo: (id) => set((state) => ({
+        todos: state.todos.filter((t) => t.id !== id),
       })),
 
       setSelectedDiary: (diary) => set({ selectedDiary: diary }),
