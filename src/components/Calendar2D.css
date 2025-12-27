@@ -5,24 +5,48 @@
   display: flex;
   flex-direction: column;
   padding: 20px;
+  /* Chiikawa风格：柔和的粉蓝渐变天空 + 绿色草地 */
   background:
-    url('/images/chiikawa-bg.png') center bottom / contain no-repeat,
-    linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 50%, #A5D6A7 100%);
+    linear-gradient(180deg,
+      #E8F4FC 0%,      /* 淡蓝天空 */
+      #FFF5F8 30%,     /* 粉色过渡 */
+      #FFEEF3 50%,     /* 柔和粉 */
+      #E8F5E9 70%,     /* 淡绿过渡 */
+      #C8E6C9 85%,     /* 草地绿 */
+      #A5D6A7 100%     /* 深草绿 */
+    );
   overflow-y: auto;
   position: relative;
 }
 
-/* 如果没有背景图片，使用纯渐变 */
+/* 可爱的云朵装饰 */
 .calendar-2d::before {
-  content: '';
+  content: '☁️';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 30%);
+  top: 60px;
+  left: 10%;
+  font-size: 2rem;
+  opacity: 0.4;
+  animation: float-cloud 8s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
+}
+
+.calendar-2d::after {
+  content: '☁️  ✨  ☁️';
+  position: absolute;
+  top: 40px;
+  right: 15%;
+  font-size: 1.5rem;
+  opacity: 0.3;
+  animation: float-cloud 10s ease-in-out infinite reverse;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes float-cloud {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-10px) translateX(5px); }
 }
 
 .calendar-2d > * {
