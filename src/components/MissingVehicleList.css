@@ -1,0 +1,201 @@
+/* ========== 未填车号记录弹窗 ========== */
+
+.missing-vehicle-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 200, 200, 0.3);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.missing-vehicle-panel {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(255, 107, 107, 0.25);
+  border: 2px solid #FF6B6B;
+  width: 90%;
+  max-width: 800px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  animation: slide-up 0.3s ease;
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.missing-vehicle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 2px solid #FFE4E4;
+  background: linear-gradient(135deg, #FFF0F0 0%, #FFE4E4 100%);
+  border-radius: 18px 18px 0 0;
+}
+
+.missing-vehicle-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #D32F2F;
+  font-weight: 600;
+}
+
+.missing-vehicle-header .close-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: white;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #999;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.missing-vehicle-header .close-btn:hover {
+  background: #FF6B6B;
+  color: white;
+  transform: scale(1.1);
+}
+
+.missing-vehicle-content {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+}
+
+.missing-vehicle-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.missing-vehicle-table th {
+  padding: 12px 10px;
+  text-align: left;
+  background: linear-gradient(135deg, #FFF5F5 0%, #FFE8E8 100%);
+  color: #C62828;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  border-bottom: 2px solid #FFCDD2;
+}
+
+.missing-vehicle-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #FFE4E4;
+  color: #555;
+}
+
+.missing-vehicle-table .clickable-row {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.missing-vehicle-table .clickable-row:hover {
+  background: linear-gradient(135deg, #FFF8F8 0%, #FFF0F0 100%);
+}
+
+.missing-vehicle-table .flower-cell {
+  font-size: 1.3rem;
+  text-align: center;
+  width: 50px;
+}
+
+.missing-vehicle-table .remark-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.missing-vehicle-table .time-cell {
+  white-space: nowrap;
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.missing-vehicle-table .status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.missing-vehicle-table .status-badge.incomplete {
+  background: linear-gradient(135deg, #FFF8E1 0%, #FFE082 100%);
+  color: #E65100;
+}
+
+.missing-vehicle-table .status-badge.complete {
+  background: linear-gradient(135deg, #E8F5E9 0%, #A5D6A7 100%);
+  color: #2E7D32;
+}
+
+.missing-vehicle-content .empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+}
+
+.missing-vehicle-content .empty-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .missing-vehicle-panel {
+    width: 95%;
+    max-height: 80vh;
+    border-radius: 16px;
+  }
+
+  .missing-vehicle-header {
+    padding: 14px 16px;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .missing-vehicle-header h3 {
+    font-size: 1rem;
+  }
+
+  .missing-vehicle-table {
+    font-size: 0.85rem;
+  }
+
+  .missing-vehicle-table th,
+  .missing-vehicle-table td {
+    padding: 10px 8px;
+  }
+
+  .missing-vehicle-table .remark-cell {
+    max-width: 100px;
+  }
+}
