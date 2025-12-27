@@ -82,7 +82,7 @@ export function TitleBar() {
           className={`stat-btn lavender ${flowerFilter === 3 ? 'active' : ''}`}
           onClick={() => handleFilterClick(3)}
         >
-          <span className="icon">🪻</span>
+          <span className="icon">💐</span>
           <span className="count">{lavenderCount}</span>
         </button>
         <span className="divider">|</span>

@@ -2,7 +2,7 @@ import type { FlowerType } from '../types/database';
 
 // 用户对应的花朵类型
 export const USER_FLOWERS: Record<string, { type: FlowerType; icon: string; name: string }> = {
-  'QQrou': { type: 3, icon: '🪻', name: '薰衣草' },
+  'QQrou': { type: 3, icon: '💐', name: '花束' },
   'QQfang': { type: 1, icon: '🌹', name: '玫瑰' },
   'QQwen': { type: 4, icon: '🌸', name: '樱花' },
 };
@@ -11,7 +11,7 @@ export const USER_FLOWERS: Record<string, { type: FlowerType; icon: string; name
 export const FLOWER_ICONS: Record<number, string> = {
   1: '🌹',  // 玫瑰 - QQfang
   2: '🌷',  // 郁金香
-  3: '🪻',  // 薰衣草 - QQrou
+  3: '💐',  // 花束 - QQrou
   4: '🌸',  // 樱花 - QQwen
   5: '🌻',  // 向日葵
 };

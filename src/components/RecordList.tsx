@@ -28,7 +28,7 @@ export function RecordList() {
 
   const getFlowerIcon = (diary: any) => {
     const userName = diary.user_name?.toLowerCase() || '';
-    if (userName.includes('qqrou') || diary.flower_type === 3) return '🪻';
+    if (userName.includes('qqrou') || diary.flower_type === 3) return '💐';
     if (userName.includes('qqfang') || diary.flower_type === 1) return '🌹';
     return '🌸';
   };
