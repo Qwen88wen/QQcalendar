@@ -34,6 +34,10 @@ interface AppState {
   // 选中的日期 (用于查看记录)
   selectedDate: Date | null;
 
+  // 日历视图年月
+  calendarYear: number;
+  calendarMonth: number;
+
   // 只显示未填车号的记录
   showOnlyMissingVehicle: boolean;
 
@@ -57,6 +61,8 @@ interface AppState {
   toggleRecordList: () => void;
   setFocusedFlower: (id: string | null) => void;
   setSelectedDate: (date: Date | null) => void;
+  setCalendarYear: (year: number) => void;
+  setCalendarMonth: (month: number) => void;
   toggleMissingVehicleFilter: () => void;
 }
 
@@ -80,6 +86,8 @@ export const useAppStore = create<AppState>()(
       showRecordList: false,
       focusedFlowerId: null,
       selectedDate: null,
+      calendarYear: new Date().getFullYear(),
+      calendarMonth: new Date().getMonth(),
       showOnlyMissingVehicle: false,
 
       // Actions
@@ -139,6 +147,8 @@ export const useAppStore = create<AppState>()(
       toggleRecordList: () => set((state) => ({ showRecordList: !state.showRecordList })),
       setFocusedFlower: (id) => set({ focusedFlowerId: id }),
       setSelectedDate: (date) => set({ selectedDate: date }),
+      setCalendarYear: (year) => set({ calendarYear: year }),
+      setCalendarMonth: (month) => set({ calendarMonth: month }),
       toggleMissingVehicleFilter: () => set((state) => ({ showOnlyMissingVehicle: !state.showOnlyMissingVehicle })),
     }),
     {

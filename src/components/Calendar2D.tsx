@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { getFlowersByOperators, FLOWER_ICONS } from '../lib/flowers';
 import type { Diary } from '../types/database';
@@ -14,9 +14,17 @@ const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
 const YEARS = [2025, 2026];
 
 export function Calendar2D() {
-  const { diaries, openModal, selectedDate, setSelectedDate, showOnlyMissingVehicle } = useAppStore();
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const {
+    diaries,
+    openModal,
+    selectedDate,
+    setSelectedDate,
+    showOnlyMissingVehicle,
+    calendarYear,
+    calendarMonth,
+    setCalendarYear,
+    setCalendarMonth,
+  } = useAppStore();
 
   // 根据筛选条件过滤日记
   const filteredDiaries = useMemo(() => {
@@ -28,7 +36,7 @@ export function Calendar2D() {
 
   // 点击日期选择
   const handleDayClick = (day: number) => {
-    const clickedDate = new Date(currentYear, selectedMonth, day);
+    const clickedDate = new Date(calendarYear, calendarMonth, day);
     // 如果点击同一天，取消选择（回到今天）
     if (selectedDate &&
         selectedDate.getFullYear() === clickedDate.getFullYear() &&
@@ -43,8 +51,8 @@ export function Calendar2D() {
   // 检查日期是否被选中
   const isSelected = (day: number) => {
     if (!selectedDate) return false;
-    return selectedDate.getFullYear() === currentYear &&
-           selectedDate.getMonth() === selectedMonth &&
+    return selectedDate.getFullYear() === calendarYear &&
+           selectedDate.getMonth() === calendarMonth &&
            selectedDate.getDate() === day;
   };
 
@@ -72,8 +80,8 @@ export function Calendar2D() {
 
   // 渲染日历格子
   const renderCalendarDays = () => {
-    const daysInMonth = getDaysInMonth(currentYear, selectedMonth);
-    const firstDay = getFirstDayOfMonth(currentYear, selectedMonth);
+    const daysInMonth = getDaysInMonth(calendarYear, calendarMonth);
+    const firstDay = getFirstDayOfMonth(calendarYear, calendarMonth);
     const days = [];
 
     // 空白格子
@@ -83,11 +91,11 @@ export function Calendar2D() {
 
     // 日期格子
     for (let day = 1; day <= daysInMonth; day++) {
-      const dateKey = `${currentYear}-${selectedMonth}-${day}`;
+      const dateKey = `${calendarYear}-${calendarMonth}-${day}`;
       const dayDiaries = diariesByDate[dateKey] || [];
       const isToday =
-        new Date().getFullYear() === currentYear &&
-        new Date().getMonth() === selectedMonth &&
+        new Date().getFullYear() === calendarYear &&
+        new Date().getMonth() === calendarMonth &&
         new Date().getDate() === day;
 
       days.push(
@@ -147,7 +155,7 @@ export function Calendar2D() {
       <div className="month-selector">
         <button
           className="month-nav"
-          onClick={() => setSelectedMonth(m => m > 0 ? m - 1 : 11)}
+          onClick={() => setCalendarMonth(calendarMonth > 0 ? calendarMonth - 1 : 11)}
         >
           ◀
         </button>
@@ -155,8 +163,8 @@ export function Calendar2D() {
           {MONTHS.map((month, idx) => (
             <button
               key={month}
-              className={`month-tab ${selectedMonth === idx ? 'active' : ''}`}
-              onClick={() => setSelectedMonth(idx)}
+              className={`month-tab ${calendarMonth === idx ? 'active' : ''}`}
+              onClick={() => setCalendarMonth(idx)}
             >
               {month}
             </button>
@@ -164,7 +172,7 @@ export function Calendar2D() {
         </div>
         <button
           className="month-nav"
-          onClick={() => setSelectedMonth(m => m < 11 ? m + 1 : 0)}
+          onClick={() => setCalendarMonth(calendarMonth < 11 ? calendarMonth + 1 : 0)}
         >
           ▶
         </button>
@@ -175,8 +183,8 @@ export function Calendar2D() {
         {YEARS.map(year => (
           <button
             key={year}
-            className={`year-btn ${currentYear === year ? 'active' : ''}`}
-            onClick={() => setCurrentYear(year)}
+            className={`year-btn ${calendarYear === year ? 'active' : ''}`}
+            onClick={() => setCalendarYear(year)}
           >
             {year}年
           </button>
@@ -184,7 +192,7 @@ export function Calendar2D() {
       </div>
 
       {/* 年月标题 */}
-      <h2 className="year-title">{currentYear}年 {MONTHS[selectedMonth]}</h2>
+      <h2 className="year-title">{calendarYear}年 {MONTHS[calendarMonth]}</h2>
 
       {/* 星期标题 */}
       <div className="weekday-header">
