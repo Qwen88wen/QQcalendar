@@ -79,16 +79,19 @@ export function DiaryModal() {
 
     if (result) {
       console.log('[DiaryModal] 保存成功');
+      console.log('[DiaryModal] 原始车号:', originalVehicle, '| 当前车号:', vehicle);
 
       // 如果原来没有车号，现在填写了车号，显示庆祝动画
       if (!originalVehicle && vehicle) {
+        console.log('[DiaryModal] 触发庆祝动画！');
         setShowCelebration(true);
-        // 1.5秒后关闭弹窗
+        // 2秒后关闭弹窗
         setTimeout(() => {
           setShowCelebration(false);
           closeModal();
-        }, 1500);
+        }, 2000);
       } else {
+        console.log('[DiaryModal] 不触发动画 - 原车号:', !!originalVehicle, '新车号:', !!vehicle);
         closeModal();
       }
     } else {
