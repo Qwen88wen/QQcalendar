@@ -1,9 +1,11 @@
+/* ========== Chiikawa 风格日历 ========== */
+
 .calendar-2d {
   height: 100%;
   display: flex;
   flex-direction: column;
   padding: 20px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+  background: linear-gradient(135deg, #FFF5F8 0%, #FFF0F5 50%, #FFFAF5 100%);
   overflow-y: auto;
 }
 
@@ -16,51 +18,56 @@
 }
 
 .month-nav {
-  width: 36px;
-  height: 36px;
-  border: none;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #FFB6C1;
   border-radius: 50%;
   background: white;
   cursor: pointer;
   font-size: 1rem;
-  color: #666;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transition: all 0.2s;
+  color: #FF91A4;
+  box-shadow: 0 3px 10px rgba(255, 182, 193, 0.3);
+  transition: all 0.3s ease;
 }
 
 .month-nav:hover {
-  background: #4a8f3c;
+  background: linear-gradient(135deg, #FFB6C1 0%, #FFA0B4 100%);
   color: white;
+  transform: scale(1.1);
+  border-color: #FF91A4;
 }
 
 .month-tabs {
   flex: 1;
   display: flex;
-  gap: 4px;
+  gap: 6px;
   overflow-x: auto;
   padding: 4px;
 }
 
 .month-tab {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 16px;
-  background: transparent;
+  padding: 10px 16px;
+  border: 2px solid transparent;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.8);
   cursor: pointer;
-  font-size: 0.85rem;
-  color: #666;
+  font-size: 0.9rem;
+  color: #D4838F;
   white-space: nowrap;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  font-weight: 500;
 }
 
 .month-tab:hover {
-  background: rgba(74, 143, 60, 0.1);
+  background: rgba(255, 182, 193, 0.3);
+  border-color: #FFB6C1;
 }
 
 .month-tab.active {
-  background: #4a8f3c;
+  background: linear-gradient(135deg, #FFB6C1 0%, #FF91A4 100%);
   color: white;
   font-weight: 600;
+  box-shadow: 0 3px 12px rgba(255, 145, 164, 0.4);
 }
 
 /* 年份选择器 */
@@ -72,35 +79,40 @@
 }
 
 .year-btn {
-  padding: 8px 20px;
-  border: 2px solid #ddd;
-  border-radius: 20px;
+  padding: 10px 24px;
+  border: 2px dashed #FFB6C1;
+  border-radius: 25px;
   background: white;
   cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: #666;
-  transition: all 0.2s;
+  color: #D4838F;
+  transition: all 0.3s ease;
 }
 
 .year-btn:hover {
-  border-color: #4a8f3c;
-  color: #4a8f3c;
+  border-style: solid;
+  border-color: #FF91A4;
+  color: #FF91A4;
+  transform: translateY(-2px);
 }
 
 .year-btn.active {
-  background: #4a8f3c;
-  border-color: #4a8f3c;
+  background: linear-gradient(135deg, #FFB6C1 0%, #FF91A4 100%);
+  border-style: solid;
+  border-color: #FF91A4;
   color: white;
+  box-shadow: 0 4px 15px rgba(255, 145, 164, 0.4);
 }
 
 /* 年份标题 */
 .year-title {
   text-align: center;
-  font-size: 1.5rem;
-  color: #333;
+  font-size: 1.6rem;
+  color: #D4838F;
   margin: 0 0 16px;
-  font-weight: 600;
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(255, 182, 193, 0.3);
 }
 
 /* 星期标题 */
@@ -108,131 +120,150 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .weekday {
   text-align: center;
-  padding: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #666;
+  padding: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #FF91A4;
+  background: rgba(255, 182, 193, 0.2);
+  border-radius: 12px;
 }
 
 /* 日历格子 */
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 6px;
   flex: 1;
 }
 
 .calendar-day {
   background: white;
-  border-radius: 8px;
-  padding: 8px;
-  min-height: 80px;
+  border-radius: 16px;
+  padding: 10px;
+  min-height: 85px;
   display: flex;
   flex-direction: column;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   cursor: pointer;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 8px rgba(255, 182, 193, 0.15);
 }
 
 .calendar-day:not(.empty):hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(255, 145, 164, 0.25);
+  border-color: #FFB6C1;
 }
 
 .calendar-day.empty {
   background: transparent;
+  box-shadow: none;
 }
 
 .calendar-day.has-records {
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(74, 143, 60, 0.15);
+  background: linear-gradient(135deg, #FFF5F8 0%, #FFFAF5 100%);
+  border-color: #FFD1DC;
 }
 
 .calendar-day.has-records:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(74, 143, 60, 0.25);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(255, 145, 164, 0.35);
+  border-color: #FFB6C1;
 }
 
 .calendar-day.today {
-  border: 2px solid #4a8f3c;
-  background: rgba(74, 143, 60, 0.05);
+  border: 3px solid #FF91A4;
+  background: linear-gradient(135deg, #FFF0F5 0%, #FFE4EC 100%);
+  box-shadow: 0 4px 15px rgba(255, 145, 164, 0.3);
 }
 
 .calendar-day.selected {
-  border: 2px solid #2196f3;
-  background: rgba(33, 150, 243, 0.1);
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  border: 3px solid #87CEEB;
+  background: linear-gradient(135deg, #F0F8FF 0%, #E6F3FF 100%);
+  box-shadow: 0 6px 20px rgba(135, 206, 235, 0.4);
 }
 
 .calendar-day.selected .day-number {
-  color: #2196f3;
+  color: #4A90D9;
   font-weight: 700;
 }
 
 .day-number {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 4px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #666;
+  margin-bottom: 6px;
 }
 
 .calendar-day.today .day-number {
-  color: #4a8f3c;
+  color: #FF91A4;
+  font-size: 1.2rem;
 }
 
 /* 花朵图标 */
 .day-flowers {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-bottom: 4px;
+  gap: 5px;
+  margin-bottom: 6px;
 }
 
 .flower-group {
   display: inline-flex;
   cursor: pointer;
-  padding: 2px;
-  border-radius: 4px;
-  transition: background 0.2s;
+  padding: 3px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
   position: relative;
+  background: rgba(255, 182, 193, 0.1);
 }
 
 .flower-group:hover {
-  background: rgba(74, 143, 60, 0.1);
+  background: rgba(255, 182, 193, 0.3);
+  transform: scale(1.15);
 }
 
 /* 未填车号红点 */
 .vehicle-dot {
   position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 8px;
-  height: 8px;
-  background: #ff4444;
+  top: -3px;
+  right: -3px;
+  width: 10px;
+  height: 10px;
+  background: #FF6B6B;
   border-radius: 50%;
-  border: 1px solid white;
-  content: '';
+  border: 2px solid white;
+  animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
 }
 
 .flower-icon {
-  font-size: 1rem;
-  transition: transform 0.2s;
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
 }
 
 .flower-group:hover .flower-icon {
-  transform: scale(1.2);
+  transform: scale(1.2) rotate(10deg);
 }
 
 .more-count {
   font-size: 0.75rem;
-  color: #999;
-  padding: 2px 4px;
-  background: #f0f0f0;
-  border-radius: 8px;
+  color: #FF91A4;
+  padding: 3px 8px;
+  background: linear-gradient(135deg, #FFF0F5 0%, #FFE4EC 100%);
+  border-radius: 10px;
+  font-weight: 600;
+  border: 1px solid #FFB6C1;
 }
 
 /* 日期摘要 */
@@ -240,27 +271,30 @@
   margin-top: auto;
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.75rem;
-  color: #888;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #B08B93;
 }
 
 .status-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .status-dot.complete {
-  background: #4caf50;
+  background: linear-gradient(135deg, #98D8AA 0%, #7BC88C 100%);
 }
 
 .status-dot.incomplete {
-  background: #ff9800;
+  background: linear-gradient(135deg, #FFD93D 0%, #FFB84C 100%);
 }
 
 .record-count {
-  color: #666;
+  color: #B08B93;
+  font-weight: 500;
 }
 
 /* 移动端适配 */
@@ -274,23 +308,30 @@
   }
 
   .year-title {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
 
   .calendar-day {
-    min-height: 60px;
-    padding: 4px;
+    min-height: 65px;
+    padding: 6px;
+    border-radius: 12px;
   }
 
   .day-number {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
   }
 
   .flower-icon {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   .day-summary {
     display: none;
+  }
+
+  .weekday {
+    padding: 6px;
+    font-size: 0.8rem;
+    border-radius: 8px;
   }
 }

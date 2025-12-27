@@ -1,10 +1,13 @@
+/* ========== Chiikawa 风格弹窗 ========== */
+
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(255, 182, 193, 0.4);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,70 +16,81 @@
 }
 
 .modal-content {
-  background: #1a1a2e;
-  border-radius: 16px;
-  padding: 24px;
-  max-width: 500px;
+  background: linear-gradient(180deg, #FFFAF5 0%, #FFF5F8 100%);
+  border-radius: 24px;
+  padding: 28px;
+  max-width: 520px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  color: #fff;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  color: #555;
+  box-shadow: 0 20px 60px rgba(255, 145, 164, 0.35);
+  border: 3px solid #FFD1DC;
 }
 
 .modal-close {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background: none;
-  border: none;
-  font-size: 28px;
-  color: #888;
+  top: 14px;
+  right: 14px;
+  background: white;
+  border: 2px solid #FFD1DC;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 22px;
+  color: #B08B93;
   cursor: pointer;
-  padding: 4px 8px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
 }
 
 .modal-close:hover {
-  color: #fff;
+  background: linear-gradient(135deg, #FFB6C1 0%, #FF91A4 100%);
+  border-color: #FF91A4;
+  color: white;
+  transform: scale(1.1);
 }
 
 .modal-content h2 {
-  margin: 0 0 12px;
-  font-size: 1.5rem;
-  color: #fff;
+  margin: 0 0 16px;
+  font-size: 1.6rem;
+  color: #D4838F;
+  font-weight: 700;
 }
 
 /* 当前用户提示 */
 .current-user-hint {
-  padding: 10px 14px;
-  background: rgba(78, 205, 196, 0.1);
-  border-radius: 8px;
-  margin-bottom: 16px;
-  font-size: 0.9rem;
-  color: #aaa;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #E6F7FF 0%, #BAE7FF 100%);
+  border-radius: 14px;
+  margin-bottom: 18px;
+  font-size: 0.95rem;
+  color: #555;
+  border: 2px solid #87CEEB;
 }
 
 .current-user-hint strong {
-  color: #4ecdc4;
+  color: #0277BD;
 }
 
 .permission-hint {
-  color: #ff9800;
+  color: #FF91A4;
   font-size: 0.85rem;
   margin-left: 8px;
 }
 
 /* 禁用提示按钮 */
 .submit-btn.disabled-hint {
-  background: linear-gradient(135deg, #666, #555);
+  background: linear-gradient(135deg, #E0E0E0 0%, #BDBDBD 100%);
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 18px;
 }
 
 @media (max-width: 480px) {
@@ -86,109 +100,124 @@
 }
 
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 0.9rem;
-  color: #aaa;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  color: #B08B93;
+  font-weight: 600;
 }
 
 .form-group input,
 .form-group textarea {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #333;
-  border-radius: 8px;
-  background: #0f0f1a;
-  color: #fff;
+  padding: 12px 14px;
+  border: 2px solid #FFD1DC;
+  border-radius: 14px;
+  background: white;
+  color: #555;
   font-size: 1rem;
+  transition: all 0.3s ease;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #4ecdc4;
+  border-color: #FF91A4;
+  box-shadow: 0 0 0 4px rgba(255, 145, 164, 0.2);
 }
 
 /* 车号警告样式 */
 .form-group.warning label {
-  color: #ff4444;
+  color: #FF6B6B;
 }
 
 .required-dot {
-  color: #ff4444;
+  color: #FF6B6B;
   font-weight: bold;
   margin-left: 4px;
+  animation: pulse-dot 1s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 .input-warning {
-  border-color: #ff4444 !important;
-  background: rgba(255, 68, 68, 0.1) !important;
+  border-color: #FF6B6B !important;
+  background: linear-gradient(135deg, #FFF5F5 0%, #FFEBEE 100%) !important;
 }
 
 .input-warning:focus {
-  border-color: #ff4444 !important;
-  box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.2);
+  border-color: #FF6B6B !important;
+  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.2) !important;
 }
 
 .vehicle-warning {
-  margin-top: 6px;
-  padding: 8px 12px;
-  background: rgba(255, 68, 68, 0.15);
-  border: 1px solid rgba(255, 68, 68, 0.3);
-  border-radius: 6px;
-  color: #ff6b6b;
-  font-size: 0.85rem;
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+  border: 2px solid #FF8A80;
+  border-radius: 12px;
+  color: #C62828;
+  font-size: 0.9rem;
+  font-weight: 500;
   animation: blink 1.5s infinite;
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.01); }
 }
 
 .form-group input:disabled,
 .form-group textarea:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  background: #F5F5F5;
 }
 
 /* 状态选项 */
 .status-options {
   display: flex;
-  gap: 12px;
+  gap: 14px;
 }
 
 .status-option {
   flex: 1;
-  padding: 12px 16px;
-  border: 2px solid #333;
-  border-radius: 10px;
-  background: #0f0f1a;
-  color: #aaa;
-  font-size: 0.95rem;
-  font-weight: 500;
+  padding: 14px 18px;
+  border: 2px solid #FFD1DC;
+  border-radius: 16px;
+  background: white;
+  color: #B08B93;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
 }
 
 .status-option:hover:not(:disabled) {
-  border-color: #666;
+  border-color: #FFB6C1;
+  background: linear-gradient(135deg, #FFF5F8 0%, #FFE4EC 100%);
+  transform: translateY(-2px);
 }
 
 .status-option.active.incomplete {
-  border-color: #ff9800;
-  background: rgba(255, 152, 0, 0.15);
-  color: #ff9800;
+  border-color: #FFB74D;
+  background: linear-gradient(135deg, #FFF8E1 0%, #FFE082 100%);
+  color: #E65100;
+  box-shadow: 0 4px 12px rgba(255, 183, 77, 0.35);
 }
 
 .status-option.active.complete {
-  border-color: #4caf50;
-  background: rgba(76, 175, 80, 0.15);
-  color: #4caf50;
+  border-color: #81C784;
+  background: linear-gradient(135deg, #E8F5E9 0%, #A5D6A7 100%);
+  color: #2E7D32;
+  box-shadow: 0 4px 12px rgba(129, 199, 132, 0.35);
 }
 
 .status-option:disabled {
@@ -198,7 +227,7 @@
 
 .flower-options {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -206,21 +235,23 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px 14px;
-  border: 2px solid #333;
-  border-radius: 10px;
-  background: #0f0f1a;
+  padding: 12px 16px;
+  border: 2px solid #FFD1DC;
+  border-radius: 16px;
+  background: white;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
 }
 
 .flower-option:hover:not(:disabled) {
-  border-color: #4ecdc4;
+  border-color: #FF91A4;
+  transform: translateY(-3px) scale(1.05);
 }
 
 .flower-option.active {
-  border-color: #4ecdc4;
-  background: rgba(78, 205, 196, 0.1);
+  border-color: #FF91A4;
+  background: linear-gradient(135deg, #FFE4EC 0%, #FFD1DC 100%);
+  box-shadow: 0 4px 15px rgba(255, 145, 164, 0.35);
 }
 
 .flower-option:disabled {
@@ -229,66 +260,73 @@
 }
 
 .flower-emoji {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
 }
 
 .flower-label {
-  font-size: 0.75rem;
-  color: #aaa;
-  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #B08B93;
+  margin-top: 6px;
+  font-weight: 500;
 }
 
 /* 操作者显示 */
 .operators-display {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .operator-flower {
-  padding: 6px 12px;
-  background: rgba(78, 205, 196, 0.1);
-  border-radius: 16px;
-  font-size: 0.9rem;
-  color: #4ecdc4;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #E6F7FF 0%, #BAE7FF 100%);
+  border-radius: 20px;
+  font-size: 0.95rem;
+  color: #0277BD;
+  border: 2px solid #87CEEB;
+  font-weight: 500;
 }
 
 /* 你的花朵 */
 .your-flower {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: rgba(78, 205, 196, 0.1);
-  border-radius: 10px;
+  gap: 12px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #FFE4EC 0%, #FFD1DC 100%);
+  border-radius: 16px;
+  border: 2px solid #FFB6C1;
 }
 
 .your-flower .flower-icon {
-  font-size: 2rem;
+  font-size: 2.2rem;
 }
 
 .your-flower .flower-name {
-  font-size: 1rem;
-  color: #4ecdc4;
-  font-weight: 600;
+  font-size: 1.1rem;
+  color: #D4838F;
+  font-weight: 700;
 }
 
 .submit-btn {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   border: none;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #4ecdc4, #44a08d);
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #FFB6C1 0%, #FF91A4 100%);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.2s;
-  margin-top: 8px;
+  transition: all 0.3s ease;
+  margin-top: 12px;
+  box-shadow: 0 4px 15px rgba(255, 145, 164, 0.4);
 }
 
 .submit-btn:hover:not(:disabled) {
-  opacity: 0.9;
+  background: linear-gradient(135deg, #FF91A4 0%, #FF6B8A 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 145, 164, 0.5);
 }
 
 .submit-btn:disabled {
@@ -298,92 +336,101 @@
 
 /* 备注区域 */
 .remarks-section {
-  margin-top: 24px;
+  margin-top: 28px;
   padding-top: 24px;
-  border-top: 1px solid #333;
+  border-top: 2px dashed #FFD1DC;
 }
 
 .remarks-section h3 {
-  margin: 0 0 16px;
-  font-size: 1.1rem;
-  color: #fff;
+  margin: 0 0 18px;
+  font-size: 1.2rem;
+  color: #D4838F;
+  font-weight: 700;
 }
 
 .remarks-list {
   max-height: 200px;
   overflow-y: auto;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .loading,
 .no-remarks {
-  color: #666;
-  font-size: 0.9rem;
+  color: #B08B93;
+  font-size: 0.95rem;
   text-align: center;
-  padding: 16px;
+  padding: 20px;
 }
 
 .remark-item {
-  padding: 12px;
-  background: #0f0f1a;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  padding: 14px;
+  background: white;
+  border-radius: 14px;
+  margin-bottom: 10px;
+  border: 2px solid #FFE4EC;
 }
 
 .remark-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .remark-author {
   font-weight: 600;
-  color: #4ecdc4;
-  font-size: 0.85rem;
+  color: #D4838F;
+  font-size: 0.9rem;
 }
 
 .remark-time {
-  font-size: 0.75rem;
-  color: #666;
+  font-size: 0.8rem;
+  color: #B08B93;
 }
 
 .remark-content {
   margin: 0;
-  font-size: 0.9rem;
-  color: #ddd;
-  line-height: 1.4;
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.5;
 }
 
 .add-remark {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .add-remark textarea {
   flex: 1;
-  padding: 10px;
-  border: 1px solid #333;
-  border-radius: 8px;
-  background: #0f0f1a;
-  color: #fff;
-  font-size: 0.9rem;
+  padding: 12px;
+  border: 2px solid #FFD1DC;
+  border-radius: 14px;
+  background: white;
+  color: #555;
+  font-size: 0.95rem;
   resize: none;
 }
 
 .add-remark textarea:focus {
   outline: none;
-  border-color: #4ecdc4;
+  border-color: #FF91A4;
+  box-shadow: 0 0 0 4px rgba(255, 145, 164, 0.2);
 }
 
 .add-remark button {
-  padding: 10px 20px;
+  padding: 12px 22px;
   border: none;
-  border-radius: 8px;
-  background: #4ecdc4;
-  color: #000;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #FFB6C1 0%, #FF91A4 100%);
+  color: white;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.add-remark button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #FF91A4 0%, #FF6B8A 100%);
+  transform: translateY(-2px);
 }
 
 .add-remark button:disabled {
@@ -393,47 +440,50 @@
 
 /* 元信息 */
 .diary-meta {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #333;
-  font-size: 0.85rem;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 2px dashed #FFD1DC;
+  font-size: 0.9rem;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .meta-item.operators {
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
+  gap: 8px;
 }
 
 .meta-label {
-  color: #888;
-  min-width: 80px;
+  color: #B08B93;
+  min-width: 85px;
+  font-weight: 500;
 }
 
 .meta-value {
-  color: #ccc;
+  color: #666;
 }
 
 .meta-operators {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .meta-operator {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  background: rgba(78, 205, 196, 0.15);
-  border-radius: 12px;
-  font-size: 0.8rem;
-  color: #4ecdc4;
+  gap: 5px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #FFE4EC 0%, #FFD1DC 100%);
+  border-radius: 14px;
+  font-size: 0.85rem;
+  color: #D4838F;
+  border: 1px solid #FFB6C1;
+  font-weight: 500;
 }
