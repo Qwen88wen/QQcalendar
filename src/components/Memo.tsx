@@ -50,7 +50,10 @@ export function Memo() {
   const [todos, setTodos] = useState<QuickTodo[]>([]);
   const [newTodoText, setNewTodoText] = useState('');
 
-  // 完成庆祝动画
+  // 添加待办庆祝动画
+  const [showAddTodoCelebration, setShowAddTodoCelebration] = useState(false);
+
+  // 完成待办庆祝动画
   const [showCelebration, setShowCelebration] = useState(false);
 
   // 从 localStorage 加载待办
@@ -77,6 +80,10 @@ export function Memo() {
     };
     setTodos([newTodo, ...todos]);
     setNewTodoText('');
+
+    // 显示添加庆祝动画
+    setShowAddTodoCelebration(true);
+    setTimeout(() => setShowAddTodoCelebration(false), 1500);
   };
 
   // 切换待办状态
@@ -204,12 +211,20 @@ export function Memo() {
 
   return (
     <div className="memo">
-      {/* 完成庆祝动画 */}
+      {/* 完成待办庆祝动画 */}
       {showCelebration && (
         <div className="celebration-overlay">
           <img src="/memo-bg.gif" alt="庆祝" className="celebration-gif" />
         </div>
       )}
+
+      {/* 添加待办庆祝动画 */}
+      {showAddTodoCelebration && (
+        <div className="celebration-overlay">
+          <img src="/flatno.gif" alt="收到！" className="celebration-gif" />
+        </div>
+      )}
+
       {/* 标签切换 */}
       <div className="memo-tabs">
         <button
