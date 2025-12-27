@@ -18,6 +18,9 @@ export function InputBar() {
   const [vehicle, setVehicle] = useState('');
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
 
+  // 庆祝动画状态
+  const [showCelebration, setShowCelebration] = useState(false);
+
   // 获取今天的记录
   const todayRecords = useMemo(() => {
     const today = new Date().toDateString();
@@ -55,6 +58,10 @@ export function InputBar() {
         setRemark('');
         setVehicle('');
         setStatus('incomplete');
+
+        // 显示庆祝动画
+        setShowCelebration(true);
+        setTimeout(() => setShowCelebration(false), 2000);
       }
     } catch (error) {
       console.error('Failed to create diary:', error);
@@ -65,6 +72,23 @@ export function InputBar() {
 
   return (
     <div className={`input-bar ${isExpanded ? 'expanded' : ''}`}>
+      {/* 添加记录庆祝动画 */}
+      {showCelebration && (
+        <div className="add-celebration-overlay">
+          <div className="add-celebration-content">
+            <img
+              src="/receive.gif"
+              alt="收到！"
+              className="add-celebration-gif"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+            <div className="add-celebration-text">记录添加成功！🎉</div>
+          </div>
+        </div>
+      )}
+
       {/* 用户切换 */}
       <div className="user-switcher">
         {LOCAL_USERS.map((user) => {

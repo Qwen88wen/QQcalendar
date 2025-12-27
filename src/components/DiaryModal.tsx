@@ -22,23 +22,11 @@ export function DiaryModal() {
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 庆祝动画状态
-  const [showCelebration, setShowCelebration] = useState(false);
-  const celebrationRef = useRef(false); // 用ref防止被useEffect重置
-
-  // 记录原始车号（用于判断是否新填写）
-  const [originalVehicle, setOriginalVehicle] = useState('');
-
   // 记录当前打开的日记ID
   const currentDiaryIdRef = useRef<string | null>(null);
 
   // 加载已有数据 - 只在打开不同记录时重置
   useEffect(() => {
-    // 如果正在显示庆祝动画，不要重置任何状态
-    if (celebrationRef.current) {
-      return;
-    }
-
     const newDiaryId = selectedDiary?.id || null;
 
     // 只有在打开不同的记录时才重置表单
@@ -50,7 +38,6 @@ export function DiaryModal() {
         setRemark(selectedDiary.remark || '');
         setWorker(selectedDiary.worker || '');
         setVehicle(selectedDiary.vehicle || '');
-        setOriginalVehicle(selectedDiary.vehicle || ''); // 记录原始车号
         setStatus(selectedDiary.status || 'incomplete');
       } else {
         // 新建时清空表单
@@ -58,10 +45,8 @@ export function DiaryModal() {
         setRemark('');
         setWorker('');
         setVehicle('');
-        setOriginalVehicle('');
         setStatus('incomplete');
       }
-      setShowCelebration(false);
     }
   }, [selectedDiary]);
 
@@ -95,25 +80,8 @@ export function DiaryModal() {
 
     if (result) {
       console.log('[DiaryModal] 保存成功');
-      console.log('[DiaryModal] 原始车号:', originalVehicle, '| 当前车号:', vehicle);
-
-      // 如果原来没有车号，现在填写了车号，显示庆祝动画
-      if (!originalVehicle && vehicle) {
-        console.log('[DiaryModal] 触发庆祝动画！');
-        celebrationRef.current = true; // 防止被useEffect重置
-        setShowCelebration(true);
-        // 2秒后关闭弹窗
-        setTimeout(() => {
-          celebrationRef.current = false;
-          currentDiaryIdRef.current = null; // 重置ID以便下次打开时重新加载
-          setShowCelebration(false);
-          closeModal();
-        }, 2000);
-      } else {
-        console.log('[DiaryModal] 不触发动画 - 原车号:', !!originalVehicle, '新车号:', !!vehicle);
-        currentDiaryIdRef.current = null; // 重置ID
-        closeModal();
-      }
+      currentDiaryIdRef.current = null; // 重置ID
+      closeModal();
     } else {
       console.error('[DiaryModal] 保存失败 - 请检查网络连接或刷新页面重试');
       // 注意: updateDiary 函数已经显示了 alert，这里只记录日志
@@ -125,24 +93,6 @@ export function DiaryModal() {
   return (
     <div className="modal-overlay" onClick={closeModal}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        {/* 填写车号庆祝动画 */}
-        {showCelebration && (
-          <div className="vehicle-celebration-overlay">
-            <div className="celebration-content">
-              <img
-                src="/receive.gif"
-                alt="收到！"
-                className="vehicle-celebration-gif"
-                onError={(e) => {
-                  console.log('GIF加载失败');
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-              <div className="celebration-text">收到！🎉</div>
-            </div>
-          </div>
-        )}
-
         <button className="modal-close" onClick={closeModal}>
           ×
         </button>
