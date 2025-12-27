@@ -19,14 +19,14 @@
 }
 
 .calendar-section {
-  flex: 7;
+  flex: 4;
   overflow: hidden;
 }
 
 .memo-section {
-  flex: 3;
+  flex: 6;
   min-width: 280px;
-  max-width: 400px;
+  max-width: none;
   overflow: hidden;
   border-right: 2px dashed #FFB6C1;
 }
