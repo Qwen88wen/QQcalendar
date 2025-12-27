@@ -18,11 +18,11 @@ export default function App() {
     <div className="app">
       <TitleBar />
       <div className="main-container">
-        <div className="calendar-section">
-          <Calendar2D />
-        </div>
         <div className="memo-section">
           <Memo />
+        </div>
+        <div className="calendar-section">
+          <Calendar2D />
         </div>
       </div>
       <InputBar />

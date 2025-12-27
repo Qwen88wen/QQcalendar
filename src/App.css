@@ -28,6 +28,7 @@
   min-width: 280px;
   max-width: 400px;
   overflow: hidden;
+  border-right: 2px dashed #FFB6C1;
 }
 
 /* Chiikawa 风格滚动条 */
@@ -62,7 +63,7 @@
 /* 平板和移动端调整 */
 @media (max-width: 1024px) {
   .main-container {
-    flex-direction: column;
+    flex-direction: column-reverse;
     margin-bottom: 200px;
   }
 
@@ -75,6 +76,7 @@
     flex: 1;
     max-width: none;
     min-width: auto;
+    border-right: none;
     border-top: 2px dashed #FFB6C1;
   }
 }
