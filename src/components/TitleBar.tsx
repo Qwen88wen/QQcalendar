@@ -47,6 +47,12 @@ export function TitleBar() {
     d.flower_type === 1
   ).length;
 
+  const cherryCount = diaries.filter(d =>
+    d.user_name?.toLowerCase().includes('qqwen') ||
+    d.user_id?.toLowerCase().includes('qqwen') ||
+    d.flower_type === 4
+  ).length;
+
   // 统计未填车号的记录数
   const missingVehicleCount = diaries.filter(d => !d.vehicle).length;
 
@@ -92,6 +98,14 @@ export function TitleBar() {
         >
           <span className="icon">🌹</span>
           <span className="count">{roseCount}</span>
+        </button>
+        <span className="divider">|</span>
+        <button
+          className={`stat-btn cherry ${flowerFilter === 4 ? 'active' : ''}`}
+          onClick={() => handleFilterClick(4)}
+        >
+          <span className="icon">🌸</span>
+          <span className="count">{cherryCount}</span>
         </button>
       </div>
 

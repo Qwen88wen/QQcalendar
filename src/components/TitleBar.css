@@ -77,6 +77,12 @@
   border-color: #FF91A4;
 }
 
+.stat-btn.cherry:hover,
+.stat-btn.cherry.active {
+  background: linear-gradient(135deg, #FFF0F5 0%, #FFB7C5 100%);
+  border-color: #FFB7C5;
+}
+
 .stat-btn .icon {
   font-size: 1.4rem;
 }
