@@ -108,7 +108,18 @@ export function DiaryModal() {
         {/* 填写车号庆祝动画 */}
         {showCelebration && (
           <div className="vehicle-celebration-overlay">
-            <img src="/receive.gif" alt="收到！" className="vehicle-celebration-gif" />
+            <div className="celebration-content">
+              <img
+                src="/receive.gif"
+                alt="收到！"
+                className="vehicle-celebration-gif"
+                onError={(e) => {
+                  console.log('GIF加载失败');
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+              <div className="celebration-text">收到！🎉</div>
+            </div>
           </div>
         )}
 

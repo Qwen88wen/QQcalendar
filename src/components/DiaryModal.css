@@ -498,30 +498,44 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 250, 245, 0.9);
-  z-index: 100;
-  border-radius: 25px;
-  animation: vehicle-celebration-fade 1.5s ease-out forwards;
+  background: rgba(255, 245, 248, 0.95);
+  z-index: 9999;
+  border-radius: 24px;
+  animation: vehicle-celebration-fade 2s ease-out forwards;
+}
+
+.celebration-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: vehicle-celebration-bounce 0.6s ease-out;
 }
 
 .vehicle-celebration-gif {
-  max-width: 250px;
-  max-height: 250px;
+  max-width: 200px;
+  max-height: 200px;
   object-fit: contain;
-  animation: vehicle-celebration-bounce 0.5s ease-out;
   filter: drop-shadow(0 6px 25px rgba(255, 145, 164, 0.5));
+}
+
+.celebration-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #FF91A4;
+  text-shadow: 0 2px 8px rgba(255, 145, 164, 0.3);
 }
 
 @keyframes vehicle-celebration-fade {
   0% { opacity: 0; }
-  15% { opacity: 1; }
-  85% { opacity: 1; }
+  10% { opacity: 1; }
+  80% { opacity: 1; }
   100% { opacity: 0; }
 }
 
 @keyframes vehicle-celebration-bounce {
-  0% { transform: scale(0.2) rotate(-15deg); opacity: 0; }
-  50% { transform: scale(1.15) rotate(5deg); }
-  70% { transform: scale(0.95) rotate(-3deg); }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.1); }
+  70% { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; }
 }
