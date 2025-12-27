@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { updateDiary } from '../lib/diary';
 import { USER_FLOWERS } from '../lib/flowers';
@@ -24,29 +24,45 @@ export function DiaryModal() {
 
   // 庆祝动画状态
   const [showCelebration, setShowCelebration] = useState(false);
+  const celebrationRef = useRef(false); // 用ref防止被useEffect重置
 
   // 记录原始车号（用于判断是否新填写）
   const [originalVehicle, setOriginalVehicle] = useState('');
 
-  // 加载已有数据
+  // 记录当前打开的日记ID
+  const currentDiaryIdRef = useRef<string | null>(null);
+
+  // 加载已有数据 - 只在打开不同记录时重置
   useEffect(() => {
-    if (selectedDiary) {
-      setCustomer(selectedDiary.customer || '');
-      setRemark(selectedDiary.remark || '');
-      setWorker(selectedDiary.worker || '');
-      setVehicle(selectedDiary.vehicle || '');
-      setOriginalVehicle(selectedDiary.vehicle || ''); // 记录原始车号
-      setStatus(selectedDiary.status || 'incomplete');
-    } else {
-      // 新建时清空表单
-      setCustomer('');
-      setRemark('');
-      setWorker('');
-      setVehicle('');
-      setOriginalVehicle('');
-      setStatus('incomplete');
+    // 如果正在显示庆祝动画，不要重置任何状态
+    if (celebrationRef.current) {
+      return;
     }
-    setShowCelebration(false); // 重置庆祝动画
+
+    const newDiaryId = selectedDiary?.id || null;
+
+    // 只有在打开不同的记录时才重置表单
+    if (newDiaryId !== currentDiaryIdRef.current) {
+      currentDiaryIdRef.current = newDiaryId;
+
+      if (selectedDiary) {
+        setCustomer(selectedDiary.customer || '');
+        setRemark(selectedDiary.remark || '');
+        setWorker(selectedDiary.worker || '');
+        setVehicle(selectedDiary.vehicle || '');
+        setOriginalVehicle(selectedDiary.vehicle || ''); // 记录原始车号
+        setStatus(selectedDiary.status || 'incomplete');
+      } else {
+        // 新建时清空表单
+        setCustomer('');
+        setRemark('');
+        setWorker('');
+        setVehicle('');
+        setOriginalVehicle('');
+        setStatus('incomplete');
+      }
+      setShowCelebration(false);
+    }
   }, [selectedDiary]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,14 +100,18 @@ export function DiaryModal() {
       // 如果原来没有车号，现在填写了车号，显示庆祝动画
       if (!originalVehicle && vehicle) {
         console.log('[DiaryModal] 触发庆祝动画！');
+        celebrationRef.current = true; // 防止被useEffect重置
         setShowCelebration(true);
         // 2秒后关闭弹窗
         setTimeout(() => {
+          celebrationRef.current = false;
+          currentDiaryIdRef.current = null; // 重置ID以便下次打开时重新加载
           setShowCelebration(false);
           closeModal();
         }, 2000);
       } else {
         console.log('[DiaryModal] 不触发动画 - 原车号:', !!originalVehicle, '新车号:', !!vehicle);
+        currentDiaryIdRef.current = null; // 重置ID
         closeModal();
       }
     } else {
