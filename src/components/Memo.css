@@ -4,31 +4,10 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  /* GIF背景 + 渐变备用 */
-  background:
-    url('/images/memo-bg.gif') center center / cover no-repeat,
-    linear-gradient(180deg, #FFFAF5 0%, #FFF5F8 100%);
+  background: linear-gradient(180deg, #FFFAF5 0%, #FFF5F8 100%);
   border-left: 2px dashed #FFD1DC;
   overflow: hidden;
   position: relative;
-}
-
-/* 半透明遮罩层，确保内容清晰可读 */
-.memo::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 250, 245, 0.85);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.memo > * {
-  position: relative;
-  z-index: 1;
 }
 
 /* 标签切换 */
@@ -649,4 +628,40 @@
     padding: 8px 12px;
     font-size: 0.85rem;
   }
+}
+
+/* ========== 完成庆祝动画 ========== */
+.celebration-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 250, 245, 0.7);
+  z-index: 100;
+  animation: celebration-fade 1.5s ease-out forwards;
+}
+
+.celebration-gif {
+  max-width: 200px;
+  max-height: 200px;
+  object-fit: contain;
+  animation: celebration-bounce 0.5s ease-out;
+  filter: drop-shadow(0 4px 20px rgba(255, 145, 164, 0.5));
+}
+
+@keyframes celebration-fade {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes celebration-bounce {
+  0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+  50% { transform: scale(1.1) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }

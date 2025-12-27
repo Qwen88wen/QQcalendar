@@ -50,6 +50,9 @@ export function Memo() {
   const [todos, setTodos] = useState<QuickTodo[]>([]);
   const [newTodoText, setNewTodoText] = useState('');
 
+  // 完成庆祝动画
+  const [showCelebration, setShowCelebration] = useState(false);
+
   // 从 localStorage 加载待办
   useEffect(() => {
     const saved = localStorage.getItem('qq-calendar-todos');
@@ -78,8 +81,14 @@ export function Memo() {
 
   // 切换待办状态
   const toggleTodo = (id: string) => {
-    setTodos(todos.map(todo =>
-      todo.id === id ? { ...todo, done: !todo.done } : todo
+    const todo = todos.find(t => t.id === id);
+    // 如果从未完成变成完成，显示庆祝动画
+    if (todo && !todo.done) {
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 1500); // 1.5秒后隐藏
+    }
+    setTodos(todos.map(t =>
+      t.id === id ? { ...t, done: !t.done } : t
     ));
   };
 
@@ -195,6 +204,12 @@ export function Memo() {
 
   return (
     <div className="memo">
+      {/* 完成庆祝动画 */}
+      {showCelebration && (
+        <div className="celebration-overlay">
+          <img src="/memo-bg.gif" alt="庆祝" className="celebration-gif" />
+        </div>
+      )}
       {/* 标签切换 */}
       <div className="memo-tabs">
         <button
