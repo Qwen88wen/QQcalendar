@@ -487,3 +487,41 @@
   border: 1px solid #FFB6C1;
   font-weight: 500;
 }
+
+/* ========== 车号填写庆祝动画 ========== */
+.vehicle-celebration-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 250, 245, 0.9);
+  z-index: 100;
+  border-radius: 25px;
+  animation: vehicle-celebration-fade 1.5s ease-out forwards;
+}
+
+.vehicle-celebration-gif {
+  max-width: 250px;
+  max-height: 250px;
+  object-fit: contain;
+  animation: vehicle-celebration-bounce 0.5s ease-out;
+  filter: drop-shadow(0 6px 25px rgba(255, 145, 164, 0.5));
+}
+
+@keyframes vehicle-celebration-fade {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes vehicle-celebration-bounce {
+  0% { transform: scale(0.2) rotate(-15deg); opacity: 0; }
+  50% { transform: scale(1.15) rotate(5deg); }
+  70% { transform: scale(0.95) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}

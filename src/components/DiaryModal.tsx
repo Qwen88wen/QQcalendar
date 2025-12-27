@@ -22,6 +22,12 @@ export function DiaryModal() {
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 庆祝动画状态
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  // 记录原始车号（用于判断是否新填写）
+  const [originalVehicle, setOriginalVehicle] = useState('');
+
   // 加载已有数据
   useEffect(() => {
     if (selectedDiary) {
@@ -29,6 +35,7 @@ export function DiaryModal() {
       setRemark(selectedDiary.remark || '');
       setWorker(selectedDiary.worker || '');
       setVehicle(selectedDiary.vehicle || '');
+      setOriginalVehicle(selectedDiary.vehicle || ''); // 记录原始车号
       setStatus(selectedDiary.status || 'incomplete');
     } else {
       // 新建时清空表单
@@ -36,8 +43,10 @@ export function DiaryModal() {
       setRemark('');
       setWorker('');
       setVehicle('');
+      setOriginalVehicle('');
       setStatus('incomplete');
     }
+    setShowCelebration(false); // 重置庆祝动画
   }, [selectedDiary]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,7 +79,18 @@ export function DiaryModal() {
 
     if (result) {
       console.log('[DiaryModal] 保存成功');
-      closeModal();
+
+      // 如果原来没有车号，现在填写了车号，显示庆祝动画
+      if (!originalVehicle && vehicle) {
+        setShowCelebration(true);
+        // 1.5秒后关闭弹窗
+        setTimeout(() => {
+          setShowCelebration(false);
+          closeModal();
+        }, 1500);
+      } else {
+        closeModal();
+      }
     } else {
       console.error('[DiaryModal] 保存失败 - 请检查网络连接或刷新页面重试');
       // 注意: updateDiary 函数已经显示了 alert，这里只记录日志
@@ -82,6 +102,13 @@ export function DiaryModal() {
   return (
     <div className="modal-overlay" onClick={closeModal}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        {/* 填写车号庆祝动画 */}
+        {showCelebration && (
+          <div className="vehicle-celebration-overlay">
+            <img src="/receive.gif" alt="收到！" className="vehicle-celebration-gif" />
+          </div>
+        )}
+
         <button className="modal-close" onClick={closeModal}>
           ×
         </button>
