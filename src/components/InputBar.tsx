@@ -32,14 +32,22 @@ export function InputBar() {
       const user = LOCAL_USERS.find(u => u.username === activeInputUser);
 
       // 使用选中的日期，如果没有选中则使用今天
-      const targetDate = selectedDate || new Date();
-      // 设置为当天的中午12点，避免时区问题
-      const createdAt = new Date(
-        targetDate.getFullYear(),
-        targetDate.getMonth(),
-        targetDate.getDate(),
-        12, 0, 0
-      ).toISOString();
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const targetDate = selectedDate || today;
+
+      let createdAt: string;
+      // 如果是今天，使用当前实际时间；如果是其他日期，使用中午12点
+      if (targetDate.getTime() === today.getTime()) {
+        createdAt = now.toISOString();
+      } else {
+        createdAt = new Date(
+          targetDate.getFullYear(),
+          targetDate.getMonth(),
+          targetDate.getDate(),
+          12, 0, 0
+        ).toISOString();
+      }
 
       const newDiary = await createDiary({
         user_id: user?.id || `user-${activeInputUser.toLowerCase()}`,

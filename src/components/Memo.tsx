@@ -51,13 +51,18 @@ export function Memo() {
   // 添加待办
   const addTodo = async () => {
     if (!newTodoText.trim()) return;
-    // 使用当前查看的日期（选中日期或今天）
-    const todoDate = new Date(
-      viewDate.getFullYear(),
-      viewDate.getMonth(),
-      viewDate.getDate(),
-      12, 0, 0
-    );
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const viewDateOnly = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate());
+
+    // 如果是今天，使用当前实际时间；如果是其他日期，使用中午12点
+    let todoDate: Date;
+    if (viewDateOnly.getTime() === today.getTime()) {
+      todoDate = now;
+    } else {
+      todoDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate(), 12, 0, 0);
+    }
 
     const newTodo = await createTodoInDB({
       text: newTodoText.trim(),
