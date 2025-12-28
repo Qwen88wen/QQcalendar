@@ -631,6 +631,19 @@
 }
 
 @media (max-width: 600px) {
+  .memo {
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+    border-left: none;
+  }
+
+  .memo-list,
+  .todo-list {
+    overflow: visible;
+    max-height: none;
+  }
+
   .memo-tabs {
     border-bottom-width: 1px;
   }

@@ -85,6 +85,25 @@
   .main-container {
     margin-top: 48px;
     margin-bottom: 140px;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .calendar-section {
+    flex: none;
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .memo-section {
+    flex: none;
+    min-height: auto;
+    overflow: visible;
+    border-top: none;
+    border-bottom: 2px dashed #FFB6C1;
   }
 }
 

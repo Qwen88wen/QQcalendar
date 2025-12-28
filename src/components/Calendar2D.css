@@ -384,6 +384,9 @@
 @media (max-width: 600px) {
   .calendar-2d {
     padding: 8px;
+    height: auto;
+    min-height: auto;
+    overflow: visible;
   }
 
   .calendar-2d::before,
