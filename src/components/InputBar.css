@@ -230,3 +230,23 @@
   70% { transform: scale(0.95); }
   100% { transform: scale(1); opacity: 1; }
 }
+
+/* Desktop 大屏幕优化 */
+@media (min-width: 1440px) {
+  .input-bar {
+    max-width: 1400px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 20px 20px 0 0;
+    padding: 12px 20px 14px;
+  }
+
+  .user-switcher {
+    margin-bottom: 10px;
+  }
+
+  .input-table input,
+  .input-table select {
+    padding: 10px 12px;
+  }
+}
