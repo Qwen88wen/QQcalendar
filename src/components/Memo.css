@@ -630,6 +630,131 @@
   }
 }
 
+@media (max-width: 600px) {
+  .memo-tabs {
+    border-bottom-width: 1px;
+  }
+
+  .memo-tab {
+    padding: 10px 6px;
+    font-size: 0.85rem;
+  }
+
+  .tab-badge {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    margin-left: 4px;
+  }
+
+  .memo-date-header {
+    padding: 10px 12px;
+  }
+
+  .memo-date-header .date-label {
+    font-size: 1rem;
+  }
+
+  .memo-date-header .date-hint {
+    font-size: 0.85rem;
+  }
+
+  .memo-stats {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .stat-card {
+    padding: 10px 6px;
+    border-radius: 12px;
+  }
+
+  .stat-number {
+    font-size: 1.1rem;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+  }
+
+  .memo-filter {
+    padding: 0 10px 10px;
+    gap: 6px;
+  }
+
+  .filter-btn {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    border-radius: 14px;
+  }
+
+  .memo-list {
+    padding: 0 10px 10px;
+  }
+
+  .memo-item {
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+  }
+
+  .memo-flower {
+    font-size: 1.1rem;
+  }
+
+  .memo-customer {
+    font-size: 0.9rem;
+  }
+
+  .todo-input {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .todo-input input {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    border-radius: 12px;
+  }
+
+  .todo-input button {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    border-radius: 12px;
+  }
+
+  .todo-stats {
+    padding: 0 10px 10px;
+    font-size: 0.8rem;
+    gap: 12px;
+  }
+
+  .todo-list {
+    padding: 0 10px 10px;
+  }
+
+  .todo-item {
+    padding: 10px;
+    gap: 10px;
+    border-radius: 12px;
+  }
+
+  .todo-checkbox {
+    width: 22px;
+    height: 22px;
+    font-size: 0.8rem;
+  }
+
+  .todo-text {
+    font-size: 0.9rem;
+  }
+
+  .todo-delete {
+    width: 22px;
+    height: 22px;
+    font-size: 1rem;
+  }
+}
+
 /* ========== 完成庆祝动画 ========== */
 .celebration-overlay {
   position: absolute;

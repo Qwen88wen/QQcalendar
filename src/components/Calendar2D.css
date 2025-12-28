@@ -380,3 +380,84 @@
     border-radius: 8px;
   }
 }
+
+@media (max-width: 600px) {
+  .calendar-2d {
+    padding: 8px;
+  }
+
+  .calendar-2d::before,
+  .calendar-2d::after {
+    display: none;
+  }
+
+  .year-selector {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .year-btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+
+  .year-title {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+  }
+
+  .month-selector {
+    margin-bottom: 10px;
+  }
+
+  .month-nav {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+
+  .weekday-header {
+    gap: 2px;
+    margin-bottom: 6px;
+  }
+
+  .weekday {
+    padding: 4px;
+    font-size: 0.7rem;
+  }
+
+  .calendar-grid {
+    gap: 3px;
+  }
+
+  .calendar-day {
+    min-height: 55px;
+    padding: 4px;
+    border-radius: 10px;
+  }
+
+  .day-number {
+    font-size: 0.85rem;
+    margin-bottom: 3px;
+  }
+
+  .day-flowers {
+    gap: 2px;
+    margin-bottom: 3px;
+  }
+
+  .flower-group {
+    padding: 2px;
+  }
+
+  .flower-icon {
+    font-size: 0.85rem;
+  }
+
+  .vehicle-dot {
+    width: 7px;
+    height: 7px;
+    top: -2px;
+    right: -2px;
+  }
+}

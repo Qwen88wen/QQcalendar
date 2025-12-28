@@ -167,16 +167,47 @@
 }
 
 @media (max-width: 600px) {
+  .input-bar {
+    padding: 10px 10px 12px;
+  }
+
+  .user-switcher {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
   .user-name {
     display: none;
   }
 
   .user-btn {
-    padding: 10px 12px;
+    padding: 8px 10px;
   }
 
-  .input-table {
+  .user-icon {
+    font-size: 1.1rem;
+  }
+
+  .input-table th {
+    font-size: 0.75rem;
+    padding: 6px 4px;
+  }
+
+  .input-table td {
+    padding: 3px;
+  }
+
+  .input-table input,
+  .input-table select {
+    padding: 8px 10px;
     font-size: 0.85rem;
+    border-radius: 10px;
+  }
+
+  .add-btn {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    border-radius: 10px;
   }
 }
 
