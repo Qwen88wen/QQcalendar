@@ -342,51 +342,10 @@
   font-weight: 500;
 }
 
-/* 移动端适配 */
+/* 小屏幕适配 - 保持左右布局，缩小元素 */
 @media (max-width: 768px) {
   .calendar-2d {
-    padding: 12px;
-  }
-
-  .month-tabs {
-    display: none;
-  }
-
-  .year-title {
-    font-size: 1.3rem;
-  }
-
-  .calendar-day {
-    min-height: 65px;
-    padding: 6px;
-    border-radius: 12px;
-  }
-
-  .day-number {
-    font-size: 0.9rem;
-  }
-
-  .flower-icon {
-    font-size: 0.95rem;
-  }
-
-  .day-summary {
-    display: none;
-  }
-
-  .weekday {
-    padding: 6px;
-    font-size: 0.8rem;
-    border-radius: 8px;
-  }
-}
-
-@media (max-width: 600px) {
-  .calendar-2d {
     padding: 8px;
-    height: auto;
-    min-height: auto;
-    overflow: visible;
   }
 
   .calendar-2d::before,
@@ -394,73 +353,153 @@
     display: none;
   }
 
-  .year-selector {
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  .year-btn {
-    padding: 8px 16px;
-    font-size: 0.9rem;
+  .month-tabs {
+    display: none;
   }
 
   .year-title {
     font-size: 1.1rem;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+  }
+
+  .year-selector {
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  .year-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
   }
 
   .month-selector {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
   .month-nav {
-    width: 32px;
-    height: 32px;
-    font-size: 0.85rem;
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  .month-title {
+    font-size: 1rem;
   }
 
   .weekday-header {
     gap: 2px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
 
   .weekday {
     padding: 4px;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+    border-radius: 6px;
   }
 
   .calendar-grid {
-    gap: 3px;
+    gap: 2px;
   }
 
   .calendar-day {
-    min-height: 55px;
-    padding: 4px;
-    border-radius: 10px;
+    min-height: 45px;
+    padding: 3px;
+    border-radius: 8px;
   }
 
   .day-number {
-    font-size: 0.85rem;
-    margin-bottom: 3px;
+    font-size: 0.75rem;
+    margin-bottom: 2px;
   }
 
   .day-flowers {
-    gap: 2px;
-    margin-bottom: 3px;
-  }
-
-  .flower-group {
-    padding: 2px;
+    gap: 1px;
   }
 
   .flower-icon {
-    font-size: 0.85rem;
+    font-size: 0.7rem;
+  }
+
+  .flower-group {
+    padding: 1px;
   }
 
   .vehicle-dot {
-    width: 7px;
-    height: 7px;
-    top: -2px;
-    right: -2px;
+    width: 5px;
+    height: 5px;
+    top: -1px;
+    right: -1px;
+  }
+
+  .day-summary {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .calendar-2d {
+    padding: 6px;
+  }
+
+  .year-title {
+    font-size: 0.95rem;
+  }
+
+  .year-btn {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  .month-nav {
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+  }
+
+  .month-title {
+    font-size: 0.85rem;
+  }
+
+  .weekday {
+    padding: 2px;
+    font-size: 0.55rem;
+  }
+
+  .calendar-grid {
+    gap: 1px;
+  }
+
+  .calendar-day {
+    min-height: 35px;
+    padding: 2px;
+    border-radius: 6px;
+  }
+
+  .day-number {
+    font-size: 0.65rem;
+    margin-bottom: 1px;
+  }
+
+  .day-flowers {
+    gap: 1px;
+  }
+
+  .flower-group {
+    padding: 0;
+  }
+
+  .flower-icon {
+    font-size: 0.6rem;
+  }
+
+  .vehicle-dot {
+    width: 4px;
+    height: 4px;
+    top: -1px;
+    right: -1px;
+  }
+
+  .flower-count {
+    font-size: 0.5rem;
   }
 }

@@ -9,7 +9,7 @@ import './InputBar.css';
 export function InputBar() {
   const { activeInputUser, setActiveInputUser, selectedDate } = useAppStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false); // 默认收起
 
   // 表单字段
   const [customer, setCustomer] = useState('');

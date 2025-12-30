@@ -596,52 +596,66 @@
   transform: scale(1.1);
 }
 
-/* 移动端适配 */
+/* 小屏幕适配 - 保持左右布局，只缩小元素 */
 @media (max-width: 768px) {
-  .memo {
-    border-left: none;
-    border-top: 2px dashed #FFD1DC;
-  }
-
   .memo-tabs {
     padding: 0;
   }
 
   .memo-tab {
-    padding: 14px 10px;
-    font-size: 0.95rem;
+    padding: 10px 8px;
+    font-size: 0.85rem;
   }
 
   .memo-stats {
-    padding: 14px;
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .stat-card {
+    padding: 8px 4px;
   }
 
   .stat-number {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
   }
 
   .todo-input {
-    padding: 14px;
+    padding: 10px;
   }
 
   .filter-btn {
-    padding: 8px 12px;
+    padding: 6px 8px;
+    font-size: 0.75rem;
+  }
+
+  .memo-item {
+    padding: 10px;
+    margin-bottom: 8px;
+  }
+
+  .memo-flower {
+    font-size: 1rem;
+  }
+
+  .memo-customer {
     font-size: 0.85rem;
   }
 }
 
 @media (max-width: 600px) {
-  .memo {
-    height: auto;
-    min-height: auto;
-    overflow: visible;
-    border-left: none;
+  .memo-tab {
+    padding: 8px 4px;
+    font-size: 0.75rem;
   }
 
-  .memo-list,
-  .todo-list {
-    overflow: visible;
-    max-height: none;
+  .tab-badge {
+    font-size: 0.6rem;
+    padding: 2px 4px;
   }
 
   .memo-tabs {
