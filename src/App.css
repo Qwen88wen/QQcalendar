@@ -51,14 +51,14 @@
 /* ========== 日历切换按钮 (Hamburger) ========== */
 .calendar-toggle {
   position: absolute;
-  right: 10px;
+  right: 15px;
   top: 50%;
   transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
-  border: 2px solid #FFB6C1;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #FFF5F8 0%, #FFE4EC 100%);
+  width: 52px;
+  height: 52px;
+  border: 3px solid #FF91A4;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #FF91A4 0%, #FF6B8A 100%);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -66,38 +66,61 @@
   justify-content: center;
   gap: 2px;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 10px rgba(255, 182, 193, 0.3);
+  box-shadow: 0 4px 20px rgba(255, 107, 138, 0.5);
   z-index: 10;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(255, 107, 138, 0.5);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(255, 107, 138, 0.8);
+  }
 }
 
 .calendar-toggle:hover {
-  transform: translateY(-50%) scale(1.05);
-  box-shadow: 0 4px 15px rgba(255, 182, 193, 0.5);
-  background: linear-gradient(135deg, #FFE4EC 0%, #FFD1DC 100%);
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 6px 25px rgba(255, 107, 138, 0.7);
+  background: linear-gradient(135deg, #FF6B8A 0%, #FF4D6D 100%);
+  animation: none;
 }
 
 .calendar-toggle.collapsed {
-  background: linear-gradient(135deg, #FFB6C1 0%, #FF91A4 100%);
-  border-color: #FF91A4;
+  background: linear-gradient(135deg, #4FC3F7 0%, #29B6F6 100%);
+  border-color: #29B6F6;
+  box-shadow: 0 4px 20px rgba(41, 182, 246, 0.5);
+  animation: pulse-glow-blue 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-blue {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(41, 182, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(41, 182, 246, 0.8);
+  }
 }
 
 .calendar-toggle.collapsed:hover {
-  background: linear-gradient(135deg, #FF91A4 0%, #FF6B8A 100%);
+  background: linear-gradient(135deg, #29B6F6 0%, #03A9F4 100%);
+  animation: none;
 }
 
 /* 汉堡图标 */
 .hamburger-icon {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  width: 18px;
+  gap: 4px;
+  width: 22px;
 }
 
 .hamburger-icon span {
   display: block;
   width: 100%;
-  height: 2px;
-  background: #D4838F;
+  height: 3px;
+  background: white;
   border-radius: 2px;
   transition: all 0.3s ease;
 }
@@ -188,13 +211,19 @@
   }
 
   .calendar-toggle {
-    width: 38px;
-    height: 38px;
-    right: 8px;
+    width: 46px;
+    height: 46px;
+    right: 10px;
+    border-width: 2px;
   }
 
   .hamburger-icon {
-    width: 16px;
+    width: 20px;
+    gap: 3px;
+  }
+
+  .hamburger-icon span {
+    height: 3px;
   }
 }
 
@@ -215,15 +244,16 @@
   }
 
   .calendar-toggle {
-    width: 34px;
-    height: 34px;
-    right: 5px;
-    border-radius: 10px;
+    width: 42px;
+    height: 42px;
+    right: 8px;
+    border-radius: 12px;
+    border-width: 2px;
   }
 
   .hamburger-icon {
-    width: 14px;
-    gap: 2px;
+    width: 18px;
+    gap: 3px;
   }
 
   .hamburger-icon span {
