@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Calendar2D } from './components/Calendar2D';
 import { Memo } from './components/Memo';
 import { TitleBar } from './components/TitleBar';
@@ -16,16 +17,34 @@ export default function App() {
   // 初始化实时同步
   useRealtime();
 
+  // 日历显示状态
+  const [isCalendarVisible, setIsCalendarVisible] = useState(true);
+
   return (
     <div className="app">
       <TitleBar />
-      <div className="main-container">
+      <div className={`main-container ${isCalendarVisible ? '' : 'calendar-hidden'}`}>
         <div className="memo-section">
           <Memo />
         </div>
-        <div className="calendar-section">
-          <Calendar2D />
-        </div>
+        {isCalendarVisible && (
+          <div className="calendar-section">
+            <Calendar2D />
+          </div>
+        )}
+        {/* 日历切换按钮 */}
+        <button
+          className={`calendar-toggle ${isCalendarVisible ? '' : 'collapsed'}`}
+          onClick={() => setIsCalendarVisible(!isCalendarVisible)}
+          title={isCalendarVisible ? '隐藏日历' : '显示日历'}
+        >
+          <span className="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+          <span className="toggle-label">{isCalendarVisible ? '📅' : '📅'}</span>
+        </button>
       </div>
       <InputBar />
       <DiaryModal />

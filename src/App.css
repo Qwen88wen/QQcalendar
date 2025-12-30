@@ -14,29 +14,133 @@
 .main-container {
   flex: 1;
   display: flex;
-  flex-direction: row; /* 强制左右布局 */
+  flex-direction: row;
   margin-top: 60px;
-  margin-bottom: 60px; /* 减少底部空间，因为 InputBar 默认收起 */
+  margin-bottom: 60px;
   overflow: hidden;
   max-width: 1400px;
   margin-left: auto;
   margin-right: auto;
   width: 100%;
+  position: relative;
+}
+
+/* 日历隐藏时，备忘录占满整个宽度 */
+.main-container.calendar-hidden .memo-section {
+  flex: 1;
+  border-right: none;
 }
 
 /* 左侧：备忘录 60% */
 .memo-section {
   flex: 6;
-  min-width: 0; /* 允许收缩 */
+  min-width: 0;
   overflow: hidden;
   border-right: 2px dashed #FFB6C1;
+  transition: flex 0.3s ease;
 }
 
 /* 右侧：日历 40% */
 .calendar-section {
   flex: 4;
-  min-width: 0; /* 允许收缩 */
+  min-width: 0;
   overflow: hidden;
+  transition: flex 0.3s ease;
+}
+
+/* ========== 日历切换按钮 (Hamburger) ========== */
+.calendar-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border: 2px solid #FFB6C1;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #FFF5F8 0%, #FFE4EC 100%);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(255, 182, 193, 0.3);
+  z-index: 10;
+}
+
+.calendar-toggle:hover {
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 0 4px 15px rgba(255, 182, 193, 0.5);
+  background: linear-gradient(135deg, #FFE4EC 0%, #FFD1DC 100%);
+}
+
+.calendar-toggle.collapsed {
+  background: linear-gradient(135deg, #FFB6C1 0%, #FF91A4 100%);
+  border-color: #FF91A4;
+}
+
+.calendar-toggle.collapsed:hover {
+  background: linear-gradient(135deg, #FF91A4 0%, #FF6B8A 100%);
+}
+
+/* 汉堡图标 */
+.hamburger-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 18px;
+}
+
+.hamburger-icon span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #D4838F;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.calendar-toggle.collapsed .hamburger-icon span {
+  background: white;
+}
+
+/* 汉堡图标动画 - 展开时变成箭头 */
+.calendar-toggle:not(.collapsed) .hamburger-icon span:nth-child(1) {
+  transform: translateY(2px) rotate(0deg);
+}
+
+.calendar-toggle:not(.collapsed) .hamburger-icon span:nth-child(2) {
+  opacity: 1;
+}
+
+.calendar-toggle:not(.collapsed) .hamburger-icon span:nth-child(3) {
+  transform: translateY(-2px) rotate(0deg);
+}
+
+/* 收起时变成展开箭头 */
+.calendar-toggle.collapsed .hamburger-icon span:nth-child(1) {
+  transform: rotate(45deg) translate(3px, 3px);
+  width: 10px;
+}
+
+.calendar-toggle.collapsed .hamburger-icon span:nth-child(2) {
+  width: 18px;
+}
+
+.calendar-toggle.collapsed .hamburger-icon span:nth-child(3) {
+  transform: rotate(-45deg) translate(3px, -3px);
+  width: 10px;
+}
+
+.toggle-label {
+  font-size: 0.7rem;
+  margin-top: 2px;
+}
+
+.calendar-toggle.collapsed .toggle-label {
+  color: white;
 }
 
 /* Chiikawa 风格滚动条 */
@@ -68,7 +172,7 @@
   }
 }
 
-/* 小屏幕微调 - 保持左右布局，只调整间距 */
+/* 小屏幕微调 */
 @media (max-width: 768px) {
   .main-container {
     margin-top: 55px;
@@ -82,9 +186,19 @@
   .calendar-section {
     flex: 5;
   }
+
+  .calendar-toggle {
+    width: 38px;
+    height: 38px;
+    right: 8px;
+  }
+
+  .hamburger-icon {
+    width: 16px;
+  }
 }
 
-/* 手机端 - 仍然保持左右布局 */
+/* 手机端 */
 @media (max-width: 600px) {
   .main-container {
     margin-top: 48px;
@@ -98,5 +212,25 @@
 
   .calendar-section {
     flex: 1;
+  }
+
+  .calendar-toggle {
+    width: 34px;
+    height: 34px;
+    right: 5px;
+    border-radius: 10px;
+  }
+
+  .hamburger-icon {
+    width: 14px;
+    gap: 2px;
+  }
+
+  .hamburger-icon span {
+    height: 2px;
+  }
+
+  .toggle-label {
+    display: none;
   }
 }
