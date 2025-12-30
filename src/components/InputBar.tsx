@@ -9,6 +9,7 @@ import './InputBar.css';
 export function InputBar() {
   const { activeInputUser, setActiveInputUser, selectedDate } = useAppStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   // 表单字段
   const [customer, setCustomer] = useState('');
@@ -83,7 +84,7 @@ export function InputBar() {
   };
 
   return (
-    <div className="input-bar">
+    <div className={`input-bar ${isExpanded ? 'expanded' : 'collapsed'}`}>
       {/* 添加记录庆祝动画 */}
       {showCelebration && (
         <div className="add-celebration-overlay">
@@ -101,97 +102,112 @@ export function InputBar() {
         </div>
       )}
 
-      {/* 用户切换 */}
-      <div className="user-switcher">
-        {LOCAL_USERS.map((user) => {
-          const flower = USER_FLOWERS[user.username];
-          return (
-            <button
-              key={user.id}
-              className={`user-btn ${user.username.toLowerCase()} ${activeInputUser === user.username ? 'active' : ''}`}
-              onClick={() => handleUserSwitch(user.username as InputUser)}
-            >
-              <span className="user-icon">{flower?.icon || '🌸'}</span>
-              <span className="user-name">{user.displayName}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* 展开/收起按钮 */}
+      <button
+        className="toggle-btn"
+        onClick={() => setIsExpanded(!isExpanded)}
+        title={isExpanded ? '收起' : '展开添加记录'}
+      >
+        <span className="toggle-icon">{isExpanded ? '▼' : '▲'}</span>
+        <span className="toggle-text">{isExpanded ? '收起' : '➕ 添加记录'}</span>
+      </button>
 
-      {/* 输入表格 */}
-      <div className="input-table">
-        <table>
-          <thead>
-            <tr>
-              <th>园主 *</th>
-              <th>工人</th>
-              <th>备注</th>
-              <th>车号</th>
-              <th>状态</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <input
-                  type="text"
-                  value={customer}
-                  onChange={(e) => setCustomer(e.target.value)}
-                  placeholder="园主"
-                  disabled={isSubmitting}
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  value={worker}
-                  onChange={(e) => setWorker(e.target.value)}
-                  placeholder="工人"
-                  disabled={isSubmitting}
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  value={remark}
-                  onChange={(e) => setRemark(e.target.value)}
-                  placeholder="备注"
-                  disabled={isSubmitting}
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  value={vehicle}
-                  onChange={(e) => setVehicle(e.target.value)}
-                  placeholder="车号"
-                  disabled={isSubmitting}
-                />
-              </td>
-              <td>
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as DiaryStatus)}
-                  disabled={isSubmitting}
-                >
-                  <option value="incomplete">未完成</option>
-                  <option value="complete">已完成</option>
-                </select>
-              </td>
-              <td>
+      {/* 展开时显示的内容 */}
+      {isExpanded && (
+        <>
+          {/* 用户切换 */}
+          <div className="user-switcher">
+            {LOCAL_USERS.map((user) => {
+              const flower = USER_FLOWERS[user.username];
+              return (
                 <button
-                  className="add-btn"
-                  onClick={handleSubmit}
-                  disabled={!customer.trim() || isSubmitting}
+                  key={user.id}
+                  className={`user-btn ${user.username.toLowerCase()} ${activeInputUser === user.username ? 'active' : ''}`}
+                  onClick={() => handleUserSwitch(user.username as InputUser)}
                 >
-                  {isSubmitting ? '...' : '🌱 添加'}
+                  <span className="user-icon">{flower?.icon || '🌸'}</span>
+                  <span className="user-name">{user.displayName}</span>
                 </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+              );
+            })}
+          </div>
+
+          {/* 输入表格 */}
+          <div className="input-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>园主 *</th>
+                  <th>工人</th>
+                  <th>备注</th>
+                  <th>车号</th>
+                  <th>状态</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <input
+                      type="text"
+                      value={customer}
+                      onChange={(e) => setCustomer(e.target.value)}
+                      placeholder="园主"
+                      disabled={isSubmitting}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={worker}
+                      onChange={(e) => setWorker(e.target.value)}
+                      placeholder="工人"
+                      disabled={isSubmitting}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={remark}
+                      onChange={(e) => setRemark(e.target.value)}
+                      placeholder="备注"
+                      disabled={isSubmitting}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={vehicle}
+                      onChange={(e) => setVehicle(e.target.value)}
+                      placeholder="车号"
+                      disabled={isSubmitting}
+                    />
+                  </td>
+                  <td>
+                    <select
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value as DiaryStatus)}
+                      disabled={isSubmitting}
+                    >
+                      <option value="incomplete">未完成</option>
+                      <option value="complete">已完成</option>
+                    </select>
+                  </td>
+                  <td>
+                    <button
+                      className="add-btn"
+                      onClick={handleSubmit}
+                      disabled={!customer.trim() || isSubmitting}
+                    >
+                      {isSubmitting ? '...' : '🌱 添加'}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </div>
   );
 }

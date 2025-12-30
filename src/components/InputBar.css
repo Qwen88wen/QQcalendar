@@ -11,6 +11,50 @@
   z-index: 100;
   box-shadow: 0 -4px 20px rgba(255, 182, 193, 0.25);
   border-top: 2px solid #FFD1DC;
+  transition: all 0.3s ease;
+}
+
+.input-bar.collapsed {
+  padding: 8px 18px;
+}
+
+/* 展开/收起按钮 */
+.toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #FFE4EC 0%, #FFD1DC 100%);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  color: #D4838F;
+  font-weight: 600;
+}
+
+.input-bar.collapsed .toggle-btn {
+  margin-bottom: 0;
+  background: linear-gradient(135deg, #FFB6C1 0%, #FF91A4 100%);
+  color: white;
+}
+
+.toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 145, 164, 0.3);
+}
+
+.toggle-icon {
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.toggle-text {
+  font-size: 0.85rem;
 }
 
 .user-switcher {
@@ -169,6 +213,25 @@
 @media (max-width: 600px) {
   .input-bar {
     padding: 10px 10px 12px;
+  }
+
+  .input-bar.collapsed {
+    padding: 6px 10px;
+  }
+
+  .toggle-btn {
+    padding: 6px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    border-radius: 10px;
+  }
+
+  .toggle-icon {
+    font-size: 0.7rem;
+  }
+
+  .toggle-text {
+    font-size: 0.8rem;
   }
 
   .user-switcher {
