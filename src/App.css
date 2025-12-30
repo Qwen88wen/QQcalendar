@@ -60,8 +60,8 @@
   }
 }
 
-/* 平板和移动端调整 */
-@media (max-width: 1024px) {
+/* 平板调整 (仅限真正的平板设备) */
+@media (max-width: 768px) {
   .main-container {
     flex-direction: column-reverse;
     margin-bottom: 200px;
