@@ -9,7 +9,7 @@ import { MissingVehicleList } from './components/MissingVehicleList';
 import { LoginModal } from './components/LoginModal';
 import { useAuth } from './hooks/useAuth';
 import { useRealtime } from './hooks/useRealtime';
-import { useAppStore } from './stores/appStore';
+import { isSessionValid } from './stores/appStore';
 import './App.css';
 
 export default function App() {
@@ -20,7 +20,6 @@ export default function App() {
   useRealtime();
 
   // 检查 session 是否有效
-  const { isSessionValid } = useAppStore();
   const isLoggedIn = isSessionValid();
 
   // 日历显示状态
