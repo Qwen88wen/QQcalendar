@@ -36,7 +36,7 @@ export const LOCAL_USERS: LocalUser[] = [
 // 验证用户登录
 export function authenticateUser(username: string, password: string): LocalUser | null {
   const user = LOCAL_USERS.find(
-    (u) => u.username.toLowerCase() === username.toLowerCase() && u.password === password
+    (u) => u.username === username && u.password === password
   );
   return user || null;
 }
