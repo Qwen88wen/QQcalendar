@@ -113,7 +113,9 @@ export function Memo() {
     return filtered.sort((a, b) => {
       const customerA = (a.customer || '').toLowerCase();
       const customerB = (b.customer || '').toLowerCase();
-      return customerA.localeCompare(customerB, 'zh-CN');
+      if (customerA < customerB) return -1;
+      if (customerA > customerB) return 1;
+      return 0;
     });
   }, [dateFilteredDiaries, filter]);
 
