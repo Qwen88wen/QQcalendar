@@ -6,8 +6,10 @@ import { InputBar } from './components/InputBar';
 import { DiaryModal } from './components/DiaryModal';
 import { RecordList } from './components/RecordList';
 import { MissingVehicleList } from './components/MissingVehicleList';
+import { LoginModal } from './components/LoginModal';
 import { useAuth } from './hooks/useAuth';
 import { useRealtime } from './hooks/useRealtime';
+import { useAppStore } from './stores/appStore';
 import './App.css';
 
 export default function App() {
@@ -17,8 +19,17 @@ export default function App() {
   // 初始化实时同步
   useRealtime();
 
+  // 检查 session 是否有效
+  const { isSessionValid } = useAppStore();
+  const isLoggedIn = isSessionValid();
+
   // 日历显示状态
   const [isCalendarVisible, setIsCalendarVisible] = useState(true);
+
+  // 未登录时显示登录界面
+  if (!isLoggedIn) {
+    return <LoginModal isOpen={true} onClose={() => {}} required={true} />;
+  }
 
   return (
     <div className="app">

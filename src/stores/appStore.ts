@@ -9,11 +9,15 @@ export type FlowerFilter = 'all' | FlowerType;
 // 输入用户类型 (对应 LOCAL_USERS)
 export type InputUser = 'QQrou' | 'QQfang' | 'QQwen';
 
+// Session 过期时间 (24小时)
+const SESSION_DURATION = 24 * 60 * 60 * 1000;
+
 interface AppState {
   // 用户状态
   userId: string | null;
   userName: string | null;
   userRole: UserRole | null;
+  loginTime: number | null;  // 登录时间戳
 
   // 数据
   diaries: Diary[];
@@ -45,6 +49,7 @@ interface AppState {
   // Actions
   loginUser: (user: LocalUser) => void;
   logoutUser: () => void;
+  isSessionValid: () => boolean;
   setDiaries: (diaries: Diary[]) => void;
   addDiary: (diary: Diary) => void;
   updateDiary: (diary: Diary) => void;
@@ -78,6 +83,7 @@ export const useAppStore = create<AppState>()(
       userId: null,
       userName: null,
       userRole: null,
+      loginTime: null,
       diaries: [],
       remarks: [],
       todos: [],
@@ -101,13 +107,21 @@ export const useAppStore = create<AppState>()(
         userId: user.id,
         userName: user.displayName,
         userRole: user.role,
+        loginTime: Date.now(),
       }),
 
       logoutUser: () => set({
         userId: null,
         userName: null,
         userRole: null,
+        loginTime: null,
       }),
+
+      isSessionValid: () => {
+        const state = useAppStore.getState();
+        if (!state.userId || !state.loginTime) return false;
+        return Date.now() - state.loginTime < SESSION_DURATION;
+      },
 
       setDiaries: (diaries) => set({ diaries }),
 
@@ -177,6 +191,7 @@ export const useAppStore = create<AppState>()(
         userId: state.userId,
         userName: state.userName,
         userRole: state.userRole,
+        loginTime: state.loginTime,
       }),
     }
   )
