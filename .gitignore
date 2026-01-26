@@ -7,3 +7,6 @@ dist/
 .env
 .env.local
 .env.*.local
+
+# TypeScript 编译缓存
+tsconfig.tsbuildinfo
