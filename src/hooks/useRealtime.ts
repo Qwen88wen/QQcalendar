@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { useAppStore } from '../stores/appStore';
 import type { Diary, DiaryRemark, Todo } from '../types/database';
 
@@ -7,6 +7,11 @@ export function useRealtime() {
   const { addDiary, updateDiary, removeDiary, addRemark, selectedDiary, addTodo, updateTodo, removeTodo } = useAppStore();
 
   useEffect(() => {
+    // 如果 Supabase 未配置，跳过实时订阅
+    if (!isSupabaseConfigured) {
+      return;
+    }
+
     console.log('[Realtime] 正在建立实时连接...');
 
     // 监听 diaries 表变更

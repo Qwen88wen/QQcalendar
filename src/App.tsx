@@ -10,6 +10,7 @@ import { LoginModal } from './components/LoginModal';
 import { useAuth } from './hooks/useAuth';
 import { useRealtime } from './hooks/useRealtime';
 import { useAppStore, isSessionValid } from './stores/appStore';
+import { isSupabaseConfigured } from './lib/supabase';
 import './App.css';
 
 // 错误边界组件
@@ -76,11 +77,48 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
+// 配置错误提示页面
+function ConfigurationRequired() {
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100vh',
+      background: 'linear-gradient(180deg, #FFF0F5 0%, #FFE4EC 50%, #FFF5EE 100%)',
+      padding: '20px',
+      textAlign: 'center',
+    }}>
+      <div style={{ fontSize: '48px', marginBottom: '20px' }}>⚙️</div>
+      <h2 style={{ color: '#FF6B8A', marginBottom: '10px' }}>请配置环境变量</h2>
+      <p style={{ color: '#666', marginBottom: '20px', maxWidth: '400px', lineHeight: '1.6' }}>
+        Supabase 未配置。请按以下步骤操作：
+      </p>
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.8)',
+        borderRadius: '12px',
+        padding: '20px',
+        textAlign: 'left',
+        maxWidth: '400px',
+        width: '100%',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+      }}>
+        <ol style={{ color: '#555', paddingLeft: '20px', lineHeight: '2' }}>
+          <li>复制 <code style={{ background: '#f0f0f0', padding: '2px 6px', borderRadius: '4px' }}>.env.example</code> 为 <code style={{ background: '#f0f0f0', padding: '2px 6px', borderRadius: '4px' }}>.env</code></li>
+          <li>填入您的 Supabase URL 和 Anon Key</li>
+          <li>重新启动开发服务器</li>
+        </ol>
+      </div>
+    </div>
+  );
+}
+
 function AppContent() {
-  // 初始化认证
+  // 初始化认证（仅在配置正确时有效）
   useAuth();
 
-  // 初始化实时同步
+  // 初始化实时同步（仅在配置正确时有效）
   useRealtime();
 
   // 获取加载和错误状态
@@ -91,6 +129,11 @@ function AppContent() {
 
   // 日历显示状态
   const [isCalendarVisible, setIsCalendarVisible] = useState(true);
+
+  // 首先检查 Supabase 配置
+  if (!isSupabaseConfigured) {
+    return <ConfigurationRequired />;
+  }
 
   // 未登录时显示登录界面
   if (!isLoggedIn) {
