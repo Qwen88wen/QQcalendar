@@ -1,16 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { createDiary } from '../lib/diary';
 import { getUserById } from '../lib/users';
 import type { DiaryStatus } from '../types/database';
 import './InputBar.css';
 
-// 工人列表
-const WORKERS = [
+// 默认工人列表
+const DEFAULT_WORKERS = [
   'RUDI KURNIADI',
   'KARIADI BOHANUDIN',
   'SUKERI NASAR',
-  'HAR RASHID',
+  'HAR RASID',
   'NURMAN AMAT',
   'NURSAN MAWARDI',
   'MAHIRUN ISMARYADI',
@@ -20,6 +20,31 @@ const WORKERS = [
   'EDI MISNO',
   'IHAP ZAENUDIN',
 ];
+
+// localStorage key
+const WORKERS_STORAGE_KEY = 'qq-calendar-workers';
+
+// 从 localStorage 获取工人列表
+function getStoredWorkers(): string[] {
+  try {
+    const stored = localStorage.getItem(WORKERS_STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (e) {
+    console.error('Failed to load workers from localStorage:', e);
+  }
+  return DEFAULT_WORKERS;
+}
+
+// 保存工人列表到 localStorage
+function saveWorkers(workers: string[]) {
+  try {
+    localStorage.setItem(WORKERS_STORAGE_KEY, JSON.stringify(workers));
+  } catch (e) {
+    console.error('Failed to save workers to localStorage:', e);
+  }
+}
 
 export function InputBar() {
   const { selectedDate, userId, userName } = useAppStore();
@@ -34,12 +59,22 @@ export function InputBar() {
   const [vehicle, setVehicle] = useState('');
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
 
+  // 工人列表管理
+  const [workers, setWorkers] = useState<string[]>(DEFAULT_WORKERS);
+  const [showWorkerManager, setShowWorkerManager] = useState(false);
+  const [newWorkerName, setNewWorkerName] = useState('');
+
   // 庆祝动画状态
   const [showCelebration, setShowCelebration] = useState(false);
 
   // 获取当前登录用户信息
   const currentUser = userId ? getUserById(userId) : null;
   const currentUsername = currentUser?.username || 'QQrou';
+
+  // 加载工人列表
+  useEffect(() => {
+    setWorkers(getStoredWorkers());
+  }, []);
 
   // 切换工人选择
   const toggleWorker = (worker: string) => {
@@ -48,6 +83,35 @@ export function InputBar() {
         ? prev.filter(w => w !== worker)
         : [...prev, worker]
     );
+  };
+
+  // 添加新工人
+  const addWorker = () => {
+    const name = newWorkerName.trim().toUpperCase();
+    if (name && !workers.includes(name)) {
+      const newWorkers = [...workers, name];
+      setWorkers(newWorkers);
+      saveWorkers(newWorkers);
+      setNewWorkerName('');
+    }
+  };
+
+  // 删除工人
+  const removeWorker = (worker: string) => {
+    const newWorkers = workers.filter(w => w !== worker);
+    setWorkers(newWorkers);
+    saveWorkers(newWorkers);
+    // 同时从已选中移除
+    setSelectedWorkers(prev => prev.filter(w => w !== worker));
+  };
+
+  // 重置为默认列表
+  const resetWorkers = () => {
+    if (confirm('确定要恢复默认工人列表吗？')) {
+      setWorkers(DEFAULT_WORKERS);
+      saveWorkers(DEFAULT_WORKERS);
+      setSelectedWorkers([]);
+    }
   };
 
   const handleSubmit = async () => {
@@ -177,16 +241,56 @@ export function InputBar() {
                       </button>
                       {showWorkerDropdown && (
                         <div className="worker-dropdown">
-                          {WORKERS.map(worker => (
-                            <label key={worker} className="worker-option">
-                              <input
-                                type="checkbox"
-                                checked={selectedWorkers.includes(worker)}
-                                onChange={() => toggleWorker(worker)}
-                              />
-                              <span>{worker}</span>
-                            </label>
-                          ))}
+                          <div className="worker-dropdown-header">
+                            <span>选择工人</span>
+                            <button
+                              type="button"
+                              className="manage-workers-btn"
+                              onClick={() => setShowWorkerManager(!showWorkerManager)}
+                            >
+                              {showWorkerManager ? '完成' : '✏️ 编辑'}
+                            </button>
+                          </div>
+                          {showWorkerManager && (
+                            <div className="worker-manager">
+                              <div className="add-worker-row">
+                                <input
+                                  type="text"
+                                  value={newWorkerName}
+                                  onChange={(e) => setNewWorkerName(e.target.value)}
+                                  placeholder="输入新工人名字"
+                                  onKeyDown={(e) => e.key === 'Enter' && addWorker()}
+                                />
+                                <button type="button" onClick={addWorker}>➕</button>
+                              </div>
+                              <button type="button" className="reset-btn" onClick={resetWorkers}>
+                                🔄 恢复默认
+                              </button>
+                            </div>
+                          )}
+                          <div className="worker-list">
+                            {workers.map(worker => (
+                              <div key={worker} className="worker-option">
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedWorkers.includes(worker)}
+                                    onChange={() => toggleWorker(worker)}
+                                  />
+                                  <span>{worker}</span>
+                                </label>
+                                {showWorkerManager && (
+                                  <button
+                                    type="button"
+                                    className="delete-worker-btn"
+                                    onClick={() => removeWorker(worker)}
+                                  >
+                                    ✕
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
