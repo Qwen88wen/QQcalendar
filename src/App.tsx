@@ -10,6 +10,7 @@ import { LoginModal } from './components/LoginModal';
 import { useAuth } from './hooks/useAuth';
 import { useRealtime } from './hooks/useRealtime';
 import { useAppStore, isSessionValid } from './stores/appStore';
+import { isSupabaseConfigured } from './lib/supabase';
 import './App.css';
 
 // 错误边界组件
@@ -76,7 +77,60 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
-function AppContent() {
+// 环境变量未配置提示组件
+function ConfigurationRequired() {
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100vh',
+      background: 'linear-gradient(180deg, #FFF0F5 0%, #FFE4EC 50%, #FFF5EE 100%)',
+      padding: '20px',
+      textAlign: 'center',
+    }}>
+      <div style={{ fontSize: '48px', marginBottom: '20px' }}>⚙️</div>
+      <h2 style={{ color: '#FF6B8A', marginBottom: '10px' }}>环境变量未配置</h2>
+      <p style={{ color: '#666', marginBottom: '20px', maxWidth: '500px', lineHeight: '1.6' }}>
+        请按以下步骤配置：
+      </p>
+      <div style={{
+        background: 'rgba(255,255,255,0.8)',
+        padding: '20px',
+        borderRadius: '12px',
+        textAlign: 'left',
+        maxWidth: '500px',
+        fontSize: '14px',
+        color: '#333',
+        lineHeight: '1.8',
+      }}>
+        <p style={{ marginBottom: '10px' }}>1. 复制 <code style={{ background: '#f0f0f0', padding: '2px 6px', borderRadius: '4px' }}>.env.example</code> 为 <code style={{ background: '#f0f0f0', padding: '2px 6px', borderRadius: '4px' }}>.env</code></p>
+        <p style={{ marginBottom: '10px' }}>2. 在 <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" style={{ color: '#FF6B8A' }}>Supabase</a> 创建项目并获取 URL 和 Key</p>
+        <p style={{ marginBottom: '10px' }}>3. 填入 <code style={{ background: '#f0f0f0', padding: '2px 6px', borderRadius: '4px' }}>VITE_SUPABASE_URL</code> 和 <code style={{ background: '#f0f0f0', padding: '2px 6px', borderRadius: '4px' }}>VITE_SUPABASE_ANON_KEY</code></p>
+        <p>4. 重启开发服务器</p>
+      </div>
+      <button
+        onClick={() => window.location.reload()}
+        style={{
+          marginTop: '20px',
+          padding: '12px 24px',
+          background: 'linear-gradient(135deg, #FF91A4 0%, #FF6B8A 100%)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '20px',
+          cursor: 'pointer',
+          fontSize: '16px',
+        }}
+      >
+        已配置，刷新页面
+      </button>
+    </div>
+  );
+}
+
+// 主应用内容组件（需要 Supabase 配置）
+function MainAppContent() {
   // 初始化认证
   useAuth();
 
@@ -182,6 +236,15 @@ function AppContent() {
       <MissingVehicleList />
     </div>
   );
+}
+
+// 包装组件：检查环境变量配置
+function AppContent() {
+  // 环境变量未配置时显示配置提示
+  if (!isSupabaseConfigured) {
+    return <ConfigurationRequired />;
+  }
+  return <MainAppContent />;
 }
 
 export default function App() {
