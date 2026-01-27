@@ -11,6 +11,8 @@ export function TitleBar() {
     showRecordList,
     showOnlyMissingVehicle,
     toggleMissingVehicleFilter,
+    showOnlyUnnotified,
+    toggleUnnotifiedFilter,
     setDiaries,
     userName,
     logoutUser,
@@ -36,6 +38,9 @@ export function TitleBar() {
 
   // 统计未填车号的记录数
   const missingVehicleCount = diaries.filter(d => !d.vehicle).length;
+
+  // 统计未通知的记录数
+  const unnotifiedCount = diaries.filter(d => !d.notified).length;
 
   const handleExport = async () => {
     if (isExporting) return;
@@ -73,6 +78,18 @@ export function TitleBar() {
         >
           <span className="warning-icon">🚗</span>
           <span className="warning-count">{missingVehicleCount}</span>
+        </button>
+      )}
+
+      {/* 未通知提醒按钮 */}
+      {unnotifiedCount > 0 && (
+        <button
+          className={`unnotified-btn ${showOnlyUnnotified ? 'active' : ''}`}
+          onClick={toggleUnnotifiedFilter}
+          title={`${unnotifiedCount} 条记录未通知园主`}
+        >
+          <span className="warning-icon">📞</span>
+          <span className="warning-count">{unnotifiedCount}</span>
         </button>
       )}
 

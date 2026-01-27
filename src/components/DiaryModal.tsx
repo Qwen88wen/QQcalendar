@@ -20,6 +20,7 @@ export function DiaryModal() {
   const [worker, setWorker] = useState('');
   const [vehicle, setVehicle] = useState('');
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
+  const [notified, setNotified] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 记录当前打开的日记ID
@@ -39,6 +40,7 @@ export function DiaryModal() {
         setWorker(selectedDiary.worker || '');
         setVehicle(selectedDiary.vehicle || '');
         setStatus(selectedDiary.status || 'incomplete');
+        setNotified(selectedDiary.notified || false);
       } else {
         // 新建时清空表单
         setCustomer('');
@@ -46,6 +48,7 @@ export function DiaryModal() {
         setWorker('');
         setVehicle('');
         setStatus('incomplete');
+        setNotified(false);
       }
     }
   }, [selectedDiary]);
@@ -69,6 +72,7 @@ export function DiaryModal() {
       worker: worker || null,
       vehicle: vehicle || null,
       status,
+      notified,
       operators: newOperators,
     };
 
@@ -115,6 +119,26 @@ export function DiaryModal() {
                 onChange={(e) => setCustomer(e.target.value)}
                 placeholder="输入园主名称"
               />
+            </div>
+
+            <div className="form-group">
+              <label>通知状态</label>
+              <div className="notified-options">
+                <button
+                  type="button"
+                  className={`notified-option ${!notified ? 'active unnotified' : ''}`}
+                  onClick={() => setNotified(false)}
+                >
+                  📞 未通知
+                </button>
+                <button
+                  type="button"
+                  className={`notified-option ${notified ? 'active notified' : ''}`}
+                  onClick={() => setNotified(true)}
+                >
+                  ✅ 已通知
+                </button>
+              </div>
             </div>
 
             <div className="form-group">
