@@ -13,6 +13,7 @@ export function TitleBar() {
     toggleMissingVehicleFilter,
     setDiaries,
     userName,
+    logoutUser,
   } = useAppStore();
   const [isExporting, setIsExporting] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -46,6 +47,13 @@ export function TitleBar() {
       alert('导出失败，请重试');
     } finally {
       setIsExporting(false);
+    }
+  };
+
+  // 登出
+  const handleLogout = () => {
+    if (confirm('确定要登出吗？')) {
+      logoutUser();
     }
   };
 
@@ -91,6 +99,14 @@ export function TitleBar() {
         title="导出数据备份"
       >
         {isExporting ? '⏳' : '💾'}
+      </button>
+
+      <button
+        className="logout-btn"
+        onClick={handleLogout}
+        title="登出"
+      >
+        🚪
       </button>
     </div>
   );

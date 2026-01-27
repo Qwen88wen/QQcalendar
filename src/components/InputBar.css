@@ -158,6 +158,86 @@
   cursor: pointer;
 }
 
+/* 工人多选下拉框 */
+.worker-cell {
+  position: relative;
+}
+
+.worker-select-container {
+  position: relative;
+}
+
+.worker-select-btn {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #FFD1DC;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  color: #555;
+}
+
+.worker-select-btn:hover {
+  border-color: #FF91A4;
+}
+
+.worker-select-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dropdown-arrow {
+  font-size: 0.7rem;
+  color: #B08B93;
+}
+
+.worker-dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #FFD1DC;
+  border-radius: 12px;
+  box-shadow: 0 -4px 20px rgba(255, 182, 193, 0.3);
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 200;
+  margin-bottom: 4px;
+}
+
+.worker-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.worker-option:hover {
+  background: linear-gradient(135deg, #FFF5F8 0%, #FFE4EC 100%);
+}
+
+.worker-option input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #FF91A4;
+  cursor: pointer;
+}
+
+.worker-option span {
+  flex: 1;
+}
+
 .add-btn {
   padding: 12px 20px;
   background: linear-gradient(135deg, #FFB6C1 0%, #FF91A4 100%);
