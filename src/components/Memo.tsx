@@ -110,9 +110,13 @@ export function Memo() {
     } else if (filter === 'complete') {
       filtered = filtered.filter(d => d.status === 'complete');
     }
-    return filtered.sort((a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
+    return filtered.sort((a, b) => {
+      const customerA = (a.customer || '').toLowerCase();
+      const customerB = (b.customer || '').toLowerCase();
+      if (customerA < customerB) return -1;
+      if (customerA > customerB) return 1;
+      return 0;
+    });
   }, [dateFilteredDiaries, filter]);
 
   // 统计数据（基于选中日期）

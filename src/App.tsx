@@ -6,9 +6,10 @@ import { InputBar } from './components/InputBar';
 import { DiaryModal } from './components/DiaryModal';
 import { RecordList } from './components/RecordList';
 import { MissingVehicleList } from './components/MissingVehicleList';
+import { LoginModal } from './components/LoginModal';
 import { useAuth } from './hooks/useAuth';
 import { useRealtime } from './hooks/useRealtime';
-import { useAppStore } from './stores/appStore';
+import { useAppStore, isSessionValid } from './stores/appStore';
 import './App.css';
 
 // 错误边界组件
@@ -85,8 +86,16 @@ function AppContent() {
   // 获取加载和错误状态
   const { isLoading, error } = useAppStore();
 
+  // 检查 session 是否有效
+  const isLoggedIn = isSessionValid();
+
   // 日历显示状态
   const [isCalendarVisible, setIsCalendarVisible] = useState(true);
+
+  // 未登录时显示登录界面
+  if (!isLoggedIn) {
+    return <LoginModal isOpen={true} onClose={() => {}} required={true} />;
+  }
 
   // 显示加载状态
   if (isLoading) {

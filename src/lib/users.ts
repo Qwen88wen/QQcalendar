@@ -48,10 +48,10 @@ function getPasswordForUser(username: string): string {
 // 导出用户列表 (供 UI 显示使用，不含密码)
 export const LOCAL_USERS: LocalUser[] = USER_CONFIG;
 
-// 验证用户登录
+// 验证用户登录 (用户名区分大小写)
 export function authenticateUser(username: string, password: string): LocalUser | null {
   const user = USER_CONFIG.find(
-    (u) => u.username.toLowerCase() === username.toLowerCase()
+    (u) => u.username === username
   );
 
   if (!user) return null;
