@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { useAppStore, InputUser } from '../stores/appStore';
+import { useAppStore } from '../stores/appStore';
 import { createDiary } from '../lib/diary';
-import { LOCAL_USERS } from '../lib/users';
-import { USER_FLOWERS, getFlowerTypeByUser } from '../lib/flowers';
+import { getUserById } from '../lib/users';
+import { getFlowerTypeByUser } from '../lib/flowers';
 import type { DiaryStatus } from '../types/database';
 import './InputBar.css';
 
 export function InputBar() {
-  const { activeInputUser, setActiveInputUser, selectedDate } = useAppStore();
+  const { selectedDate, userId, userName } = useAppStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false); // 默认收起
 
@@ -21,16 +21,15 @@ export function InputBar() {
   // 庆祝动画状态
   const [showCelebration, setShowCelebration] = useState(false);
 
-  const handleUserSwitch = (user: InputUser) => {
-    setActiveInputUser(user);
-  };
+  // 获取当前登录用户信息
+  const currentUser = userId ? getUserById(userId) : null;
+  const currentUsername = currentUser?.username || 'QQrou';
 
   const handleSubmit = async () => {
     if (!customer.trim() || isSubmitting) return;
 
     setIsSubmitting(true);
     try {
-      const user = LOCAL_USERS.find(u => u.username === activeInputUser);
 
       // 使用选中的日期，如果没有选中则使用今天
       const now = new Date();
@@ -51,15 +50,15 @@ export function InputBar() {
       }
 
       const newDiary = await createDiary({
-        user_id: user?.id || `user-${activeInputUser.toLowerCase()}`,
-        user_name: user?.displayName || activeInputUser,
+        user_id: currentUser?.id || userId || 'unknown',
+        user_name: userName || currentUsername,
         customer: customer.trim(),
         worker: worker.trim() || null,
         remark: remark.trim() || null,
         vehicle: vehicle.trim() || null,
         status,
-        flower_type: getFlowerTypeByUser(activeInputUser),
-        operators: [activeInputUser],  // 初始操作者
+        flower_type: getFlowerTypeByUser(currentUsername),
+        operators: [currentUsername],  // 初始操作者
         created_at: createdAt,  // 使用选中的日期
       });
 
@@ -97,7 +96,7 @@ export function InputBar() {
                 (e.target as HTMLImageElement).style.display = 'none';
               }}
             />
-            <div className="add-celebration-text">记录添加成功！🎉</div>
+            <div className="add-celebration-text">{userName || currentUsername} 添加记录成功！🎉</div>
           </div>
         </div>
       )}
@@ -115,23 +114,6 @@ export function InputBar() {
       {/* 展开时显示的内容 */}
       {isExpanded && (
         <>
-          {/* 用户切换 */}
-          <div className="user-switcher">
-            {LOCAL_USERS.map((user) => {
-              const flower = USER_FLOWERS[user.username];
-              return (
-                <button
-                  key={user.id}
-                  className={`user-btn ${user.username.toLowerCase()} ${activeInputUser === user.username ? 'active' : ''}`}
-                  onClick={() => handleUserSwitch(user.username as InputUser)}
-                >
-                  <span className="user-icon">{flower?.icon || '🌸'}</span>
-                  <span className="user-name">{user.displayName}</span>
-                </button>
-              );
-            })}
-          </div>
-
           {/* 输入表格 */}
           <div className="input-table">
             <table>
