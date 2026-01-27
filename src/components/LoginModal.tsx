@@ -6,9 +6,10 @@ import './LoginModal.css';
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  required?: boolean;  // 是否强制登录（不可关闭）
 }
 
-export function LoginModal({ isOpen, onClose }: LoginModalProps) {
+export function LoginModal({ isOpen, onClose, required = false }: LoginModalProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -32,11 +33,11 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="login-overlay" onClick={onClose}>
+    <div className="login-overlay" onClick={required ? undefined : onClose}>
       <div className="login-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="login-close" onClick={onClose}>×</button>
+        {!required && <button className="login-close" onClick={onClose}>×</button>}
 
-        <h2>登录</h2>
+        <h2>🌸 QQcalendar 登录</h2>
 
         <form onSubmit={handleSubmit}>
           <div className="login-field">

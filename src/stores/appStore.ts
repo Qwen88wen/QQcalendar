@@ -9,11 +9,22 @@ export type FlowerFilter = 'all' | FlowerType;
 // 输入用户类型 (对应 LOCAL_USERS)
 export type InputUser = 'QQrou' | 'QQfang' | 'QQwen';
 
+// Session 过期时间 (24小时)
+const SESSION_DURATION = 24 * 60 * 60 * 1000;
+
+// 检查 session 是否有效（独立函数）
+export function isSessionValid(): boolean {
+  const state = useAppStore.getState();
+  if (!state.userId || !state.loginTime) return false;
+  return Date.now() - state.loginTime < SESSION_DURATION;
+}
+
 interface AppState {
   // 用户状态
   userId: string | null;
   userName: string | null;
   userRole: UserRole | null;
+  loginTime: number | null;  // 登录时间戳
 
   // 数据
   diaries: Diary[];
@@ -80,6 +91,7 @@ export const useAppStore = create<AppState>()(
       userId: null,
       userName: null,
       userRole: null,
+      loginTime: null,
       diaries: [],
       remarks: [],
       todos: [],
@@ -104,53 +116,55 @@ export const useAppStore = create<AppState>()(
         userId: user.id,
         userName: user.displayName,
         userRole: user.role,
+        loginTime: Date.now(),
       }),
 
       logoutUser: () => set({
         userId: null,
         userName: null,
         userRole: null,
+        loginTime: null,
       }),
 
-      setDiaries: (diaries) => set({ diaries }),
+      setDiaries: (diaries: Diary[]) => set({ diaries }),
 
-      addDiary: (diary) => set((state) => ({
+      addDiary: (diary: Diary) => set((state) => ({
         diaries: [diary, ...state.diaries]
       })),
 
-      updateDiary: (diary) => set((state) => ({
+      updateDiary: (diary: Diary) => set((state) => ({
         diaries: state.diaries.map((d) => d.id === diary.id ? diary : d),
         selectedDiary: state.selectedDiary?.id === diary.id ? diary : state.selectedDiary,
       })),
 
-      removeDiary: (id) => set((state) => ({
+      removeDiary: (id: string) => set((state) => ({
         diaries: state.diaries.filter((d) => d.id !== id),
         selectedDiary: state.selectedDiary?.id === id ? null : state.selectedDiary,
       })),
 
-      setRemarks: (remarks) => set({ remarks }),
+      setRemarks: (remarks: DiaryRemark[]) => set({ remarks }),
 
-      addRemark: (remark) => set((state) => ({
+      addRemark: (remark: DiaryRemark) => set((state) => ({
         remarks: [...state.remarks, remark],
       })),
 
-      setTodos: (todos) => set({ todos }),
+      setTodos: (todos: Todo[]) => set({ todos }),
 
-      addTodo: (todo) => set((state) => ({
+      addTodo: (todo: Todo) => set((state) => ({
         todos: [todo, ...state.todos]
       })),
 
-      updateTodo: (todo) => set((state) => ({
+      updateTodo: (todo: Todo) => set((state) => ({
         todos: state.todos.map((t) => t.id === todo.id ? todo : t),
       })),
 
-      removeTodo: (id) => set((state) => ({
+      removeTodo: (id: string) => set((state) => ({
         todos: state.todos.filter((t) => t.id !== id),
       })),
 
-      setSelectedDiary: (diary) => set({ selectedDiary: diary }),
+      setSelectedDiary: (diary: Diary | null) => set({ selectedDiary: diary }),
 
-      openModal: (diary) => set({
+      openModal: (diary?: Diary) => set({
         isModalOpen: true,
         selectedDiary: diary ?? null,
         isEditing: !!diary,
@@ -162,17 +176,17 @@ export const useAppStore = create<AppState>()(
         isEditing: false,
       }),
 
-      setLoading: (loading) => set({ isLoading: loading }),
-      setError: (error) => set({ error }),
+      setLoading: (loading: boolean) => set({ isLoading: loading }),
+      setError: (error: string | null) => set({ error }),
 
       // 新增 Actions
-      setFlowerFilter: (filter) => set({ flowerFilter: filter }),
-      setActiveInputUser: (user) => set({ activeInputUser: user }),
+      setFlowerFilter: (filter: FlowerFilter) => set({ flowerFilter: filter }),
+      setActiveInputUser: (user: InputUser) => set({ activeInputUser: user }),
       toggleRecordList: () => set((state) => ({ showRecordList: !state.showRecordList })),
-      setFocusedFlower: (id) => set({ focusedFlowerId: id }),
-      setSelectedDate: (date) => set({ selectedDate: date }),
-      setCalendarYear: (year) => set({ calendarYear: year }),
-      setCalendarMonth: (month) => set({ calendarMonth: month }),
+      setFocusedFlower: (id: string | null) => set({ focusedFlowerId: id }),
+      setSelectedDate: (date: Date | null) => set({ selectedDate: date }),
+      setCalendarYear: (year: number) => set({ calendarYear: year }),
+      setCalendarMonth: (month: number) => set({ calendarMonth: month }),
       toggleMissingVehicleFilter: () => set((state) => ({ showOnlyMissingVehicle: !state.showOnlyMissingVehicle })),
     }),
     {
@@ -181,6 +195,7 @@ export const useAppStore = create<AppState>()(
         userId: state.userId,
         userName: state.userName,
         userRole: state.userRole,
+        loginTime: state.loginTime,
       }),
     }
   )
