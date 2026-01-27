@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAppStore, FlowerFilter } from '../stores/appStore';
+import { useAppStore } from '../stores/appStore';
 import { exportAllData } from '../lib/export';
 import { getDiaries } from '../lib/diary';
 import './TitleBar.css';
@@ -7,13 +7,12 @@ import './TitleBar.css';
 export function TitleBar() {
   const {
     diaries,
-    flowerFilter,
-    setFlowerFilter,
     toggleRecordList,
     showRecordList,
     showOnlyMissingVehicle,
     toggleMissingVehicleFilter,
     setDiaries,
+    userName,
   } = useAppStore();
   const [isExporting, setIsExporting] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -34,35 +33,8 @@ export function TitleBar() {
     }
   };
 
-  // 统计花朵数量 (基于 user_name 判断)
-  const lavenderCount = diaries.filter(d =>
-    d.user_name?.toLowerCase().includes('qqrou') ||
-    d.user_id?.toLowerCase().includes('qqrou') ||
-    d.flower_type === 3
-  ).length;
-
-  const roseCount = diaries.filter(d =>
-    d.user_name?.toLowerCase().includes('qqfang') ||
-    d.user_id?.toLowerCase().includes('qqfang') ||
-    d.flower_type === 1
-  ).length;
-
-  const cherryCount = diaries.filter(d =>
-    d.user_name?.toLowerCase().includes('qqwen') ||
-    d.user_id?.toLowerCase().includes('qqwen') ||
-    d.flower_type === 4
-  ).length;
-
   // 统计未填车号的记录数
   const missingVehicleCount = diaries.filter(d => !d.vehicle).length;
-
-  const handleFilterClick = (filter: FlowerFilter) => {
-    if (flowerFilter === filter) {
-      setFlowerFilter('all');
-    } else {
-      setFlowerFilter(filter);
-    }
-  };
 
   const handleExport = async () => {
     if (isExporting) return;
@@ -81,32 +53,7 @@ export function TitleBar() {
     <div className="title-bar">
       <div className="title-main">
         <h1>QQcalendar</h1>
-      </div>
-
-      <div className="flower-stats">
-        <button
-          className={`stat-btn lavender ${flowerFilter === 3 ? 'active' : ''}`}
-          onClick={() => handleFilterClick(3)}
-        >
-          <span className="icon">💐</span>
-          <span className="count">{lavenderCount}</span>
-        </button>
-        <span className="divider">|</span>
-        <button
-          className={`stat-btn rose ${flowerFilter === 1 ? 'active' : ''}`}
-          onClick={() => handleFilterClick(1)}
-        >
-          <span className="icon">🌹</span>
-          <span className="count">{roseCount}</span>
-        </button>
-        <span className="divider">|</span>
-        <button
-          className={`stat-btn cherry ${flowerFilter === 4 ? 'active' : ''}`}
-          onClick={() => handleFilterClick(4)}
-        >
-          <span className="icon">🌸</span>
-          <span className="count">{cherryCount}</span>
-        </button>
+        {userName && <span className="current-user">👤 {userName}</span>}
       </div>
 
       {/* 未填车号提醒按钮 */}
