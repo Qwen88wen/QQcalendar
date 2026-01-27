@@ -25,6 +25,11 @@ export function MissingVehicleList() {
     openModal(diary);
   };
 
+  // 清空提醒（关闭面板）
+  const handleDismiss = () => {
+    toggleMissingVehicleFilter();
+  };
+
   if (!showOnlyMissingVehicle) return null;
 
   return (
@@ -42,38 +47,45 @@ export function MissingVehicleList() {
               <p>所有记录都已填写车号</p>
             </div>
           ) : (
-            <table className="missing-vehicle-table">
-              <thead>
-                <tr>
-                  <th>花朵</th>
-                  <th>园主</th>
-                  <th>工人</th>
-                  <th>备注</th>
-                  <th>状态</th>
-                  <th>时间</th>
-                </tr>
-              </thead>
-              <tbody>
-                {missingVehicleDiaries.map((diary) => (
-                  <tr
-                    key={diary.id}
-                    onClick={() => handleRowClick(diary)}
-                    className="clickable-row"
-                  >
-                    <td className="flower-cell">{getFlowerIcon(diary)}</td>
-                    <td>{diary.customer || '-'}</td>
-                    <td>{diary.worker || '-'}</td>
-                    <td className="remark-cell">{diary.remark || '-'}</td>
-                    <td>
-                      <span className={`status-badge ${diary.status}`}>
-                        {diary.status === 'complete' ? '完成' : '未完成'}
-                      </span>
-                    </td>
-                    <td className="time-cell">{formatDate(diary.created_at)}</td>
+            <>
+              <table className="missing-vehicle-table">
+                <thead>
+                  <tr>
+                    <th>花朵</th>
+                    <th>园主</th>
+                    <th>工人</th>
+                    <th>备注</th>
+                    <th>状态</th>
+                    <th>时间</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {missingVehicleDiaries.map((diary) => (
+                    <tr
+                      key={diary.id}
+                      onClick={() => handleRowClick(diary)}
+                      className="clickable-row"
+                    >
+                      <td className="flower-cell">{getFlowerIcon(diary)}</td>
+                      <td>{diary.customer || '-'}</td>
+                      <td>{diary.worker || '-'}</td>
+                      <td className="remark-cell">{diary.remark || '-'}</td>
+                      <td>
+                        <span className={`status-badge ${diary.status}`}>
+                          {diary.status === 'complete' ? '完成' : '未完成'}
+                        </span>
+                      </td>
+                      <td className="time-cell">{formatDate(diary.created_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className="missing-vehicle-footer">
+                <button className="dismiss-btn" onClick={handleDismiss}>
+                  🔕 清空提醒
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>

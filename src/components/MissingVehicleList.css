@@ -169,6 +169,33 @@
   margin-bottom: 12px;
 }
 
+/* 底部操作栏 */
+.missing-vehicle-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #FFE4E4;
+  background: linear-gradient(135deg, #FFF8F8 0%, #FFF0F0 100%);
+  display: flex;
+  justify-content: center;
+}
+
+.dismiss-btn {
+  padding: 10px 24px;
+  border: 2px solid #FFB6C1;
+  border-radius: 20px;
+  background: white;
+  color: #D4838F;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dismiss-btn:hover {
+  background: linear-gradient(135deg, #FFE4EC 0%, #FFD1DC 100%);
+  border-color: #FF91A4;
+  transform: scale(1.05);
+}
+
 /* 移动端适配 */
 @media (max-width: 768px) {
   .missing-vehicle-panel {
