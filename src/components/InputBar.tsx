@@ -5,6 +5,22 @@ import { getUserById } from '../lib/users';
 import type { DiaryStatus } from '../types/database';
 import './InputBar.css';
 
+// 工人列表
+const WORKERS = [
+  'RUDI KURNIADI',
+  'KARIADI BOHANUDIN',
+  'SUKERI NASAR',
+  'HAR RASHID',
+  'NURMAN AMAT',
+  'NURSAN MAWARDI',
+  'MAHIRUN ISMARYADI',
+  'MURTI JUHARDI',
+  'CHAIRUL TARSIMUN',
+  'SUPANDI LANI',
+  'EDI MISNO',
+  'IHAP ZAENUDIN',
+];
+
 export function InputBar() {
   const { selectedDate, userId, userName } = useAppStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -12,7 +28,8 @@ export function InputBar() {
 
   // 表单字段
   const [customer, setCustomer] = useState('');
-  const [worker, setWorker] = useState('');
+  const [selectedWorkers, setSelectedWorkers] = useState<string[]>([]);
+  const [showWorkerDropdown, setShowWorkerDropdown] = useState(false);
   const [remark, setRemark] = useState('');
   const [vehicle, setVehicle] = useState('');
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
@@ -23,6 +40,15 @@ export function InputBar() {
   // 获取当前登录用户信息
   const currentUser = userId ? getUserById(userId) : null;
   const currentUsername = currentUser?.username || 'QQrou';
+
+  // 切换工人选择
+  const toggleWorker = (worker: string) => {
+    setSelectedWorkers(prev =>
+      prev.includes(worker)
+        ? prev.filter(w => w !== worker)
+        : [...prev, worker]
+    );
+  };
 
   const handleSubmit = async () => {
     if (!customer.trim() || isSubmitting) return;
@@ -52,7 +78,7 @@ export function InputBar() {
         user_id: currentUser?.id || userId || 'unknown',
         user_name: userName || currentUsername,
         customer: customer.trim(),
-        worker: worker.trim() || null,
+        worker: selectedWorkers.length > 0 ? selectedWorkers.join(', ') : null,
         remark: remark.trim() || null,
         vehicle: vehicle.trim() || null,
         status,
@@ -64,7 +90,7 @@ export function InputBar() {
         // 不手动添加，让 realtime 订阅处理
         // 清空表单
         setCustomer('');
-        setWorker('');
+        setSelectedWorkers([]);
         setRemark('');
         setVehicle('');
         setStatus('incomplete');
@@ -136,14 +162,34 @@ export function InputBar() {
                       disabled={isSubmitting}
                     />
                   </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={worker}
-                      onChange={(e) => setWorker(e.target.value)}
-                      placeholder="工人"
-                      disabled={isSubmitting}
-                    />
+                  <td className="worker-cell">
+                    <div className="worker-select-container">
+                      <button
+                        type="button"
+                        className="worker-select-btn"
+                        onClick={() => setShowWorkerDropdown(!showWorkerDropdown)}
+                        disabled={isSubmitting}
+                      >
+                        {selectedWorkers.length > 0
+                          ? `已选 ${selectedWorkers.length} 人`
+                          : '选择工人'}
+                        <span className="dropdown-arrow">{showWorkerDropdown ? '▲' : '▼'}</span>
+                      </button>
+                      {showWorkerDropdown && (
+                        <div className="worker-dropdown">
+                          {WORKERS.map(worker => (
+                            <label key={worker} className="worker-option">
+                              <input
+                                type="checkbox"
+                                checked={selectedWorkers.includes(worker)}
+                                onChange={() => toggleWorker(worker)}
+                              />
+                              <span>{worker}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td>
                     <input
