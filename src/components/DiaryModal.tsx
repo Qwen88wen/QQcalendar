@@ -12,6 +12,7 @@ export function DiaryModal() {
     isEditing,
     closeModal,
     activeInputUser,
+    updateDiary: updateDiaryInStore,
   } = useAppStore();
 
   // 表单状态
@@ -84,6 +85,8 @@ export function DiaryModal() {
 
     if (result) {
       console.log('[DiaryModal] 保存成功');
+      // 更新本地状态，实现实时更新
+      updateDiaryInStore(result);
       currentDiaryIdRef.current = null; // 重置ID
       closeModal();
     } else {
