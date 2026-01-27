@@ -210,6 +210,29 @@
   background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
 }
 
+/* 登出按钮 */
+.logout-btn {
+  width: 46px;
+  height: 46px;
+  border: 2px solid #FFD1DC;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(255, 182, 193, 0.25);
+  margin-left: 8px;
+}
+
+.logout-btn:hover {
+  transform: scale(1.1);
+  background: linear-gradient(135deg, #FFE0E0 0%, #FFCECE 100%);
+  border-color: #FF6B6B;
+}
+
 @keyframes pulse-cute {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.15); }
@@ -321,7 +344,8 @@
 
   .refresh-btn,
   .export-btn,
-  .record-toggle {
+  .record-toggle,
+  .logout-btn {
     width: 30px;
     height: 30px;
     font-size: 0.9rem;

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { createDiary } from '../lib/diary';
 import { getUserById } from '../lib/users';
-import { getFlowerTypeByUser } from '../lib/flowers';
 import type { DiaryStatus } from '../types/database';
 import './InputBar.css';
 
@@ -57,7 +56,6 @@ export function InputBar() {
         remark: remark.trim() || null,
         vehicle: vehicle.trim() || null,
         status,
-        flower_type: getFlowerTypeByUser(currentUsername),
         operators: [currentUsername],  // 初始操作者
         created_at: createdAt,  // 使用选中的日期
       });
