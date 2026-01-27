@@ -190,9 +190,11 @@
   background: white;
   border-radius: 16px;
   padding: 10px;
-  min-height: 85px;
+  min-height: 65px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   transition: all 0.3s ease;
   cursor: pointer;
   border: 2px solid transparent;
@@ -210,16 +212,36 @@
   box-shadow: none;
 }
 
+/* 无记录的日期 - 灰白色 */
+.calendar-day.no-records {
+  background: rgba(245, 245, 245, 0.6);
+  box-shadow: none;
+}
+
+.calendar-day.no-records .day-number {
+  color: #ccc;
+  font-weight: 400;
+}
+
+/* 有记录的日期 - 发亮高亮 */
 .calendar-day.has-records {
   cursor: pointer;
-  background: linear-gradient(135deg, #FFF5F8 0%, #FFFAF5 100%);
-  border-color: #FFD1DC;
+  background: linear-gradient(135deg, #FFF5F8 0%, #FFE8EE 100%);
+  border-color: #FFB6C1;
+  box-shadow: 0 4px 15px rgba(255, 145, 164, 0.3);
+}
+
+.calendar-day.has-records .day-number {
+  color: #E91E63;
+  font-weight: 700;
+  font-size: 1.3rem;
+  text-shadow: 0 1px 3px rgba(233, 30, 99, 0.2);
 }
 
 .calendar-day.has-records:hover {
   transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 6px 20px rgba(255, 145, 164, 0.35);
-  border-color: #FFB6C1;
+  box-shadow: 0 6px 20px rgba(255, 145, 164, 0.45);
+  border-color: #FF91A4;
 }
 
 .calendar-day.today {
@@ -240,10 +262,10 @@
 }
 
 .day-number {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #666;
-  margin-bottom: 6px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #999;
+  margin-bottom: 4px;
 }
 
 .calendar-day.today .day-number {
@@ -313,12 +335,13 @@
 
 /* 日期摘要 */
 .day-summary {
-  margin-top: auto;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.75rem;
   color: #B08B93;
+  margin-top: 2px;
 }
 
 .status-dot {
@@ -402,37 +425,28 @@
   }
 
   .calendar-day {
-    min-height: 45px;
-    padding: 3px;
+    min-height: 40px;
+    padding: 4px;
     border-radius: 8px;
   }
 
   .day-number {
-    font-size: 0.75rem;
-    margin-bottom: 2px;
+    font-size: 0.8rem;
+    margin-bottom: 1px;
   }
 
-  .day-flowers {
-    gap: 1px;
-  }
-
-  .flower-icon {
-    font-size: 0.7rem;
-  }
-
-  .flower-group {
-    padding: 1px;
-  }
-
-  .vehicle-dot {
-    width: 5px;
-    height: 5px;
-    top: -1px;
-    right: -1px;
+  .calendar-day.has-records .day-number {
+    font-size: 0.9rem;
   }
 
   .day-summary {
-    display: none;
+    font-size: 0.55rem;
+    gap: 2px;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
   }
 }
 
@@ -470,36 +484,27 @@
   }
 
   .calendar-day {
-    min-height: 35px;
+    min-height: 32px;
     padding: 2px;
     border-radius: 6px;
   }
 
   .day-number {
-    font-size: 0.65rem;
-    margin-bottom: 1px;
+    font-size: 0.7rem;
+    margin-bottom: 0;
   }
 
-  .day-flowers {
+  .calendar-day.has-records .day-number {
+    font-size: 0.8rem;
+  }
+
+  .day-summary {
+    font-size: 0.5rem;
     gap: 1px;
   }
 
-  .flower-group {
-    padding: 0;
-  }
-
-  .flower-icon {
-    font-size: 0.6rem;
-  }
-
-  .vehicle-dot {
-    width: 4px;
-    height: 4px;
-    top: -1px;
-    right: -1px;
-  }
-
-  .flower-count {
-    font-size: 0.5rem;
+  .status-dot {
+    width: 5px;
+    height: 5px;
   }
 }
