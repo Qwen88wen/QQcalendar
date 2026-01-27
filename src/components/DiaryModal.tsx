@@ -177,29 +177,6 @@ export function DiaryModal() {
             </div>
           </div>
 
-          {/* 操作者花朵显示 */}
-          {selectedDiary && selectedDiary.operators && selectedDiary.operators.length > 0 && (
-            <div className="form-group">
-              <label>参与者</label>
-              <div className="operators-display">
-                {selectedDiary.operators.map((op, idx) => (
-                  <span key={idx} className="operator-flower" title={op}>
-                    {USER_FLOWERS[op]?.icon || '🌸'} {op}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* 当前用户花朵提示 */}
-          <div className="form-group">
-            <label>你的花朵</label>
-            <div className="your-flower">
-              <span className="flower-icon">{USER_FLOWERS[activeInputUser]?.icon || '🌸'}</span>
-              <span className="flower-name">{USER_FLOWERS[activeInputUser]?.name || '樱花'}</span>
-            </div>
-          </div>
-
           {isEditing && (
             <button
               type="submit"
