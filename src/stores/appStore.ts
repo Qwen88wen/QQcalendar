@@ -25,6 +25,7 @@ interface AppState {
   isModalOpen: boolean;
   isEditing: boolean;
   isLoading: boolean;
+  error: string | null;
 
   // 新增: 筛选和输入状态
   flowerFilter: FlowerFilter;
@@ -59,6 +60,7 @@ interface AppState {
   openModal: (diary?: Diary) => void;
   closeModal: () => void;
   setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
 
   // 新增 Actions
   setFlowerFilter: (filter: FlowerFilter) => void;
@@ -85,6 +87,7 @@ export const useAppStore = create<AppState>()(
       isModalOpen: false,
       isEditing: false,
       isLoading: false,
+      error: null,
 
       // 新增状态
       flowerFilter: 'all',
@@ -160,6 +163,7 @@ export const useAppStore = create<AppState>()(
       }),
 
       setLoading: (loading) => set({ isLoading: loading }),
+      setError: (error) => set({ error }),
 
       // 新增 Actions
       setFlowerFilter: (filter) => set({ flowerFilter: filter }),
