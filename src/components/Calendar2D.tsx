@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { useAppStore } from '../stores/appStore';
-import { getFlowersByOperators, FLOWER_ICONS } from '../lib/flowers';
 import type { Diary } from '../types/database';
 import './Calendar2D.css';
 
@@ -16,7 +15,6 @@ const YEARS = [2025, 2026];
 export function Calendar2D() {
   const {
     diaries,
-    openModal,
     selectedDate,
     setSelectedDate,
     showOnlyMissingVehicle,
@@ -101,41 +99,10 @@ export function Calendar2D() {
       days.push(
         <div
           key={day}
-          className={`calendar-day ${dayDiaries.length > 0 ? 'has-records' : ''} ${isToday ? 'today' : ''} ${isSelected(day) ? 'selected' : ''}`}
+          className={`calendar-day ${dayDiaries.length > 0 ? 'has-records' : 'no-records'} ${isToday ? 'today' : ''} ${isSelected(day) ? 'selected' : ''}`}
           onClick={() => handleDayClick(day)}
         >
           <span className="day-number">{day}</span>
-          {dayDiaries.length > 0 && (
-            <div className="day-flowers">
-              {dayDiaries.slice(0, 3).map((diary) => {
-                // 显示所有操作者的花朵
-                const flowers = getFlowersByOperators(diary.operators);
-                const displayFlowers = flowers.length > 0 ? flowers : [FLOWER_ICONS[diary.flower_type || 1]];
-
-                const needsVehicle = !diary.vehicle;
-
-                return (
-                  <span
-                    key={diary.id}
-                    className={`flower-group ${needsVehicle ? 'needs-vehicle' : ''}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openModal(diary);
-                    }}
-                    title={diary.customer || diary.user_name || ''}
-                  >
-                    {displayFlowers.map((f, i) => (
-                      <span key={i} className="flower-icon">{f}</span>
-                    ))}
-                    {needsVehicle && <span className="vehicle-dot"></span>}
-                  </span>
-                );
-              })}
-              {dayDiaries.length > 3 && (
-                <span className="more-count">+{dayDiaries.length - 3}</span>
-              )}
-            </div>
-          )}
           {dayDiaries.length > 0 && (
             <div className="day-summary">
               <span className={`status-dot ${dayDiaries.every(d => d.status === 'complete') ? 'complete' : 'incomplete'}`}></span>
