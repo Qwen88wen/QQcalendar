@@ -106,11 +106,6 @@ export function DiaryModal() {
 
         <h2>{isEditing ? '查看/编辑记录' : '新增记录'}</h2>
 
-        {/* 当前操作用户提示 */}
-        <div className="current-user-hint">
-          当前用户: <strong>{activeInputUser}</strong>
-        </div>
-
         {/* 表单 - 所有用户都可编辑 */}
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
