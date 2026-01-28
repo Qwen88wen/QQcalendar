@@ -1,12 +1,12 @@
 import { useAppStore } from '../stores/appStore';
-import './MissingVehicleList.css';
+import './UnnotifiedList.css';
 
-export function MissingVehicleList() {
-  const { diaries, showOnlyMissingVehicle, toggleMissingVehicleFilter, openModal } = useAppStore();
+export function UnnotifiedList() {
+  const { diaries, showOnlyUnnotified, toggleUnnotifiedFilter, openModal } = useAppStore();
 
-  // 筛选未填车号的记录
-  const missingVehicleDiaries = diaries
-    .filter(d => !d.vehicle)
+  // 筛选未通知的记录
+  const unnotifiedDiaries = diaries
+    .filter(d => !d.notified)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   const formatDate = (dateStr: string) => {
@@ -27,28 +27,28 @@ export function MissingVehicleList() {
 
   // 清空提醒（关闭面板）
   const handleDismiss = () => {
-    toggleMissingVehicleFilter();
+    toggleUnnotifiedFilter();
   };
 
-  if (!showOnlyMissingVehicle) return null;
+  if (!showOnlyUnnotified) return null;
 
   return (
-    <div className="missing-vehicle-overlay" onClick={toggleMissingVehicleFilter}>
-      <div className="missing-vehicle-panel" onClick={(e) => e.stopPropagation()}>
-        <div className="missing-vehicle-header">
-          <h3>🚗 未填车号记录 ({missingVehicleDiaries.length})</h3>
-          <button className="close-btn" onClick={toggleMissingVehicleFilter}>×</button>
+    <div className="unnotified-overlay" onClick={toggleUnnotifiedFilter}>
+      <div className="unnotified-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="unnotified-header">
+          <h3>📞 未通知园主记录 ({unnotifiedDiaries.length})</h3>
+          <button className="close-btn" onClick={toggleUnnotifiedFilter}>×</button>
         </div>
 
-        <div className="missing-vehicle-content">
-          {missingVehicleDiaries.length === 0 ? (
+        <div className="unnotified-content">
+          {unnotifiedDiaries.length === 0 ? (
             <div className="empty-state">
               <span className="empty-icon">✅</span>
-              <p>所有记录都已填写车号</p>
+              <p>所有记录都已通知园主</p>
             </div>
           ) : (
             <>
-              <table className="missing-vehicle-table">
+              <table className="unnotified-table">
                 <thead>
                   <tr>
                     <th>花朵</th>
@@ -60,7 +60,7 @@ export function MissingVehicleList() {
                   </tr>
                 </thead>
                 <tbody>
-                  {missingVehicleDiaries.map((diary) => (
+                  {unnotifiedDiaries.map((diary) => (
                     <tr
                       key={diary.id}
                       onClick={() => handleRowClick(diary)}
@@ -80,7 +80,7 @@ export function MissingVehicleList() {
                   ))}
                 </tbody>
               </table>
-              <div className="missing-vehicle-footer">
+              <div className="unnotified-footer">
                 <button className="dismiss-btn" onClick={handleDismiss}>
                   🔕 清空提醒
                 </button>

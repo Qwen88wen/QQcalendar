@@ -225,6 +225,50 @@
   opacity: 0.6;
 }
 
+/* 通知状态选项 */
+.notified-options {
+  display: flex;
+  gap: 14px;
+}
+
+.notified-option {
+  flex: 1;
+  padding: 14px 18px;
+  border: 2px solid #FFD1DC;
+  border-radius: 16px;
+  background: white;
+  color: #B08B93;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.notified-option:hover:not(:disabled) {
+  border-color: #FFB6C1;
+  background: linear-gradient(135deg, #FFF5F8 0%, #FFE4EC 100%);
+  transform: translateY(-2px);
+}
+
+.notified-option.active.unnotified {
+  border-color: #FF8A65;
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFCCBC 100%);
+  color: #E64A19;
+  box-shadow: 0 4px 12px rgba(255, 138, 101, 0.35);
+}
+
+.notified-option.active.notified {
+  border-color: #4DB6AC;
+  background: linear-gradient(135deg, #E0F2F1 0%, #80CBC4 100%);
+  color: #00695C;
+  box-shadow: 0 4px 12px rgba(77, 182, 172, 0.35);
+}
+
+.notified-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .flower-options {
   display: flex;
   gap: 10px;

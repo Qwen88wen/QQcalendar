@@ -26,6 +26,7 @@ CREATE TABLE diaries (
   vehicle TEXT,
   flower_type INT4 DEFAULT 1 CHECK (flower_type BETWEEN 1 AND 5),
   operators TEXT[] DEFAULT '{}',  -- 操作过的用户列表
+  notified BOOLEAN DEFAULT false, -- 是否已通知园主
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

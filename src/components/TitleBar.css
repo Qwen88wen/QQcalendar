@@ -288,6 +288,52 @@
   }
 }
 
+/* 未通知提醒按钮 */
+.unnotified-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border: 2px solid #FF8A65;
+  border-radius: 25px;
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  animation: attention-phone 2s infinite;
+  box-shadow: 0 3px 10px rgba(255, 138, 101, 0.25);
+}
+
+.unnotified-btn:hover {
+  transform: scale(1.08);
+  background: linear-gradient(135deg, #FFE0B2 0%, #FFCC80 100%);
+}
+
+.unnotified-btn.active {
+  background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%);
+  color: white;
+}
+
+.unnotified-btn.active .warning-count {
+  color: white;
+}
+
+.unnotified-btn .warning-count {
+  font-weight: 700;
+  color: #E64A19;
+}
+
+@keyframes attention-phone {
+  0%, 100% {
+    box-shadow: 0 3px 10px rgba(255, 138, 101, 0.25);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 3px 20px rgba(255, 138, 101, 0.45);
+    transform: scale(1.03);
+  }
+}
+
 /* 移动端适配 */
 @media (max-width: 600px) {
   .title-bar {
@@ -353,7 +399,8 @@
     flex-shrink: 0;
   }
 
-  .missing-vehicle-btn {
+  .missing-vehicle-btn,
+  .unnotified-btn {
     padding: 5px 6px;
     font-size: 0.7rem;
     flex-shrink: 0;

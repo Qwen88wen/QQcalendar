@@ -54,6 +54,9 @@ interface AppState {
   // 只显示未填车号的记录
   showOnlyMissingVehicle: boolean;
 
+  // 只显示未通知的记录
+  showOnlyUnnotified: boolean;
+
   // Actions
   loginUser: (user: LocalUser) => void;
   logoutUser: () => void;
@@ -82,6 +85,7 @@ interface AppState {
   setCalendarYear: (year: number) => void;
   setCalendarMonth: (month: number) => void;
   toggleMissingVehicleFilter: () => void;
+  toggleUnnotifiedFilter: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -110,6 +114,7 @@ export const useAppStore = create<AppState>()(
       calendarYear: new Date().getFullYear(),
       calendarMonth: new Date().getMonth(),
       showOnlyMissingVehicle: false,
+      showOnlyUnnotified: false,
 
       // Actions
       loginUser: (user) => set({
@@ -188,6 +193,7 @@ export const useAppStore = create<AppState>()(
       setCalendarYear: (year: number) => set({ calendarYear: year }),
       setCalendarMonth: (month: number) => set({ calendarMonth: month }),
       toggleMissingVehicleFilter: () => set((state) => ({ showOnlyMissingVehicle: !state.showOnlyMissingVehicle })),
+      toggleUnnotifiedFilter: () => set((state) => ({ showOnlyUnnotified: !state.showOnlyUnnotified })),
     }),
     {
       name: 'qq-calendar-auth',

@@ -47,7 +47,7 @@ function saveWorkers(workers: string[]) {
 }
 
 export function InputBar() {
-  const { selectedDate, userId, userName } = useAppStore();
+  const { selectedDate, userId, userName, addDiary } = useAppStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false); // 默认收起
 
@@ -151,7 +151,8 @@ export function InputBar() {
       });
 
       if (newDiary) {
-        // 不手动添加，让 realtime 订阅处理
+        // 立即更新本地状态，实现实时更新
+        addDiary(newDiary);
         // 清空表单
         setCustomer('');
         setSelectedWorkers([]);

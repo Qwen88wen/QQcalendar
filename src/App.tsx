@@ -6,6 +6,7 @@ import { InputBar } from './components/InputBar';
 import { DiaryModal } from './components/DiaryModal';
 import { RecordList } from './components/RecordList';
 import { MissingVehicleList } from './components/MissingVehicleList';
+import { UnnotifiedList } from './components/UnnotifiedList';
 import { LoginModal } from './components/LoginModal';
 import { useAuth } from './hooks/useAuth';
 import { useRealtime } from './hooks/useRealtime';
@@ -234,6 +235,7 @@ function MainAppContent() {
       <DiaryModal />
       <RecordList />
       <MissingVehicleList />
+      <UnnotifiedList />
     </div>
   );
 }
