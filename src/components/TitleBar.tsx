@@ -71,26 +71,48 @@ export function TitleBar() {
 
       {/* 未填车号提醒按钮 */}
       {missingVehicleCount > 0 && (
-        <button
-          className={`missing-vehicle-btn ${showOnlyMissingVehicle ? 'active' : ''}`}
-          onClick={toggleMissingVehicleFilter}
-          title={`${missingVehicleCount} 条记录未填车号`}
-        >
-          <span className="warning-icon">🚗</span>
-          <span className="warning-count">{missingVehicleCount}</span>
-        </button>
+        <div className="warning-btn-group">
+          <button
+            className={`missing-vehicle-btn ${showOnlyMissingVehicle ? 'active' : ''}`}
+            onClick={toggleMissingVehicleFilter}
+            title={`${missingVehicleCount} 条记录未填车号`}
+          >
+            <span className="warning-icon">🚗</span>
+            <span className="warning-count">{missingVehicleCount}</span>
+          </button>
+          {showOnlyMissingVehicle && (
+            <button
+              className="dismiss-warning-btn"
+              onClick={(e) => { e.stopPropagation(); toggleMissingVehicleFilter(); }}
+              title="关闭提醒"
+            >
+              ×
+            </button>
+          )}
+        </div>
       )}
 
       {/* 未通知提醒按钮 */}
       {unnotifiedCount > 0 && (
-        <button
-          className={`unnotified-btn ${showOnlyUnnotified ? 'active' : ''}`}
-          onClick={toggleUnnotifiedFilter}
-          title={`${unnotifiedCount} 条记录未通知园主`}
-        >
-          <span className="warning-icon">📞</span>
-          <span className="warning-count">{unnotifiedCount}</span>
-        </button>
+        <div className="warning-btn-group">
+          <button
+            className={`unnotified-btn ${showOnlyUnnotified ? 'active' : ''}`}
+            onClick={toggleUnnotifiedFilter}
+            title={`${unnotifiedCount} 条记录未通知园主`}
+          >
+            <span className="warning-icon">📞</span>
+            <span className="warning-count">{unnotifiedCount}</span>
+          </button>
+          {showOnlyUnnotified && (
+            <button
+              className="dismiss-warning-btn"
+              onClick={(e) => { e.stopPropagation(); toggleUnnotifiedFilter(); }}
+              title="关闭提醒"
+            >
+              ×
+            </button>
+          )}
+        </div>
       )}
 
       <button
