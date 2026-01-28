@@ -26,6 +26,7 @@ export interface Diary {
   flower_type: FlowerType | null;
   operators: string[] | null;     // 操作过的用户列表
   notified: boolean;              // 是否已通知园主
+  vehicle_dismissed: boolean;     // 是否已忽略车号提醒
   created_at: string;
   updated_at: string;
 }
@@ -41,6 +42,7 @@ export interface DiaryInsert {
   flower_type?: FlowerType | null;
   operators?: string[] | null;
   notified?: boolean;
+  vehicle_dismissed?: boolean;
   created_at?: string;  // 允许指定创建日期
 }
 
@@ -53,6 +55,7 @@ export interface DiaryUpdate {
   flower_type?: FlowerType | null;
   operators?: string[] | null;
   notified?: boolean;
+  vehicle_dismissed?: boolean;
 }
 
 // diary_remarks 表 (无 user_id，只有 user_name)
@@ -109,6 +112,11 @@ export interface Database {
         Row: DiaryRemark;
         Insert: DiaryRemarkInsert;
         Update: Partial<Omit<DiaryRemark, 'id' | 'created_at'>>;
+      };
+      todos: {
+        Row: Todo;
+        Insert: TodoInsert;
+        Update: TodoUpdate;
       };
     };
   };

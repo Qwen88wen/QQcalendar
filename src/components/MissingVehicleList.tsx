@@ -1,12 +1,16 @@
+import { useState } from 'react';
 import { useAppStore } from '../stores/appStore';
+import { supabase } from '../lib/supabase';
 import './MissingVehicleList.css';
 
 export function MissingVehicleList() {
-  const { diaries, showOnlyMissingVehicle, toggleMissingVehicleFilter, openModal } = useAppStore();
+  const { diaries, showOnlyMissingVehicle, toggleMissingVehicleFilter, openModal, batchUpdateDiaries } = useAppStore();
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  // 筛选未填车号的记录
+  // 筛选未填车号且未忽略的记录
   const missingVehicleDiaries = diaries
-    .filter(d => !d.vehicle)
+    .filter(d => !d.vehicle && !d.vehicle_dismissed)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   const formatDate = (dateStr: string) => {
@@ -25,12 +29,50 @@ export function MissingVehicleList() {
     openModal(diary);
   };
 
-  // 清空提醒（关闭面板）
-  const handleDismiss = () => {
-    toggleMissingVehicleFilter();
+  // 全选/取消全选
+  const handleSelectAll = () => {
+    if (selectedIds.length === missingVehicleDiaries.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(missingVehicleDiaries.map(d => d.id));
+    }
+  };
+
+  // 单个选择
+  const handleSelectOne = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  // 批量标记为免打扰
+  const handleBatchDismiss = async () => {
+    if (selectedIds.length === 0) return;
+
+    setIsUpdating(true);
+    try {
+      const { error } = await supabase
+        .from('diaries')
+        .update({ vehicle_dismissed: true } as never)
+        .in('id', selectedIds);
+
+      if (error) throw error;
+
+      // 更新本地状态
+      batchUpdateDiaries(selectedIds, { vehicle_dismissed: true });
+      setSelectedIds([]);
+    } catch (err) {
+      console.error('批量更新失败:', err);
+      alert('批量更新失败');
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   if (!showOnlyMissingVehicle) return null;
+
+  const isAllSelected = missingVehicleDiaries.length > 0 && selectedIds.length === missingVehicleDiaries.length;
 
   return (
     <div className="missing-vehicle-overlay" onClick={toggleMissingVehicleFilter}>
@@ -51,6 +93,14 @@ export function MissingVehicleList() {
               <table className="missing-vehicle-table">
                 <thead>
                   <tr>
+                    <th className="checkbox-cell">
+                      <input
+                        type="checkbox"
+                        checked={isAllSelected}
+                        onChange={handleSelectAll}
+                        title="全选"
+                      />
+                    </th>
                     <th>花朵</th>
                     <th>园主</th>
                     <th>工人</th>
@@ -64,8 +114,15 @@ export function MissingVehicleList() {
                     <tr
                       key={diary.id}
                       onClick={() => handleRowClick(diary)}
-                      className="clickable-row"
+                      className={`clickable-row ${selectedIds.includes(diary.id) ? 'selected' : ''}`}
                     >
+                      <td className="checkbox-cell" onClick={(e) => handleSelectOne(diary.id, e)}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(diary.id)}
+                          onChange={() => {}}
+                        />
+                      </td>
                       <td className="flower-cell">{getFlowerIcon(diary)}</td>
                       <td>{diary.customer || '-'}</td>
                       <td>{diary.worker || '-'}</td>
@@ -81,9 +138,15 @@ export function MissingVehicleList() {
                 </tbody>
               </table>
               <div className="missing-vehicle-footer">
-                <button className="dismiss-btn" onClick={handleDismiss}>
-                  🔕 清空提醒
-                </button>
+                {selectedIds.length > 0 && (
+                  <button
+                    className="batch-btn"
+                    onClick={handleBatchDismiss}
+                    disabled={isUpdating}
+                  >
+                    {isUpdating ? '更新中...' : `🔕 批量标记免打扰 (${selectedIds.length})`}
+                  </button>
+                )}
               </div>
             </>
           )}

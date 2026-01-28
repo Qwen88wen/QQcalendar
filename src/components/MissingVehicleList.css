@@ -120,6 +120,23 @@
   background: linear-gradient(135deg, #FFF8F8 0%, #FFF0F0 100%);
 }
 
+.missing-vehicle-table .clickable-row.selected {
+  background: linear-gradient(135deg, #FFF0F0 0%, #FFCDD2 100%);
+}
+
+/* 复选框样式 */
+.missing-vehicle-table .checkbox-cell {
+  width: 40px;
+  text-align: center;
+}
+
+.missing-vehicle-table .checkbox-cell input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #FF6B6B;
+}
+
 .missing-vehicle-table .flower-cell {
   font-size: 1.3rem;
   text-align: center;
@@ -193,6 +210,24 @@
 .dismiss-btn:hover {
   background: linear-gradient(135deg, #FFE4EC 0%, #FFD1DC 100%);
   border-color: #FF91A4;
+  transform: scale(1.05);
+}
+
+.missing-vehicle-footer .batch-btn {
+  padding: 10px 24px;
+  border: 2px solid #42A5F5;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+  color: #1565C0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.missing-vehicle-footer .batch-btn:hover {
+  background: linear-gradient(135deg, #BBDEFB 0%, #90CAF9 100%);
+  border-color: #1E88E5;
   transform: scale(1.05);
 }
 

@@ -86,6 +86,7 @@ interface AppState {
   setCalendarMonth: (month: number) => void;
   toggleMissingVehicleFilter: () => void;
   toggleUnnotifiedFilter: () => void;
+  batchUpdateDiaries: (ids: string[], updates: Partial<Diary>) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -194,6 +195,9 @@ export const useAppStore = create<AppState>()(
       setCalendarMonth: (month: number) => set({ calendarMonth: month }),
       toggleMissingVehicleFilter: () => set((state) => ({ showOnlyMissingVehicle: !state.showOnlyMissingVehicle })),
       toggleUnnotifiedFilter: () => set((state) => ({ showOnlyUnnotified: !state.showOnlyUnnotified })),
+      batchUpdateDiaries: (ids, updates) => set((state) => ({
+        diaries: state.diaries.map((d) => ids.includes(d.id) ? { ...d, ...updates } as Diary : d),
+      })),
     }),
     {
       name: 'qq-calendar-auth',
