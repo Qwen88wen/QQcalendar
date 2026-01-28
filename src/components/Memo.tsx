@@ -257,22 +257,6 @@ export function Memo() {
             <span className="date-hint">的记录</span>
           </div>
 
-          {/* 统计卡片 */}
-          <div className="memo-stats">
-            <div className="stat-card total">
-              <span className="stat-number">{stats.total}</span>
-              <span className="stat-label">总记录</span>
-            </div>
-            <div className="stat-card incomplete">
-              <span className="stat-number">{stats.incomplete}</span>
-              <span className="stat-label">未完成</span>
-            </div>
-            <div className="stat-card complete">
-              <span className="stat-number">{stats.complete}</span>
-              <span className="stat-label">已完成</span>
-            </div>
-          </div>
-
           {/* 筛选器和操作栏 */}
           <div className="memo-filter">
             {isSelectMode ? (
@@ -306,19 +290,19 @@ export function Memo() {
                   className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
                   onClick={() => setFilter('all')}
                 >
-                  全部
+                  全部 ({stats.total})
                 </button>
                 <button
                   className={`filter-btn ${filter === 'incomplete' ? 'active' : ''}`}
                   onClick={() => setFilter('incomplete')}
                 >
-                  未完成
+                  未完成 ({stats.incomplete})
                 </button>
                 <button
                   className={`filter-btn ${filter === 'complete' ? 'active' : ''}`}
                   onClick={() => setFilter('complete')}
                 >
-                  已完成
+                  已完成 ({stats.complete})
                 </button>
                 {filteredDiaries.length > 0 && (
                   <button
