@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { useAppStore } from '../stores/appStore';
+import { supabase } from '../lib/supabase';
 import './MissingVehicleList.css';
 
 export function MissingVehicleList() {
-  const { diaries, showOnlyMissingVehicle, toggleMissingVehicleFilter, openModal } = useAppStore();
+  const { diaries, showOnlyMissingVehicle, toggleMissingVehicleFilter, openModal, batchUpdateDiaries } = useAppStore();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  // 筛选未填车号的记录
+  // 筛选未填车号且未忽略的记录
   const missingVehicleDiaries = diaries
-    .filter(d => !d.vehicle)
+    .filter(d => !d.vehicle && !d.vehicle_dismissed)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   const formatDate = (dateStr: string) => {
@@ -44,12 +46,27 @@ export function MissingVehicleList() {
     );
   };
 
-  // 批量编辑（打开第一个选中的记录）
-  const handleBatchEdit = () => {
+  // 批量标记为免打扰
+  const handleBatchDismiss = async () => {
     if (selectedIds.length === 0) return;
-    const firstSelected = missingVehicleDiaries.find(d => selectedIds.includes(d.id));
-    if (firstSelected) {
-      openModal(firstSelected);
+
+    setIsUpdating(true);
+    try {
+      const { error } = await supabase
+        .from('diaries')
+        .update({ vehicle_dismissed: true } as never)
+        .in('id', selectedIds);
+
+      if (error) throw error;
+
+      // 更新本地状态
+      batchUpdateDiaries(selectedIds, { vehicle_dismissed: true });
+      setSelectedIds([]);
+    } catch (err) {
+      console.error('批量更新失败:', err);
+      alert('批量更新失败');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -124,9 +141,10 @@ export function MissingVehicleList() {
                 {selectedIds.length > 0 && (
                   <button
                     className="batch-btn"
-                    onClick={handleBatchEdit}
+                    onClick={handleBatchDismiss}
+                    disabled={isUpdating}
                   >
-                    ✏️ 编辑选中记录 ({selectedIds.length})
+                    {isUpdating ? '更新中...' : `🔕 批量标记免打扰 (${selectedIds.length})`}
                   </button>
                 )}
               </div>

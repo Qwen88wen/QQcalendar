@@ -36,8 +36,8 @@ export function TitleBar() {
     }
   };
 
-  // 统计未填车号的记录数
-  const missingVehicleCount = diaries.filter(d => !d.vehicle).length;
+  // 统计未填车号的记录数（排除已免打扰的记录）
+  const missingVehicleCount = diaries.filter(d => !d.vehicle && !d.vehicle_dismissed).length;
 
   // 统计未通知的记录数
   const unnotifiedCount = diaries.filter(d => !d.notified).length;
