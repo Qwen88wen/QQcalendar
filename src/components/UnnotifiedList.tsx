@@ -89,68 +89,67 @@ export function UnnotifiedList() {
               <p>所有记录都已通知园主</p>
             </div>
           ) : (
-            <>
-              <table className="unnotified-table">
-                <thead>
-                  <tr>
-                    <th className="checkbox-cell">
+            <table className="unnotified-table">
+              <thead>
+                <tr>
+                  <th className="checkbox-cell">
+                    <input
+                      type="checkbox"
+                      checked={isAllSelected}
+                      onChange={handleSelectAll}
+                      title="全选"
+                    />
+                  </th>
+                  <th>花朵</th>
+                  <th>园主</th>
+                  <th>工人</th>
+                  <th>备注</th>
+                  <th>状态</th>
+                  <th>时间</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unnotifiedDiaries.map((diary) => (
+                  <tr
+                    key={diary.id}
+                    onClick={() => handleRowClick(diary)}
+                    className={`clickable-row ${selectedIds.includes(diary.id) ? 'selected' : ''}`}
+                  >
+                    <td className="checkbox-cell" onClick={(e) => handleSelectOne(diary.id, e)}>
                       <input
                         type="checkbox"
-                        checked={isAllSelected}
-                        onChange={handleSelectAll}
-                        title="全选"
+                        checked={selectedIds.includes(diary.id)}
+                        onChange={() => {}}
                       />
-                    </th>
-                    <th>花朵</th>
-                    <th>园主</th>
-                    <th>工人</th>
-                    <th>备注</th>
-                    <th>状态</th>
-                    <th>时间</th>
+                    </td>
+                    <td className="flower-cell">{getFlowerIcon(diary)}</td>
+                    <td>{diary.customer || '-'}</td>
+                    <td>{diary.worker || '-'}</td>
+                    <td className="remark-cell">{diary.remark || '-'}</td>
+                    <td>
+                      <span className={`status-badge ${diary.status}`}>
+                        {diary.status === 'complete' ? '完成' : '未完成'}
+                      </span>
+                    </td>
+                    <td className="time-cell">{formatDate(diary.created_at)}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {unnotifiedDiaries.map((diary) => (
-                    <tr
-                      key={diary.id}
-                      onClick={() => handleRowClick(diary)}
-                      className={`clickable-row ${selectedIds.includes(diary.id) ? 'selected' : ''}`}
-                    >
-                      <td className="checkbox-cell" onClick={(e) => handleSelectOne(diary.id, e)}>
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(diary.id)}
-                          onChange={() => {}}
-                        />
-                      </td>
-                      <td className="flower-cell">{getFlowerIcon(diary)}</td>
-                      <td>{diary.customer || '-'}</td>
-                      <td>{diary.worker || '-'}</td>
-                      <td className="remark-cell">{diary.remark || '-'}</td>
-                      <td>
-                        <span className={`status-badge ${diary.status}`}>
-                          {diary.status === 'complete' ? '完成' : '未完成'}
-                        </span>
-                      </td>
-                      <td className="time-cell">{formatDate(diary.created_at)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="unnotified-footer">
-                {selectedIds.length > 0 && (
-                  <button
-                    className="batch-btn"
-                    onClick={handleBatchMarkNotified}
-                    disabled={isUpdating}
-                  >
-                    {isUpdating ? '更新中...' : `✅ 批量标记已通知 (${selectedIds.length})`}
-                  </button>
-                )}
-              </div>
-            </>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
+
+        {selectedIds.length > 0 && (
+          <div className="unnotified-footer">
+            <button
+              className="batch-btn"
+              onClick={handleBatchMarkNotified}
+              disabled={isUpdating}
+            >
+              {isUpdating ? '更新中...' : `✅ 批量标记已通知 (${selectedIds.length})`}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
