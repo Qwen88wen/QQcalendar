@@ -1,13 +1,22 @@
+import { useState } from 'react';
 import { useAppStore } from '../stores/appStore';
 import './RecordList.css';
 
+type StatusFilter = 'all' | 'incomplete' | 'complete';
+
 export function RecordList() {
   const { diaries, showRecordList, toggleRecordList, setFocusedFlower, openModal } = useAppStore();
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
-  // 按时间倒序排列
-  const sortedDiaries = [...diaries].sort((a, b) =>
-    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
+  // 统计数量
+  const totalCount = diaries.length;
+  const incompleteCount = diaries.filter(d => d.status === 'incomplete').length;
+  const completeCount = diaries.filter(d => d.status === 'complete').length;
+
+  // 按筛选条件过滤并按时间倒序排列
+  const filteredDiaries = diaries
+    .filter(d => statusFilter === 'all' || d.status === statusFilter)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   const formatTime = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -48,15 +57,37 @@ export function RecordList() {
           <button className="close-btn" onClick={toggleRecordList}>×</button>
         </div>
 
+        {/* 筛选按钮 */}
+        <div className="record-filters">
+          <button
+            className={`filter-btn ${statusFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setStatusFilter('all')}
+          >
+            全部 ({totalCount})
+          </button>
+          <button
+            className={`filter-btn incomplete ${statusFilter === 'incomplete' ? 'active' : ''}`}
+            onClick={() => setStatusFilter('incomplete')}
+          >
+            未完成 ({incompleteCount})
+          </button>
+          <button
+            className={`filter-btn complete ${statusFilter === 'complete' ? 'active' : ''}`}
+            onClick={() => setStatusFilter('complete')}
+          >
+            已完成 ({completeCount})
+          </button>
+        </div>
+
         <div className="record-items">
-          {sortedDiaries.length === 0 ? (
+          {filteredDiaries.length === 0 ? (
             <div className="empty-state">
               <span className="empty-icon">🌱</span>
               <p>还没有记录</p>
               <p className="empty-hint">种下第一朵花吧</p>
             </div>
           ) : (
-            sortedDiaries.map((diary) => (
+            filteredDiaries.map((diary) => (
               <div
                 key={diary.id}
                 className="record-item"
