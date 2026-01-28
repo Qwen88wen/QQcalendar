@@ -1,12 +1,12 @@
-/* ========== 未填车号记录弹窗 ========== */
+/* ========== 未通知记录弹窗 ========== */
 
-.missing-vehicle-overlay {
+.unnotified-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 200, 200, 0.3);
+  background: rgba(255, 224, 178, 0.3);
   backdrop-filter: blur(4px);
   z-index: 200;
   display: flex;
@@ -20,11 +20,11 @@
   to { opacity: 1; }
 }
 
-.missing-vehicle-panel {
+.unnotified-panel {
   background: white;
   border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(255, 107, 107, 0.25);
-  border: 2px solid #FF6B6B;
+  box-shadow: 0 10px 40px rgba(255, 138, 101, 0.25);
+  border: 2px solid #FF8A65;
   width: 90%;
   max-width: 800px;
   max-height: 70vh;
@@ -44,24 +44,24 @@
   }
 }
 
-.missing-vehicle-header {
+.unnotified-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 2px solid #FFE4E4;
-  background: linear-gradient(135deg, #FFF0F0 0%, #FFE4E4 100%);
+  border-bottom: 2px solid #FFE0B2;
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
   border-radius: 18px 18px 0 0;
 }
 
-.missing-vehicle-header h3 {
+.unnotified-header h3 {
   margin: 0;
   font-size: 1.1rem;
-  color: #D32F2F;
+  color: #E64A19;
   font-weight: 600;
 }
 
-.missing-vehicle-header .close-btn {
+.unnotified-header .close-btn {
   width: 32px;
   height: 32px;
   border: none;
@@ -76,70 +76,70 @@
   justify-content: center;
 }
 
-.missing-vehicle-header .close-btn:hover {
-  background: #FF6B6B;
+.unnotified-header .close-btn:hover {
+  background: #FF8A65;
   color: white;
   transform: scale(1.1);
 }
 
-.missing-vehicle-content {
+.unnotified-content {
   flex: 1;
   overflow: auto;
   padding: 16px;
 }
 
-.missing-vehicle-table {
+.unnotified-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.95rem;
 }
 
-.missing-vehicle-table th {
+.unnotified-table th {
   padding: 12px 10px;
   text-align: left;
-  background: linear-gradient(135deg, #FFF5F5 0%, #FFE8E8 100%);
-  color: #C62828;
+  background: linear-gradient(135deg, #FFF8E1 0%, #FFE0B2 100%);
+  color: #E65100;
   font-weight: 600;
   position: sticky;
   top: 0;
-  border-bottom: 2px solid #FFCDD2;
+  border-bottom: 2px solid #FFCC80;
 }
 
-.missing-vehicle-table td {
+.unnotified-table td {
   padding: 12px 10px;
-  border-bottom: 1px solid #FFE4E4;
+  border-bottom: 1px solid #FFE0B2;
   color: #555;
 }
 
-.missing-vehicle-table .clickable-row {
+.unnotified-table .clickable-row {
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.missing-vehicle-table .clickable-row:hover {
-  background: linear-gradient(135deg, #FFF8F8 0%, #FFF0F0 100%);
+.unnotified-table .clickable-row:hover {
+  background: linear-gradient(135deg, #FFFAF0 0%, #FFF3E0 100%);
 }
 
-.missing-vehicle-table .flower-cell {
+.unnotified-table .flower-cell {
   font-size: 1.3rem;
   text-align: center;
   width: 50px;
 }
 
-.missing-vehicle-table .remark-cell {
+.unnotified-table .remark-cell {
   max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.missing-vehicle-table .time-cell {
+.unnotified-table .time-cell {
   white-space: nowrap;
   color: #999;
   font-size: 0.85rem;
 }
 
-.missing-vehicle-table .status-badge {
+.unnotified-table .status-badge {
   display: inline-block;
   padding: 4px 10px;
   border-radius: 12px;
@@ -147,82 +147,82 @@
   font-weight: 600;
 }
 
-.missing-vehicle-table .status-badge.incomplete {
+.unnotified-table .status-badge.incomplete {
   background: linear-gradient(135deg, #FFF8E1 0%, #FFE082 100%);
   color: #E65100;
 }
 
-.missing-vehicle-table .status-badge.complete {
+.unnotified-table .status-badge.complete {
   background: linear-gradient(135deg, #E8F5E9 0%, #A5D6A7 100%);
   color: #2E7D32;
 }
 
-.missing-vehicle-content .empty-state {
+.unnotified-content .empty-state {
   text-align: center;
   padding: 40px 20px;
   color: #999;
 }
 
-.missing-vehicle-content .empty-icon {
+.unnotified-content .empty-icon {
   font-size: 3rem;
   display: block;
   margin-bottom: 12px;
 }
 
 /* 底部操作栏 */
-.missing-vehicle-footer {
+.unnotified-footer {
   padding: 12px 16px;
-  border-top: 1px solid #FFE4E4;
-  background: linear-gradient(135deg, #FFF8F8 0%, #FFF0F0 100%);
+  border-top: 1px solid #FFE0B2;
+  background: linear-gradient(135deg, #FFFAF0 0%, #FFF3E0 100%);
   display: flex;
   justify-content: center;
 }
 
-.dismiss-btn {
+.unnotified-footer .dismiss-btn {
   padding: 10px 24px;
-  border: 2px solid #FFB6C1;
+  border: 2px solid #FFCC80;
   border-radius: 20px;
   background: white;
-  color: #D4838F;
+  color: #E65100;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.dismiss-btn:hover {
-  background: linear-gradient(135deg, #FFE4EC 0%, #FFD1DC 100%);
-  border-color: #FF91A4;
+.unnotified-footer .dismiss-btn:hover {
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+  border-color: #FF8A65;
   transform: scale(1.05);
 }
 
 /* 移动端适配 */
 @media (max-width: 768px) {
-  .missing-vehicle-panel {
+  .unnotified-panel {
     width: 95%;
     max-height: 80vh;
     border-radius: 16px;
   }
 
-  .missing-vehicle-header {
+  .unnotified-header {
     padding: 14px 16px;
     border-radius: 14px 14px 0 0;
   }
 
-  .missing-vehicle-header h3 {
+  .unnotified-header h3 {
     font-size: 1rem;
   }
 
-  .missing-vehicle-table {
+  .unnotified-table {
     font-size: 0.85rem;
   }
 
-  .missing-vehicle-table th,
-  .missing-vehicle-table td {
+  .unnotified-table th,
+  .unnotified-table td {
     padding: 10px 8px;
   }
 
-  .missing-vehicle-table .remark-cell {
+  .unnotified-table .remark-cell {
     max-width: 100px;
   }
 }

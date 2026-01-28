@@ -17,6 +17,12 @@
   border-bottom: 2px solid #FFD1DC;
 }
 
+.title-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .title-main h1 {
   font-size: 1.4rem;
   font-weight: 700;
@@ -26,6 +32,15 @@
   align-items: center;
   gap: 6px;
   text-shadow: 1px 1px 2px rgba(255, 182, 193, 0.3);
+}
+
+.current-user {
+  font-size: 0.9rem;
+  color: #888;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 4px 12px;
+  border-radius: 15px;
+  border: 1px solid #FFD1DC;
 }
 
 .flower-icon {
@@ -195,6 +210,29 @@
   background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
 }
 
+/* 登出按钮 */
+.logout-btn {
+  width: 46px;
+  height: 46px;
+  border: 2px solid #FFD1DC;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(255, 182, 193, 0.25);
+  margin-left: 8px;
+}
+
+.logout-btn:hover {
+  transform: scale(1.1);
+  background: linear-gradient(135deg, #FFE0E0 0%, #FFCECE 100%);
+  border-color: #FF6B6B;
+}
+
 @keyframes pulse-cute {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.15); }
@@ -246,6 +284,52 @@
   }
   50% {
     box-shadow: 0 3px 20px rgba(255, 107, 107, 0.45);
+    transform: scale(1.03);
+  }
+}
+
+/* 未通知提醒按钮 */
+.unnotified-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border: 2px solid #FF8A65;
+  border-radius: 25px;
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  animation: attention-phone 2s infinite;
+  box-shadow: 0 3px 10px rgba(255, 138, 101, 0.25);
+}
+
+.unnotified-btn:hover {
+  transform: scale(1.08);
+  background: linear-gradient(135deg, #FFE0B2 0%, #FFCC80 100%);
+}
+
+.unnotified-btn.active {
+  background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%);
+  color: white;
+}
+
+.unnotified-btn.active .warning-count {
+  color: white;
+}
+
+.unnotified-btn .warning-count {
+  font-weight: 700;
+  color: #E64A19;
+}
+
+@keyframes attention-phone {
+  0%, 100% {
+    box-shadow: 0 3px 10px rgba(255, 138, 101, 0.25);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 3px 20px rgba(255, 138, 101, 0.45);
     transform: scale(1.03);
   }
 }
@@ -306,7 +390,8 @@
 
   .refresh-btn,
   .export-btn,
-  .record-toggle {
+  .record-toggle,
+  .logout-btn {
     width: 30px;
     height: 30px;
     font-size: 0.9rem;
@@ -314,7 +399,8 @@
     flex-shrink: 0;
   }
 
-  .missing-vehicle-btn {
+  .missing-vehicle-btn,
+  .unnotified-btn {
     padding: 5px 6px;
     font-size: 0.7rem;
     flex-shrink: 0;
