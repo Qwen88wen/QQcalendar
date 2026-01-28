@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useAppStore } from '../stores/appStore';
 import './MissingVehicleList.css';
 
 export function MissingVehicleList() {
   const { diaries, showOnlyMissingVehicle, toggleMissingVehicleFilter, openModal } = useAppStore();
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // 筛选未填车号的记录
   const missingVehicleDiaries = diaries
@@ -25,12 +27,35 @@ export function MissingVehicleList() {
     openModal(diary);
   };
 
-  // 清空提醒（关闭面板）
-  const handleDismiss = () => {
-    toggleMissingVehicleFilter();
+  // 全选/取消全选
+  const handleSelectAll = () => {
+    if (selectedIds.length === missingVehicleDiaries.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(missingVehicleDiaries.map(d => d.id));
+    }
+  };
+
+  // 单个选择
+  const handleSelectOne = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  // 批量编辑（打开第一个选中的记录）
+  const handleBatchEdit = () => {
+    if (selectedIds.length === 0) return;
+    const firstSelected = missingVehicleDiaries.find(d => selectedIds.includes(d.id));
+    if (firstSelected) {
+      openModal(firstSelected);
+    }
   };
 
   if (!showOnlyMissingVehicle) return null;
+
+  const isAllSelected = missingVehicleDiaries.length > 0 && selectedIds.length === missingVehicleDiaries.length;
 
   return (
     <div className="missing-vehicle-overlay" onClick={toggleMissingVehicleFilter}>
@@ -51,6 +76,14 @@ export function MissingVehicleList() {
               <table className="missing-vehicle-table">
                 <thead>
                   <tr>
+                    <th className="checkbox-cell">
+                      <input
+                        type="checkbox"
+                        checked={isAllSelected}
+                        onChange={handleSelectAll}
+                        title="全选"
+                      />
+                    </th>
                     <th>花朵</th>
                     <th>园主</th>
                     <th>工人</th>
@@ -64,8 +97,15 @@ export function MissingVehicleList() {
                     <tr
                       key={diary.id}
                       onClick={() => handleRowClick(diary)}
-                      className="clickable-row"
+                      className={`clickable-row ${selectedIds.includes(diary.id) ? 'selected' : ''}`}
                     >
+                      <td className="checkbox-cell" onClick={(e) => handleSelectOne(diary.id, e)}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(diary.id)}
+                          onChange={() => {}}
+                        />
+                      </td>
                       <td className="flower-cell">{getFlowerIcon(diary)}</td>
                       <td>{diary.customer || '-'}</td>
                       <td>{diary.worker || '-'}</td>
@@ -81,9 +121,14 @@ export function MissingVehicleList() {
                 </tbody>
               </table>
               <div className="missing-vehicle-footer">
-                <button className="dismiss-btn" onClick={handleDismiss}>
-                  🔕 清空提醒
-                </button>
+                {selectedIds.length > 0 && (
+                  <button
+                    className="batch-btn"
+                    onClick={handleBatchEdit}
+                  >
+                    ✏️ 编辑选中记录 ({selectedIds.length})
+                  </button>
+                )}
               </div>
             </>
           )}
