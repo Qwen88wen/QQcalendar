@@ -54,7 +54,7 @@ export function UnnotifiedList() {
     try {
       const { error } = await supabase
         .from('diaries')
-        .update({ notified: true })
+        .update({ notified: true } as never)
         .in('id', selectedIds);
 
       if (error) throw error;

@@ -110,6 +110,11 @@ export interface Database {
         Insert: DiaryRemarkInsert;
         Update: Partial<Omit<DiaryRemark, 'id' | 'created_at'>>;
       };
+      todos: {
+        Row: Todo;
+        Insert: TodoInsert;
+        Update: TodoUpdate;
+      };
     };
   };
 }
