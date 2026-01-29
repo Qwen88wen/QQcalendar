@@ -8,7 +8,7 @@ export type FlowerType = 1 | 2 | 3 | 4 | 5;
 export type DiaryStatus = 'complete' | 'incomplete';
 
 // 标签类型
-export type DiaryTag = 'HARVEST' | 'PRUNNING' | 'FERTILIZE' | 'POISON' | 'SEEDLING' | 'SAND/STONE' | 'WELDING' | 'BUILDING HOUSE';
+export type DiaryTag = 'HARVEST' | 'PRUNNING' | 'FERTILIZE' | 'POISON' | 'SEEDLING' | 'SAND/ STONE' | 'WELDING' | 'BUILDING HOUSE';
 
 // profiles 表
 export interface Profile {
