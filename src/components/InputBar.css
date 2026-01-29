@@ -209,8 +209,10 @@
   border-radius: 12px;
   box-shadow: 0 -4px 20px rgba(255, 182, 193, 0.3);
   max-height: 50vh;
-  overflow-y: auto;
+  overflow: hidden;
   z-index: 300;
+  display: flex;
+  flex-direction: column;
 }
 
 .worker-option {
@@ -340,8 +342,9 @@
 
 /* 工人列表 */
 .worker-list {
-  max-height: 35vh;
+  flex: 1;
   overflow-y: auto;
+  min-height: 0;
 }
 
 .worker-option {
