@@ -29,6 +29,15 @@ const VEHICLE_OPTIONS = [
   'JNF1871',
 ];
 
+// 备注选项
+const REMARK_OPTIONS = [
+  'TON',
+  'POKOK',
+  'EKAR',
+  'JOB',
+  'BAG',
+];
+
 // 默认工人列表
 const DEFAULT_WORKERS = [
   'RUDI', 'KURNIADI', 'KARIADI', 'BOHANUDIN', 'SUKERI', 'NASAR',
@@ -67,6 +76,7 @@ export function DiaryModal() {
   const [customer, setCustomer] = useState('');
   const [remark, setRemark] = useState('');
   const [vehicle, setVehicle] = useState('');
+  const [weight, setWeight] = useState('');
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
   const [notified, setNotified] = useState(false);
   const [tag, setTag] = useState<DiaryTag | null>(null);
@@ -110,6 +120,7 @@ export function DiaryModal() {
         setCustomer(selectedDiary.customer || '');
         setRemark(selectedDiary.remark || '');
         setVehicle(selectedDiary.vehicle || '');
+        setWeight(selectedDiary.weight || '');
         setStatus(selectedDiary.status || 'incomplete');
         setNotified(selectedDiary.notified || false);
         setTag(selectedDiary.tag || null);
@@ -124,6 +135,7 @@ export function DiaryModal() {
         setCustomer('');
         setRemark('');
         setVehicle('');
+        setWeight('');
         setStatus('incomplete');
         setNotified(false);
         setTag(null);
@@ -152,6 +164,7 @@ export function DiaryModal() {
       remark: remark || null,
       worker: selectedWorkers.length > 0 ? selectedWorkers.join(', ') : null,
       vehicle: vehicle || null,
+      weight: weight || null,
       status,
       notified,
       tag,
@@ -222,11 +235,25 @@ export function DiaryModal() {
 
             <div className="form-group">
               <label>备注</label>
-              <input
-                type="text"
+              <select
                 value={remark}
                 onChange={(e) => setRemark(e.target.value)}
-                placeholder="输入备注"
+                className="remark-select"
+              >
+                <option value="">选择备注</option>
+                {REMARK_OPTIONS.map(r => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>重量</label>
+              <input
+                type="text"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                placeholder="输入重量"
               />
             </div>
 

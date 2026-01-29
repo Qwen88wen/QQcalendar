@@ -30,6 +30,15 @@ const VEHICLE_OPTIONS = [
   'JNF1871',
 ];
 
+// 备注选项
+const REMARK_OPTIONS = [
+  'TON',
+  'POKOK',
+  'EKAR',
+  'JOB',
+  'BAG',
+];
+
 // 默认工人列表
 const DEFAULT_WORKERS = [
   'RUDI',
@@ -95,6 +104,7 @@ export function InputBar() {
   const [workerSearch, setWorkerSearch] = useState('');
   const [remark, setRemark] = useState('');
   const [vehicle, setVehicle] = useState('');
+  const [weight, setWeight] = useState('');
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
   const [tag, setTag] = useState<DiaryTag | ''>('');
 
@@ -192,6 +202,7 @@ export function InputBar() {
         worker: selectedWorkers.length > 0 ? selectedWorkers.join(', ') : null,
         remark: remark.trim() || null,
         vehicle: vehicle.trim() || null,
+        weight: weight.trim() || null,
         status,
         tag: tag || null,
         operators: [currentUsername],  // 初始操作者
@@ -207,6 +218,7 @@ export function InputBar() {
         setWorkerSearch('');
         setRemark('');
         setVehicle('');
+        setWeight('');
         setStatus('incomplete');
         setTag('');
 
@@ -262,6 +274,7 @@ export function InputBar() {
                   <th>标签</th>
                   <th>工人</th>
                   <th>备注</th>
+                  <th>重量</th>
                   <th>车号</th>
                   <th>状态</th>
                   <th></th>
@@ -370,11 +383,24 @@ export function InputBar() {
                     </div>
                   </td>
                   <td>
-                    <input
-                      type="text"
+                    <select
                       value={remark}
                       onChange={(e) => setRemark(e.target.value)}
-                      placeholder="备注"
+                      disabled={isSubmitting}
+                      className="remark-select"
+                    >
+                      <option value="">选择备注</option>
+                      {REMARK_OPTIONS.map(r => (
+                        <option key={r} value={r}>{r}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={weight}
+                      onChange={(e) => setWeight(e.target.value)}
+                      placeholder="重量"
                       disabled={isSubmitting}
                     />
                   </td>
