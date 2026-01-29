@@ -639,18 +639,21 @@
 }
 
 .modal-content .worker-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 400px;
+  top: 50%;
   background: white;
   border: 2px solid #FFD1DC;
   border-radius: 14px;
   box-shadow: 0 8px 30px rgba(255, 182, 193, 0.35);
-  max-height: 300px;
+  max-height: 50vh;
   overflow: hidden;
   z-index: 1100;
-  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-content .worker-dropdown-header {
@@ -697,8 +700,9 @@
 }
 
 .modal-content .worker-list {
-  max-height: 200px;
+  flex: 1;
   overflow-y: auto;
+  min-height: 0;
 }
 
 .modal-content .worker-option {
