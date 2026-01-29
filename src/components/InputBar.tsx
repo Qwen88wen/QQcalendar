@@ -14,7 +14,7 @@ const TAG_OPTIONS: DiaryTag[] = [
   'SEEDLING',
   'STONE',
   'SAND',
-  'VENDING',
+  'WELDING',
   'BUILDING HOUSE',
 ];
 
