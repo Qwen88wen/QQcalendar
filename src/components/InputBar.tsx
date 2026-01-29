@@ -1,9 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { createDiary } from '../lib/diary';
 import { getUserById } from '../lib/users';
-import type { DiaryStatus } from '../types/database';
+import type { DiaryStatus, DiaryTag } from '../types/database';
 import './InputBar.css';
+
+// 标签选项
+const TAG_OPTIONS: { value: DiaryTag; label: string }[] = [
+  { value: 'HARVEST', label: '割果' },
+  { value: 'PRUNNING', label: '剪枝' },
+  { value: 'FERTILIZE', label: '施肥' },
+  { value: 'POISON', label: '打药' },
+  { value: 'SEEDLING', label: '育苗' },
+  { value: 'STONE', label: '石头' },
+  { value: 'SAND', label: '沙子' },
+  { value: 'VENDING', label: '销售' },
+  { value: 'BUILDING HOUSE', label: '建房' },
+];
 
 // 默认工人列表
 const DEFAULT_WORKERS = [
@@ -67,9 +80,11 @@ export function InputBar() {
   const [customer, setCustomer] = useState('');
   const [selectedWorkers, setSelectedWorkers] = useState<string[]>([]);
   const [showWorkerDropdown, setShowWorkerDropdown] = useState(false);
+  const [workerSearch, setWorkerSearch] = useState('');
   const [remark, setRemark] = useState('');
   const [vehicle, setVehicle] = useState('');
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
+  const [tag, setTag] = useState<DiaryTag | ''>('');
 
   // 工人列表管理
   const [workers, setWorkers] = useState<string[]>(DEFAULT_WORKERS);
@@ -87,6 +102,14 @@ export function InputBar() {
   useEffect(() => {
     setWorkers(getStoredWorkers());
   }, []);
+
+  // 排序并过滤工人列表 (A-Z排序 + 搜索过滤)
+  const sortedFilteredWorkers = useMemo(() => {
+    const sorted = [...workers].sort((a, b) => a.localeCompare(b));
+    if (!workerSearch.trim()) return sorted;
+    const search = workerSearch.toLowerCase();
+    return sorted.filter(w => w.toLowerCase().includes(search));
+  }, [workers, workerSearch]);
 
   // 切换工人选择
   const toggleWorker = (worker: string) => {
@@ -158,6 +181,7 @@ export function InputBar() {
         remark: remark.trim() || null,
         vehicle: vehicle.trim() || null,
         status,
+        tag: tag || null,
         operators: [currentUsername],  // 初始操作者
         created_at: createdAt,  // 使用选中的日期
       });
@@ -168,9 +192,11 @@ export function InputBar() {
         // 清空表单
         setCustomer('');
         setSelectedWorkers([]);
+        setWorkerSearch('');
         setRemark('');
         setVehicle('');
         setStatus('incomplete');
+        setTag('');
 
         // 显示庆祝动画
         setShowCelebration(true);
@@ -221,6 +247,7 @@ export function InputBar() {
               <thead>
                 <tr>
                   <th>园主 *</th>
+                  <th>标签</th>
                   <th>工人</th>
                   <th>备注</th>
                   <th>车号</th>
@@ -238,6 +265,19 @@ export function InputBar() {
                       placeholder="园主"
                       disabled={isSubmitting}
                     />
+                  </td>
+                  <td>
+                    <select
+                      value={tag}
+                      onChange={(e) => setTag(e.target.value as DiaryTag | '')}
+                      disabled={isSubmitting}
+                      className="tag-select"
+                    >
+                      <option value="">选择标签</option>
+                      {TAG_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
                   </td>
                   <td className="worker-cell">
                     <div className="worker-select-container">
@@ -281,8 +321,17 @@ export function InputBar() {
                               </button>
                             </div>
                           )}
+                          <div className="worker-search">
+                            <input
+                              type="text"
+                              value={workerSearch}
+                              onChange={(e) => setWorkerSearch(e.target.value)}
+                              placeholder="🔍 搜索工人..."
+                              className="worker-search-input"
+                            />
+                          </div>
                           <div className="worker-list">
-                            {workers.map(worker => (
+                            {sortedFilteredWorkers.map(worker => (
                               <div key={worker} className="worker-option">
                                 <label>
                                   <input

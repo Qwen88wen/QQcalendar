@@ -1,9 +1,45 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { updateDiary } from '../lib/diary';
-import { USER_FLOWERS } from '../lib/flowers';
-import type { DiaryStatus } from '../types/database';
+import type { DiaryStatus, DiaryTag } from '../types/database';
 import './DiaryModal.css';
+
+// 标签选项
+const TAG_OPTIONS: { value: DiaryTag; label: string }[] = [
+  { value: 'HARVEST', label: '割果' },
+  { value: 'PRUNNING', label: '剪枝' },
+  { value: 'FERTILIZE', label: '施肥' },
+  { value: 'POISON', label: '打药' },
+  { value: 'SEEDLING', label: '育苗' },
+  { value: 'STONE', label: '石头' },
+  { value: 'SAND', label: '沙子' },
+  { value: 'VENDING', label: '销售' },
+  { value: 'BUILDING HOUSE', label: '建房' },
+];
+
+// 默认工人列表
+const DEFAULT_WORKERS = [
+  'RUDI', 'KURNIADI', 'KARIADI', 'BOHANUDIN', 'SUKERI', 'NASAR',
+  'HAR', 'RASID', 'NURMAN', 'AMAT', 'NURSAN', 'MAWARDI',
+  'MAHIRUN', 'ISMARYADI', 'MURTI', 'JUHARDI', 'CHAIRUL', 'TARSIMUN',
+  'SUPANDI', 'LANI', 'EDI', 'MISNO', 'IHAP', 'ZAENUDIN',
+];
+
+// localStorage key
+const WORKERS_STORAGE_KEY = 'qq-calendar-workers';
+
+// 从 localStorage 获取工人列表
+function getStoredWorkers(): string[] {
+  try {
+    const stored = localStorage.getItem(WORKERS_STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (e) {
+    console.error('Failed to load workers from localStorage:', e);
+  }
+  return DEFAULT_WORKERS;
+}
 
 export function DiaryModal() {
   const {
@@ -18,11 +54,34 @@ export function DiaryModal() {
   // 表单状态
   const [customer, setCustomer] = useState('');
   const [remark, setRemark] = useState('');
-  const [worker, setWorker] = useState('');
   const [vehicle, setVehicle] = useState('');
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
   const [notified, setNotified] = useState(false);
+  const [tag, setTag] = useState<DiaryTag | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 工人选择状态
+  const [selectedWorkers, setSelectedWorkers] = useState<string[]>([]);
+  const [showWorkerDropdown, setShowWorkerDropdown] = useState(false);
+  const [workerSearch, setWorkerSearch] = useState('');
+  const [workers] = useState<string[]>(getStoredWorkers());
+
+  // 排序并过滤工人列表 (A-Z排序 + 搜索过滤)
+  const sortedFilteredWorkers = useMemo(() => {
+    const sorted = [...workers].sort((a, b) => a.localeCompare(b));
+    if (!workerSearch.trim()) return sorted;
+    const search = workerSearch.toLowerCase();
+    return sorted.filter(w => w.toLowerCase().includes(search));
+  }, [workers, workerSearch]);
+
+  // 切换工人选择
+  const toggleWorker = (w: string) => {
+    setSelectedWorkers(prev =>
+      prev.includes(w)
+        ? prev.filter(x => x !== w)
+        : [...prev, w]
+    );
+  };
 
   // 记录当前打开的日记ID
   const currentDiaryIdRef = useRef<string | null>(null);
@@ -38,18 +97,27 @@ export function DiaryModal() {
       if (selectedDiary) {
         setCustomer(selectedDiary.customer || '');
         setRemark(selectedDiary.remark || '');
-        setWorker(selectedDiary.worker || '');
         setVehicle(selectedDiary.vehicle || '');
         setStatus(selectedDiary.status || 'incomplete');
         setNotified(selectedDiary.notified || false);
+        setTag(selectedDiary.tag || null);
+        // 解析工人列表
+        const workerStr = selectedDiary.worker || '';
+        const workerList = workerStr ? workerStr.split(',').map(w => w.trim()).filter(Boolean) : [];
+        setSelectedWorkers(workerList);
+        setWorkerSearch('');
+        setShowWorkerDropdown(false);
       } else {
         // 新建时清空表单
         setCustomer('');
         setRemark('');
-        setWorker('');
         setVehicle('');
         setStatus('incomplete');
         setNotified(false);
+        setTag(null);
+        setSelectedWorkers([]);
+        setWorkerSearch('');
+        setShowWorkerDropdown(false);
       }
     }
   }, [selectedDiary]);
@@ -70,10 +138,11 @@ export function DiaryModal() {
     const diaryData = {
       customer: customer || null,
       remark: remark || null,
-      worker: worker || null,
+      worker: selectedWorkers.length > 0 ? selectedWorkers.join(', ') : null,
       vehicle: vehicle || null,
       status,
       notified,
+      tag,
       operators: newOperators,
     };
 
@@ -150,13 +219,64 @@ export function DiaryModal() {
             </div>
 
             <div className="form-group">
+              <label>标签</label>
+              <select
+                value={tag || ''}
+                onChange={(e) => setTag(e.target.value as DiaryTag || null)}
+                className="tag-select"
+              >
+                <option value="">无标签</option>
+                {TAG_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group worker-group">
               <label>工人</label>
-              <input
-                type="text"
-                value={worker}
-                onChange={(e) => setWorker(e.target.value)}
-                placeholder="输入工人信息"
-              />
+              <div className="worker-select-container">
+                <button
+                  type="button"
+                  className="worker-select-btn"
+                  onClick={() => setShowWorkerDropdown(!showWorkerDropdown)}
+                >
+                  {selectedWorkers.length > 0
+                    ? `已选 ${selectedWorkers.length} 人: ${selectedWorkers.slice(0, 2).join(', ')}${selectedWorkers.length > 2 ? '...' : ''}`
+                    : '选择工人'}
+                  <span className="dropdown-arrow">{showWorkerDropdown ? '▲' : '▼'}</span>
+                </button>
+                {showWorkerDropdown && (
+                  <div className="worker-dropdown">
+                    <div className="worker-dropdown-header">
+                      <span>选择工人 (A-Z)</span>
+                      <button type="button" onClick={() => setShowWorkerDropdown(false)}>✕</button>
+                    </div>
+                    <div className="worker-search">
+                      <input
+                        type="text"
+                        value={workerSearch}
+                        onChange={(e) => setWorkerSearch(e.target.value)}
+                        placeholder="🔍 搜索工人..."
+                        className="worker-search-input"
+                      />
+                    </div>
+                    <div className="worker-list">
+                      {sortedFilteredWorkers.map(w => (
+                        <div key={w} className="worker-option">
+                          <label>
+                            <input
+                              type="checkbox"
+                              checked={selectedWorkers.includes(w)}
+                              onChange={() => toggleWorker(w)}
+                            />
+                            <span>{w}</span>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className={`form-group ${!vehicle ? 'warning' : ''}`}>
@@ -214,12 +334,6 @@ export function DiaryModal() {
         {selectedDiary && (
           <div className="diary-meta">
             <div className="meta-item">
-              <span className="meta-label">创建者:</span>
-              <span className="meta-value">
-                {USER_FLOWERS[selectedDiary.user_name || '']?.icon || '🌸'} {selectedDiary.user_name || '未知'}
-              </span>
-            </div>
-            <div className="meta-item">
               <span className="meta-label">创建时间:</span>
               <span className="meta-value">{new Date(selectedDiary.created_at).toLocaleString('zh-CN')}</span>
             </div>
@@ -227,18 +341,6 @@ export function DiaryModal() {
               <div className="meta-item">
                 <span className="meta-label">最后修改:</span>
                 <span className="meta-value">{new Date(selectedDiary.updated_at).toLocaleString('zh-CN')}</span>
-              </div>
-            )}
-            {selectedDiary.operators && selectedDiary.operators.length > 0 && (
-              <div className="meta-item operators">
-                <span className="meta-label">操作过的用户:</span>
-                <div className="meta-operators">
-                  {selectedDiary.operators.map((op, idx) => (
-                    <span key={idx} className="meta-operator">
-                      {USER_FLOWERS[op]?.icon || '🌸'} {op}
-                    </span>
-                  ))}
-                </div>
               </div>
             )}
           </div>

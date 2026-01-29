@@ -7,6 +7,9 @@ export type FlowerType = 1 | 2 | 3 | 4 | 5;
 // 状态类型
 export type DiaryStatus = 'complete' | 'incomplete';
 
+// 标签类型
+export type DiaryTag = 'HARVEST' | 'PRUNNING' | 'FERTILIZE' | 'POISON' | 'SEEDLING' | 'STONE' | 'SAND' | 'VENDING' | 'BUILDING HOUSE';
+
 // profiles 表
 export interface Profile {
   id: string;
@@ -27,6 +30,7 @@ export interface Diary {
   operators: string[] | null;     // 操作过的用户列表
   notified: boolean;              // 是否已通知园主
   vehicle_dismissed: boolean;     // 是否已忽略车号提醒
+  tag: DiaryTag | null;           // 工作标签
   created_at: string;
   updated_at: string;
 }
@@ -43,6 +47,7 @@ export interface DiaryInsert {
   operators?: string[] | null;
   notified?: boolean;
   vehicle_dismissed?: boolean;
+  tag?: DiaryTag | null;
   created_at?: string;  // 允许指定创建日期
 }
 
@@ -56,6 +61,7 @@ export interface DiaryUpdate {
   operators?: string[] | null;
   notified?: boolean;
   vehicle_dismissed?: boolean;
+  tag?: DiaryTag | null;
 }
 
 // diary_remarks 表 (无 user_id，只有 user_name)
