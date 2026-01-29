@@ -168,6 +168,23 @@
   box-shadow: 0 3px 10px rgba(255, 145, 164, 0.35);
 }
 
+.filter-btn.unnotified-filter {
+  border-color: #FF8A65;
+  color: #E64A19;
+}
+
+.filter-btn.unnotified-filter:hover {
+  background: rgba(255, 138, 101, 0.15);
+  border-color: #FF7043;
+}
+
+.filter-btn.unnotified-filter.active {
+  background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%);
+  border-color: #FF7043;
+  color: white;
+  box-shadow: 0 3px 10px rgba(255, 112, 67, 0.35);
+}
+
 /* 记录列表 */
 .memo-list {
   flex: 1;
@@ -286,6 +303,12 @@
   background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%);
   color: #E65100;
   border: 1px solid #FFD54F;
+}
+
+.warning-tag.unnotified {
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+  color: #E64A19;
+  border: 1px solid #FF8A65;
 }
 
 @keyframes warningPulse {
