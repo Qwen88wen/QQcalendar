@@ -76,6 +76,7 @@ export function DiaryModal() {
   const [customer, setCustomer] = useState('');
   const [remark, setRemark] = useState('');
   const [vehicle, setVehicle] = useState('');
+  const [weight, setWeight] = useState('');
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
   const [notified, setNotified] = useState(false);
   const [tag, setTag] = useState<DiaryTag | null>(null);
@@ -119,6 +120,7 @@ export function DiaryModal() {
         setCustomer(selectedDiary.customer || '');
         setRemark(selectedDiary.remark || '');
         setVehicle(selectedDiary.vehicle || '');
+        setWeight(selectedDiary.weight || '');
         setStatus(selectedDiary.status || 'incomplete');
         setNotified(selectedDiary.notified || false);
         setTag(selectedDiary.tag || null);
@@ -133,6 +135,7 @@ export function DiaryModal() {
         setCustomer('');
         setRemark('');
         setVehicle('');
+        setWeight('');
         setStatus('incomplete');
         setNotified(false);
         setTag(null);
@@ -161,6 +164,7 @@ export function DiaryModal() {
       remark: remark || null,
       worker: selectedWorkers.length > 0 ? selectedWorkers.join(', ') : null,
       vehicle: vehicle || null,
+      weight: weight || null,
       status,
       notified,
       tag,
@@ -241,6 +245,16 @@ export function DiaryModal() {
                   <option key={r} value={r}>{r}</option>
                 ))}
               </select>
+            </div>
+
+            <div className="form-group">
+              <label>重量</label>
+              <input
+                type="text"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                placeholder="输入重量"
+              />
             </div>
 
             <div className="form-group">

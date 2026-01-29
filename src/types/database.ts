@@ -26,6 +26,7 @@ export interface Diary {
   remark: string | null;          // 备注
   worker: string | null;          // 工人
   vehicle: string | null;         // 车号
+  weight: string | null;          // 重量
   flower_type: FlowerType | null;
   operators: string[] | null;     // 操作过的用户列表
   notified: boolean;              // 是否已通知园主
@@ -43,6 +44,7 @@ export interface DiaryInsert {
   remark?: string | null;
   worker?: string | null;
   vehicle?: string | null;
+  weight?: string | null;
   flower_type?: FlowerType | null;
   operators?: string[] | null;
   notified?: boolean;
@@ -57,6 +59,7 @@ export interface DiaryUpdate {
   remark?: string | null;
   worker?: string | null;
   vehicle?: string | null;
+  weight?: string | null;
   flower_type?: FlowerType | null;
   operators?: string[] | null;
   notified?: boolean;
