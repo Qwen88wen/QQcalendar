@@ -113,11 +113,14 @@
 /* 输入表格 */
 .input-table {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .input-table table {
+  min-width: 900px;
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .input-table th {
@@ -126,7 +129,17 @@
   font-size: 0.85rem;
   color: #B08B93;
   font-weight: 600;
+  white-space: nowrap;
 }
+
+/* 列宽分配 */
+.input-table th:nth-child(1) { width: 15%; } /* 园主 */
+.input-table th:nth-child(2) { width: 18%; } /* 标签 */
+.input-table th:nth-child(3) { width: 15%; } /* 工人 */
+.input-table th:nth-child(4) { width: 18%; } /* 备注 */
+.input-table th:nth-child(5) { width: 12%; } /* 车号 */
+.input-table th:nth-child(6) { width: 12%; } /* 状态 */
+.input-table th:nth-child(7) { width: 10%; } /* 按钮 */
 
 .input-table td {
   padding: 5px;
@@ -135,10 +148,10 @@
 .input-table input,
 .input-table select {
   width: 100%;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border: 2px solid #FFD1DC;
   border-radius: 12px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   outline: none;
   transition: all 0.3s ease;
   background: white;

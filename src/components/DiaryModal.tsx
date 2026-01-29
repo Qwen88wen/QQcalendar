@@ -5,16 +5,16 @@ import type { DiaryStatus, DiaryTag } from '../types/database';
 import './DiaryModal.css';
 
 // 标签选项
-const TAG_OPTIONS: { value: DiaryTag; label: string }[] = [
-  { value: 'HARVEST', label: '割果' },
-  { value: 'PRUNNING', label: '剪枝' },
-  { value: 'FERTILIZE', label: '施肥' },
-  { value: 'POISON', label: '打药' },
-  { value: 'SEEDLING', label: '育苗' },
-  { value: 'STONE', label: '石头' },
-  { value: 'SAND', label: '沙子' },
-  { value: 'VENDING', label: '销售' },
-  { value: 'BUILDING HOUSE', label: '建房' },
+const TAG_OPTIONS: DiaryTag[] = [
+  'HARVEST',
+  'PRUNNING',
+  'FERTILIZE',
+  'POISON',
+  'SEEDLING',
+  'STONE',
+  'SAND',
+  'VENDING',
+  'BUILDING HOUSE',
 ];
 
 // 默认工人列表
@@ -226,8 +226,8 @@ export function DiaryModal() {
                 className="tag-select"
               >
                 <option value="">无标签</option>
-                {TAG_OPTIONS.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                {TAG_OPTIONS.map(tag => (
+                  <option key={tag} value={tag}>{tag}</option>
                 ))}
               </select>
             </div>
