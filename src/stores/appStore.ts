@@ -134,9 +134,13 @@ export const useAppStore = create<AppState>()(
 
       setDiaries: (diaries: Diary[]) => set({ diaries }),
 
-      addDiary: (diary: Diary) => set((state) => ({
-        diaries: [diary, ...state.diaries]
-      })),
+      addDiary: (diary: Diary) => set((state) => {
+        // 检查是否已存在相同 ID 的记录，防止重复添加
+        if (state.diaries.some(d => d.id === diary.id)) {
+          return state; // 已存在，不添加
+        }
+        return { diaries: [diary, ...state.diaries] };
+      }),
 
       updateDiary: (diary: Diary) => set((state) => ({
         diaries: state.diaries.map((d) => d.id === diary.id ? diary : d),
