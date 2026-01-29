@@ -585,7 +585,8 @@
 }
 
 /* ========== 标签选择器 ========== */
-.modal-content .tag-select {
+.modal-content .tag-select,
+.modal-content .vehicle-select {
   width: 100%;
   padding: 12px 14px;
   border: 2px solid #FFD1DC;
@@ -597,10 +598,16 @@
   transition: all 0.3s ease;
 }
 
-.modal-content .tag-select:focus {
+.modal-content .tag-select:focus,
+.modal-content .vehicle-select:focus {
   outline: none;
   border-color: #FF91A4;
   box-shadow: 0 0 0 4px rgba(255, 145, 164, 0.2);
+}
+
+.modal-content .vehicle-select.input-warning {
+  border-color: #FF6B6B;
+  background: linear-gradient(135deg, #FFF5F5 0%, #FFEBEE 100%);
 }
 
 /* ========== 工人选择器 ========== */

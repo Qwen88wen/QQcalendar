@@ -17,6 +17,19 @@ const TAG_OPTIONS: DiaryTag[] = [
   'BUILDING HOUSE',
 ];
 
+// 车号选项
+const VEHICLE_OPTIONS = [
+  'JTB1136',
+  'JRB9506',
+  'JTV1088',
+  'JWY2319',
+  'JWV3225',
+  'JVP4486',
+  'JPR7380',
+  'JXT6275',
+  'JNF1871',
+];
+
 // 默认工人列表
 const DEFAULT_WORKERS = [
   'RUDI', 'KURNIADI', 'KARIADI', 'BOHANUDIN', 'SUKERI', 'NASAR',
@@ -284,13 +297,16 @@ export function DiaryModal() {
                 车号
                 {!vehicle && <span className="required-dot">*</span>}
               </label>
-              <input
-                type="text"
+              <select
                 value={vehicle}
                 onChange={(e) => setVehicle(e.target.value)}
-                placeholder="输入车号"
-                className={!vehicle ? 'input-warning' : ''}
-              />
+                className={`vehicle-select ${!vehicle ? 'input-warning' : ''}`}
+              >
+                <option value="">选择车号</option>
+                {VEHICLE_OPTIONS.map(v => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+              </select>
               {!vehicle && (
                 <div className="vehicle-warning">
                   请记得填写车号！

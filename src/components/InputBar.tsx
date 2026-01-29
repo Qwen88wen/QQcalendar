@@ -18,6 +18,19 @@ const TAG_OPTIONS: DiaryTag[] = [
   'BUILDING HOUSE',
 ];
 
+// 车号选项
+const VEHICLE_OPTIONS = [
+  'JTB1136',
+  'JRB9506',
+  'JTV1088',
+  'JWY2319',
+  'JWV3225',
+  'JVP4486',
+  'JPR7380',
+  'JXT6275',
+  'JNF1871',
+];
+
 // 默认工人列表
 const DEFAULT_WORKERS = [
   'RUDI',
@@ -367,13 +380,17 @@ export function InputBar() {
                     />
                   </td>
                   <td>
-                    <input
-                      type="text"
+                    <select
                       value={vehicle}
                       onChange={(e) => setVehicle(e.target.value)}
-                      placeholder="车号"
                       disabled={isSubmitting}
-                    />
+                      className="vehicle-select"
+                    >
+                      <option value="">选择车号</option>
+                      {VEHICLE_OPTIONS.map(v => (
+                        <option key={v} value={v}>{v}</option>
+                      ))}
+                    </select>
                   </td>
                   <td>
                     <select
