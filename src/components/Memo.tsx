@@ -14,7 +14,7 @@ const FLOWER_ICONS: Record<number, string> = {
 export function Memo() {
   const { diaries, openModal, selectedDate, removeDiary, todos, activeInputUser } = useAppStore();
   const [activeTab, setActiveTab] = useState<'records' | 'todos'>('records');
-  const [filter, setFilter] = useState<'all' | 'incomplete' | 'complete' | 'unnotified'>('all');
+  const [filter, setFilter] = useState<'all' | 'incomplete' | 'complete'>('all');
 
   // 选择模式状态
   const [isSelectMode, setIsSelectMode] = useState(false);
@@ -109,8 +109,6 @@ export function Memo() {
       filtered = filtered.filter(d => d.status === 'incomplete');
     } else if (filter === 'complete') {
       filtered = filtered.filter(d => d.status === 'complete');
-    } else if (filter === 'unnotified') {
-      filtered = filtered.filter(d => !d.notified);
     }
     return filtered.sort((a, b) => {
       const customerA = (a.customer || '').toLowerCase();
@@ -126,8 +124,7 @@ export function Memo() {
     const total = dateFilteredDiaries.length;
     const complete = dateFilteredDiaries.filter(d => d.status === 'complete').length;
     const incomplete = dateFilteredDiaries.filter(d => d.status === 'incomplete').length;
-    const unnotified = dateFilteredDiaries.filter(d => !d.notified).length;
-    return { total, complete, incomplete, unnotified };
+    return { total, complete, incomplete };
   }, [dateFilteredDiaries]);
 
   // 按日期筛选待办事项
@@ -307,14 +304,6 @@ export function Memo() {
                 >
                   已完成 ({stats.complete})
                 </button>
-                {stats.unnotified > 0 && (
-                  <button
-                    className={`filter-btn unnotified-filter ${filter === 'unnotified' ? 'active' : ''}`}
-                    onClick={() => setFilter('unnotified')}
-                  >
-                    📞 未通知 ({stats.unnotified})
-                  </button>
-                )}
                 {filteredDiaries.length > 0 && (
                   <button
                     className="filter-btn select-mode-btn"
