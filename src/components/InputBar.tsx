@@ -6,16 +6,28 @@ import type { DiaryStatus, DiaryTag } from '../types/database';
 import './InputBar.css';
 
 // 标签选项
-const TAG_OPTIONS: { value: DiaryTag; label: string }[] = [
-  { value: 'HARVEST', label: '割果' },
-  { value: 'PRUNNING', label: '剪枝' },
-  { value: 'FERTILIZE', label: '施肥' },
-  { value: 'POISON', label: '打药' },
-  { value: 'SEEDLING', label: '育苗' },
-  { value: 'STONE', label: '石头' },
-  { value: 'SAND', label: '沙子' },
-  { value: 'VENDING', label: '销售' },
-  { value: 'BUILDING HOUSE', label: '建房' },
+const TAG_OPTIONS: DiaryTag[] = [
+  'HARVEST',
+  'PRUNNING',
+  'FERTILIZE',
+  'POISON',
+  'SEEDLING',
+  'SAND/ STONE',
+  'WELDING',
+  'BUILDING HOUSE',
+];
+
+// 车号选项
+const VEHICLE_OPTIONS = [
+  'JTB1136',
+  'JRB9506',
+  'JTV1088',
+  'JWY2319',
+  'JWV3225',
+  'JVP4486',
+  'JPR7380',
+  'JXT6275',
+  'JNF1871',
 ];
 
 // 默认工人列表
@@ -274,8 +286,8 @@ export function InputBar() {
                       className="tag-select"
                     >
                       <option value="">选择标签</option>
-                      {TAG_OPTIONS.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      {TAG_OPTIONS.map(tag => (
+                        <option key={tag} value={tag}>{tag}</option>
                       ))}
                     </select>
                   </td>
@@ -367,13 +379,17 @@ export function InputBar() {
                     />
                   </td>
                   <td>
-                    <input
-                      type="text"
+                    <select
                       value={vehicle}
                       onChange={(e) => setVehicle(e.target.value)}
-                      placeholder="车号"
                       disabled={isSubmitting}
-                    />
+                      className="vehicle-select"
+                    >
+                      <option value="">选择车号</option>
+                      {VEHICLE_OPTIONS.map(v => (
+                        <option key={v} value={v}>{v}</option>
+                      ))}
+                    </select>
                   </td>
                   <td>
                     <select
