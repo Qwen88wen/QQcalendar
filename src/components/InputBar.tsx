@@ -30,6 +30,15 @@ const VEHICLE_OPTIONS = [
   'JNF1871',
 ];
 
+// 备注选项
+const REMARK_OPTIONS = [
+  'TON',
+  'POKOK',
+  'EKAR',
+  'JOB',
+  'BAG',
+];
+
 // 默认工人列表
 const DEFAULT_WORKERS = [
   'RUDI',
@@ -370,13 +379,17 @@ export function InputBar() {
                     </div>
                   </td>
                   <td>
-                    <input
-                      type="text"
+                    <select
                       value={remark}
                       onChange={(e) => setRemark(e.target.value)}
-                      placeholder="备注"
                       disabled={isSubmitting}
-                    />
+                      className="remark-select"
+                    >
+                      <option value="">选择备注</option>
+                      {REMARK_OPTIONS.map(r => (
+                        <option key={r} value={r}>{r}</option>
+                      ))}
+                    </select>
                   </td>
                   <td>
                     <select
