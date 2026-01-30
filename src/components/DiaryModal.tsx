@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { updateDiary } from '../lib/diary';
-import type { DiaryStatus, DiaryTag } from '../types/database';
+import type { DiaryStatus, DiaryTag, WorkType, UnitType } from '../types/database';
 import './DiaryModal.css';
 
-// 标签选项
+// 标签选项 (工作类型)
 const TAG_OPTIONS: DiaryTag[] = [
   'HARVEST',
   'PRUNNING',
@@ -16,51 +16,20 @@ const TAG_OPTIONS: DiaryTag[] = [
   'BUILDING HOUSE',
 ];
 
-// 车号选项
-const VEHICLE_OPTIONS = [
-  'JTB1136',
-  'JRB9506',
-  'JTV1088',
-  'JWY2319',
-  'JWV3225',
-  'JVP4486',
-  'JPR7380',
-  'JXT6275',
-  'JNF1871',
-];
+// 工作类型对应的单位选项
+const WORK_TYPE_UNIT_MAP: Record<WorkType, UnitType[]> = {
+  'POISON': ['DAY', 'HALF DAY'],
+  'FERTILIZE': ['BAG', 'EKAR', 'JOB'],
+  'PRUNNING': ['EKAR', 'POKOK', 'JOB'],
+  'HARVEST': ['TON'],
+  'SEEDLING': ['POKOK'],
+  'SAND/ STONE': ['TON', 'JOB'],
+  'WELDING': ['JOB'],
+  'BUILDING HOUSE': ['JOB'],
+};
 
-// 备注选项（单位）
-const UNIT_OPTIONS = [
-  'TON',
-  'POKOK',
-  'EKAR',
-  'JOB',
-  'BAG',
-];
-
-// 默认工人列表
-const DEFAULT_WORKERS = [
-  'RUDI', 'KURNIADI', 'KARIADI', 'BOHANUDIN', 'SUKERI', 'NASAR',
-  'HAR', 'RASID', 'NURMAN', 'AMAT', 'NURSAN', 'MAWARDI',
-  'MAHIRUN', 'ISMARYADI', 'MURTI', 'JUHARDI', 'CHAIRUL', 'TARSIMUN',
-  'SUPANDI', 'LANI', 'EDI', 'MISNO', 'IHAP', 'ZAENUDIN',
-];
-
-// localStorage key
-const WORKERS_STORAGE_KEY = 'qq-calendar-workers';
-
-// 从 localStorage 获取工人列表
-function getStoredWorkers(): string[] {
-  try {
-    const stored = localStorage.getItem(WORKERS_STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch (e) {
-    console.error('Failed to load workers from localStorage:', e);
-  }
-  return DEFAULT_WORKERS;
-}
+// 所有单位选项 (用于未选择工作类型时)
+const ALL_UNIT_OPTIONS: UnitType[] = ['TON', 'POKOK', 'EKAR', 'JOB', 'BAG', 'DAY', 'HALF DAY'];
 
 export function DiaryModal() {
   const {
@@ -70,6 +39,9 @@ export function DiaryModal() {
     closeModal,
     activeInputUser,
     updateDiary: updateDiaryInStore,
+    workers: storeWorkers,
+    vehicles: storeVehicles,
+    customers: storeCustomers,
   } = useAppStore();
 
   // 表单状态
@@ -86,15 +58,38 @@ export function DiaryModal() {
   const [selectedWorkers, setSelectedWorkers] = useState<string[]>([]);
   const [showWorkerDropdown, setShowWorkerDropdown] = useState(false);
   const [workerSearch, setWorkerSearch] = useState('');
-  const [workers] = useState<string[]>(getStoredWorkers());
 
-  // 排序并过滤工人列表 (A-Z排序 + 搜索过滤)
+  // 园主搜索状态
+  const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
+
+  // 根据选择的工作类型获取可用单位
+  const availableUnits = useMemo(() => {
+    if (tag && tag in WORK_TYPE_UNIT_MAP) {
+      return WORK_TYPE_UNIT_MAP[tag as WorkType];
+    }
+    return ALL_UNIT_OPTIONS;
+  }, [tag]);
+
+  // 从 store 获取工人名称列表并排序过滤
   const sortedFilteredWorkers = useMemo(() => {
-    const sorted = [...workers].sort((a, b) => a.localeCompare(b));
+    const workerNames = storeWorkers.map(w => w.name);
+    const sorted = [...workerNames].sort((a, b) => a.localeCompare(b));
     if (!workerSearch.trim()) return sorted;
     const search = workerSearch.toLowerCase();
     return sorted.filter(w => w.toLowerCase().includes(search));
-  }, [workers, workerSearch]);
+  }, [storeWorkers, workerSearch]);
+
+  // 从 store 获取车牌列表
+  const vehicleOptions = useMemo(() => {
+    return storeVehicles.map(v => v.plate_number);
+  }, [storeVehicles]);
+
+  // 从 store 获取园主列表并过滤
+  const filteredCustomers = useMemo(() => {
+    if (!customer.trim()) return storeCustomers;
+    const search = customer.toLowerCase();
+    return storeCustomers.filter(c => c.name.toLowerCase().includes(search));
+  }, [storeCustomers, customer]);
 
   // 切换工人选择
   const toggleWorker = (w: string) => {
@@ -203,14 +198,37 @@ export function DiaryModal() {
         {/* 表单 - 所有用户都可编辑 */}
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
-            <div className="form-group">
+            <div className="form-group customer-group">
               <label>园主</label>
-              <input
-                type="text"
-                value={customer}
-                onChange={(e) => setCustomer(e.target.value)}
-                placeholder="输入园主名称"
-              />
+              <div className="customer-input-container">
+                <input
+                  type="text"
+                  value={customer}
+                  onChange={(e) => {
+                    setCustomer(e.target.value);
+                    setShowCustomerDropdown(true);
+                  }}
+                  onFocus={() => setShowCustomerDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
+                  placeholder="输入园主名称"
+                />
+                {showCustomerDropdown && filteredCustomers.length > 0 && (
+                  <div className="customer-dropdown">
+                    {filteredCustomers.slice(0, 10).map(c => (
+                      <div
+                        key={c.id}
+                        className="customer-option"
+                        onClick={() => {
+                          setCustomer(c.name);
+                          setShowCustomerDropdown(false);
+                        }}
+                      >
+                        {c.name}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="form-group">
@@ -263,7 +281,7 @@ export function DiaryModal() {
                   className="quantity-unit"
                 >
                   <option value="">单位</option>
-                  {UNIT_OPTIONS.map(u => (
+                  {availableUnits.map(u => (
                     <option key={u} value={u}>{u}</option>
                   ))}
                 </select>
@@ -328,7 +346,7 @@ export function DiaryModal() {
                 className={`vehicle-select ${!vehicle ? 'input-warning' : ''}`}
               >
                 <option value="">选择车号</option>
-                {VEHICLE_OPTIONS.map(v => (
+                {vehicleOptions.map(v => (
                   <option key={v} value={v}>{v}</option>
                 ))}
               </select>

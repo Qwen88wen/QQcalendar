@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Diary, DiaryRemark, UserRole, FlowerType, Todo } from '../types/database';
+import type { Diary, DiaryRemark, UserRole, FlowerType, Todo, Customer, Worker, Vehicle, WorkPrice } from '../types/database';
 import type { LocalUser } from '../lib/users';
 
 // 花朵筛选类型
@@ -30,6 +30,12 @@ interface AppState {
   diaries: Diary[];
   remarks: DiaryRemark[];
   todos: Todo[];
+
+  // 主档数据
+  customers: Customer[];
+  workers: Worker[];
+  vehicles: Vehicle[];
+  workPrices: WorkPrice[];
 
   // UI 状态
   selectedDiary: Diary | null;
@@ -87,6 +93,18 @@ interface AppState {
   toggleMissingVehicleFilter: () => void;
   toggleUnnotifiedFilter: () => void;
   batchUpdateDiaries: (ids: string[], updates: Partial<Diary>) => void;
+
+  // 主档 Actions
+  setCustomers: (customers: Customer[]) => void;
+  addCustomer: (customer: Customer) => void;
+  updateCustomer: (customer: Customer) => void;
+  setWorkers: (workers: Worker[]) => void;
+  addWorker: (worker: Worker) => void;
+  updateWorker: (worker: Worker) => void;
+  setVehicles: (vehicles: Vehicle[]) => void;
+  addVehicle: (vehicle: Vehicle) => void;
+  updateVehicle: (vehicle: Vehicle) => void;
+  setWorkPrices: (workPrices: WorkPrice[]) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -100,6 +118,13 @@ export const useAppStore = create<AppState>()(
       diaries: [],
       remarks: [],
       todos: [],
+
+      // 主档数据初始状态
+      customers: [],
+      workers: [],
+      vehicles: [],
+      workPrices: [],
+
       selectedDiary: null,
       isModalOpen: false,
       isEditing: false,
@@ -202,6 +227,33 @@ export const useAppStore = create<AppState>()(
       batchUpdateDiaries: (ids, updates) => set((state) => ({
         diaries: state.diaries.map((d) => ids.includes(d.id) ? { ...d, ...updates } as Diary : d),
       })),
+
+      // 主档 Actions
+      setCustomers: (customers: Customer[]) => set({ customers }),
+      addCustomer: (customer: Customer) => set((state) => ({
+        customers: [...state.customers, customer].sort((a, b) => a.name.localeCompare(b.name)),
+      })),
+      updateCustomer: (customer: Customer) => set((state) => ({
+        customers: state.customers.map((c) => c.id === customer.id ? customer : c),
+      })),
+
+      setWorkers: (workers: Worker[]) => set({ workers }),
+      addWorker: (worker: Worker) => set((state) => ({
+        workers: [...state.workers, worker].sort((a, b) => a.name.localeCompare(b.name)),
+      })),
+      updateWorker: (worker: Worker) => set((state) => ({
+        workers: state.workers.map((w) => w.id === worker.id ? worker : w),
+      })),
+
+      setVehicles: (vehicles: Vehicle[]) => set({ vehicles }),
+      addVehicle: (vehicle: Vehicle) => set((state) => ({
+        vehicles: [...state.vehicles, vehicle].sort((a, b) => a.plate_number.localeCompare(b.plate_number)),
+      })),
+      updateVehicle: (vehicle: Vehicle) => set((state) => ({
+        vehicles: state.vehicles.map((v) => v.id === vehicle.id ? vehicle : v),
+      })),
+
+      setWorkPrices: (workPrices: WorkPrice[]) => set({ workPrices }),
     }),
     {
       name: 'qq-calendar-auth',

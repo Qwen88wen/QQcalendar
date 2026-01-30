@@ -599,3 +599,68 @@
     padding: 10px 12px;
   }
 }
+
+/* 园主自动完成下拉框 */
+.customer-cell {
+  position: relative;
+}
+
+.customer-input-container {
+  position: relative;
+}
+
+.customer-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #FFD1DC;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 4px 12px rgba(255, 182, 193, 0.3);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 200;
+}
+
+.customer-option {
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.customer-option:hover {
+  background: linear-gradient(135deg, #FFF5F8 0%, #FFE4EC 100%);
+}
+
+.customer-option:last-child {
+  border-radius: 0 0 10px 10px;
+}
+
+/* 无工人提示 */
+.no-workers {
+  padding: 20px 14px;
+  text-align: center;
+  color: #B08B93;
+  font-size: 0.9rem;
+}
+
+/* 关闭按钮样式 */
+.worker-dropdown-header button {
+  padding: 4px 10px;
+  border: 1px solid #FFD1DC;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #888;
+  transition: all 0.2s ease;
+}
+
+.worker-dropdown-header button:hover {
+  background: #FFE4EC;
+  border-color: #FF91A4;
+}
