@@ -134,12 +134,12 @@
 
 /* 列宽分配 */
 .input-table th:nth-child(1) { width: 15%; } /* 园主 */
-.input-table th:nth-child(2) { width: 18%; } /* 标签 */
+.input-table th:nth-child(2) { width: 18%; } /* 工作类型 */
 .input-table th:nth-child(3) { width: 15%; } /* 工人 */
-.input-table th:nth-child(4) { width: 18%; } /* 备注 */
+.input-table th:nth-child(4) { width: 22%; } /* 数量 */
 .input-table th:nth-child(5) { width: 12%; } /* 车号 */
-.input-table th:nth-child(6) { width: 12%; } /* 状态 */
-.input-table th:nth-child(7) { width: 10%; } /* 按钮 */
+.input-table th:nth-child(6) { width: 10%; } /* 状态 */
+.input-table th:nth-child(7) { width: 8%; } /* 按钮 */
 
 .input-table td {
   padding: 5px;
@@ -169,6 +169,22 @@
 
 .input-table select {
   cursor: pointer;
+}
+
+/* 数量输入组合 */
+.quantity-input-group {
+  display: flex;
+  gap: 4px;
+}
+
+.quantity-input-group .quantity-number {
+  flex: 1;
+  min-width: 0;
+}
+
+.quantity-input-group .quantity-unit {
+  width: 80px;
+  flex-shrink: 0;
 }
 
 /* 工人多选下拉框 */

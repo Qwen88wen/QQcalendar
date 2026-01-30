@@ -30,8 +30,8 @@ const VEHICLE_OPTIONS = [
   'JNF1871',
 ];
 
-// 备注选项
-const REMARK_OPTIONS = [
+// 备注选项（单位）
+const UNIT_OPTIONS = [
   'TON',
   'POKOK',
   'EKAR',
@@ -271,10 +271,9 @@ export function InputBar() {
               <thead>
                 <tr>
                   <th>园主 *</th>
-                  <th>标签</th>
+                  <th>工作类型</th>
                   <th>工人</th>
-                  <th>备注</th>
-                  <th>重量</th>
+                  <th>数量</th>
                   <th>车号</th>
                   <th>状态</th>
                   <th></th>
@@ -383,26 +382,27 @@ export function InputBar() {
                     </div>
                   </td>
                   <td>
-                    <select
-                      value={remark}
-                      onChange={(e) => setRemark(e.target.value)}
-                      disabled={isSubmitting}
-                      className="remark-select"
-                    >
-                      <option value="">选择备注</option>
-                      {REMARK_OPTIONS.map(r => (
-                        <option key={r} value={r}>{r}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={weight}
-                      onChange={(e) => setWeight(e.target.value)}
-                      placeholder="重量"
-                      disabled={isSubmitting}
-                    />
+                    <div className="quantity-input-group">
+                      <input
+                        type="text"
+                        value={weight}
+                        onChange={(e) => setWeight(e.target.value)}
+                        placeholder="数量"
+                        disabled={isSubmitting}
+                        className="quantity-number"
+                      />
+                      <select
+                        value={remark}
+                        onChange={(e) => setRemark(e.target.value)}
+                        disabled={isSubmitting}
+                        className="quantity-unit"
+                      >
+                        <option value="">单位</option>
+                        {UNIT_OPTIONS.map(u => (
+                          <option key={u} value={u}>{u}</option>
+                        ))}
+                      </select>
+                    </div>
                   </td>
                   <td>
                     <select

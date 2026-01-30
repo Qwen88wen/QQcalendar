@@ -29,8 +29,8 @@ const VEHICLE_OPTIONS = [
   'JNF1871',
 ];
 
-// 备注选项
-const REMARK_OPTIONS = [
+// 备注选项（单位）
+const UNIT_OPTIONS = [
   'TON',
   'POKOK',
   'EKAR',
@@ -234,41 +234,40 @@ export function DiaryModal() {
             </div>
 
             <div className="form-group">
-              <label>备注</label>
-              <select
-                value={remark}
-                onChange={(e) => setRemark(e.target.value)}
-                className="remark-select"
-              >
-                <option value="">选择备注</option>
-                {REMARK_OPTIONS.map(r => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>重量</label>
-              <input
-                type="text"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-                placeholder="输入重量"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>标签</label>
+              <label>工作类型</label>
               <select
                 value={tag || ''}
                 onChange={(e) => setTag(e.target.value as DiaryTag || null)}
                 className="tag-select"
               >
-                <option value="">无标签</option>
-                {TAG_OPTIONS.map(tag => (
-                  <option key={tag} value={tag}>{tag}</option>
+                <option value="">选择工作类型</option>
+                {TAG_OPTIONS.map(t => (
+                  <option key={t} value={t}>{t}</option>
                 ))}
               </select>
+            </div>
+
+            <div className="form-group">
+              <label>数量</label>
+              <div className="quantity-input-group">
+                <input
+                  type="text"
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  placeholder="输入数量"
+                  className="quantity-number"
+                />
+                <select
+                  value={remark}
+                  onChange={(e) => setRemark(e.target.value)}
+                  className="quantity-unit"
+                >
+                  <option value="">单位</option>
+                  {UNIT_OPTIONS.map(u => (
+                    <option key={u} value={u}>{u}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div className="form-group worker-group">

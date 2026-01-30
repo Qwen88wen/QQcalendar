@@ -610,6 +610,36 @@
   background: linear-gradient(135deg, #FFF5F5 0%, #FFEBEE 100%);
 }
 
+/* ========== 数量输入组合 ========== */
+.modal-content .quantity-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.modal-content .quantity-input-group .quantity-number {
+  flex: 1;
+  min-width: 0;
+}
+
+.modal-content .quantity-input-group .quantity-unit {
+  width: 100px;
+  flex-shrink: 0;
+  padding: 12px 14px;
+  border: 2px solid #FFD1DC;
+  border-radius: 14px;
+  background: white;
+  color: #555;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modal-content .quantity-input-group .quantity-unit:focus {
+  outline: none;
+  border-color: #FF91A4;
+  box-shadow: 0 0 0 4px rgba(255, 145, 164, 0.2);
+}
+
 /* ========== 工人选择器 ========== */
 .modal-content .worker-group {
   position: relative;
