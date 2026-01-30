@@ -7,8 +7,26 @@ export type FlowerType = 1 | 2 | 3 | 4 | 5;
 // 状态类型
 export type DiaryStatus = 'complete' | 'incomplete';
 
-// 标签类型
-export type DiaryTag = 'HARVEST' | 'PRUNNING' | 'FERTILIZE' | 'POISON' | 'SEEDLING' | 'SAND/ STONE' | 'WELDING' | 'BUILDING HOUSE';
+// 工作类型
+export type WorkType = 'HARVEST' | 'PRUNNING' | 'FERTILIZE' | 'POISON' | 'SEEDLING' | 'SAND/ STONE' | 'WELDING' | 'BUILDING HOUSE';
+
+// 标签类型 (与工作类型相同)
+export type DiaryTag = WorkType;
+
+// 单位类型
+export type UnitType = 'TON' | 'POKOK' | 'EKAR' | 'JOB' | 'BAG' | 'DAY' | 'HALF DAY';
+
+// 工作类型对应的可用单位
+export const WORK_TYPE_UNITS: Record<WorkType, UnitType[]> = {
+  'POISON': ['DAY', 'HALF DAY'],
+  'FERTILIZE': ['BAG', 'EKAR', 'JOB'],
+  'PRUNNING': ['EKAR', 'POKOK', 'JOB'],
+  'HARVEST': ['TON'],
+  'SEEDLING': ['POKOK'],
+  'SAND/ STONE': ['TON', 'JOB'],
+  'WELDING': ['JOB'],
+  'BUILDING HOUSE': ['JOB'],
+};
 
 // profiles 表
 export interface Profile {
@@ -22,16 +40,19 @@ export interface Diary {
   user_id: string;
   user_name: string | null;
   status: DiaryStatus;            // 状态: complete/incomplete
-  customer: string | null;        // 园主
-  remark: string | null;          // 备注
+  customer: string | null;        // 园主名称 (旧字段，保留兼容)
+  customer_id: string | null;     // 园主ID (关联 customers 表)
+  remark: string | null;          // 单位
   worker: string | null;          // 工人
   vehicle: string | null;         // 车号
-  weight: string | null;          // 重量
+  weight: string | null;          // 数量
   flower_type: FlowerType | null;
   operators: string[] | null;     // 操作过的用户列表
   notified: boolean;              // 是否已通知园主
   vehicle_dismissed: boolean;     // 是否已忽略车号提醒
-  tag: DiaryTag | null;           // 工作标签
+  tag: DiaryTag | null;           // 工作类型
+  customer_price: number | null;  // 向顾客收的价格 (用户自定义时)
+  worker_price: number | null;    // 付给工人的价格 (用户自定义时)
   created_at: string;
   updated_at: string;
 }
@@ -41,6 +62,7 @@ export interface DiaryInsert {
   user_name?: string | null;
   status?: DiaryStatus;
   customer?: string | null;
+  customer_id?: string | null;
   remark?: string | null;
   worker?: string | null;
   vehicle?: string | null;
@@ -50,12 +72,15 @@ export interface DiaryInsert {
   notified?: boolean;
   vehicle_dismissed?: boolean;
   tag?: DiaryTag | null;
+  customer_price?: number | null;
+  worker_price?: number | null;
   created_at?: string;  // 允许指定创建日期
 }
 
 export interface DiaryUpdate {
   status?: DiaryStatus;
   customer?: string | null;
+  customer_id?: string | null;
   remark?: string | null;
   worker?: string | null;
   vehicle?: string | null;
@@ -65,6 +90,8 @@ export interface DiaryUpdate {
   notified?: boolean;
   vehicle_dismissed?: boolean;
   tag?: DiaryTag | null;
+  customer_price?: number | null;
+  worker_price?: number | null;
 }
 
 // diary_remarks 表 (无 user_id，只有 user_name)
@@ -103,6 +130,92 @@ export interface TodoUpdate {
   done?: boolean;
 }
 
+// customers 表 (园主主档)
+export interface Customer {
+  id: string;
+  name: string;
+  notes: string | null;
+  harvest_customer_price: number | null;  // HARVEST 向顾客收的价格/TON
+  harvest_worker_price: number | null;    // HARVEST 付给工人的价格/TON
+  is_active: boolean;
+}
+
+export interface CustomerInsert {
+  name: string;
+  notes?: string | null;
+  harvest_customer_price?: number | null;
+  harvest_worker_price?: number | null;
+  is_active?: boolean;
+}
+
+export interface CustomerUpdate {
+  name?: string;
+  notes?: string | null;
+  harvest_customer_price?: number | null;
+  harvest_worker_price?: number | null;
+  is_active?: boolean;
+}
+
+// workers 表 (工人主档)
+export interface Worker {
+  id: string;
+  name: string;
+  is_active: boolean;
+}
+
+export interface WorkerInsert {
+  name: string;
+  is_active?: boolean;
+}
+
+export interface WorkerUpdate {
+  name?: string;
+  is_active?: boolean;
+}
+
+// vehicles 表 (车辆主档)
+export interface Vehicle {
+  id: string;
+  plate_number: string;
+  is_active: boolean;
+}
+
+export interface VehicleInsert {
+  plate_number: string;
+  is_active?: boolean;
+}
+
+export interface VehicleUpdate {
+  plate_number?: string;
+  is_active?: boolean;
+}
+
+// work_prices 表 (工作价格表)
+export interface WorkPrice {
+  id: string;
+  work_type: WorkType;
+  unit: UnitType;
+  customer_price: number | null;  // 向顾客收的价格
+  worker_price: number | null;    // 付给工人的价格
+  is_fixed: boolean;              // 是否固定价格
+}
+
+export interface WorkPriceInsert {
+  work_type: WorkType;
+  unit: UnitType;
+  customer_price?: number | null;
+  worker_price?: number | null;
+  is_fixed?: boolean;
+}
+
+export interface WorkPriceUpdate {
+  work_type?: WorkType;
+  unit?: UnitType;
+  customer_price?: number | null;
+  worker_price?: number | null;
+  is_fixed?: boolean;
+}
+
 // Database 类型定义
 export interface Database {
   public: {
@@ -126,6 +239,26 @@ export interface Database {
         Row: Todo;
         Insert: TodoInsert;
         Update: TodoUpdate;
+      };
+      customers: {
+        Row: Customer;
+        Insert: CustomerInsert;
+        Update: CustomerUpdate;
+      };
+      workers: {
+        Row: Worker;
+        Insert: WorkerInsert;
+        Update: WorkerUpdate;
+      };
+      vehicles: {
+        Row: Vehicle;
+        Insert: VehicleInsert;
+        Update: VehicleUpdate;
+      };
+      work_prices: {
+        Row: WorkPrice;
+        Insert: WorkPriceInsert;
+        Update: WorkPriceUpdate;
       };
     };
   };

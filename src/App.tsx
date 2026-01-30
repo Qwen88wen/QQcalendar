@@ -8,6 +8,7 @@ import { RecordList } from './components/RecordList';
 import { MissingVehicleList } from './components/MissingVehicleList';
 import { UnnotifiedList } from './components/UnnotifiedList';
 import { LoginModal } from './components/LoginModal';
+import { MasterDataManager } from './components/MasterDataManager';
 import { useAuth } from './hooks/useAuth';
 import { useRealtime } from './hooks/useRealtime';
 import { useAppStore, isSessionValid } from './stores/appStore';
@@ -236,6 +237,7 @@ function MainAppContent() {
       <RecordList />
       <MissingVehicleList />
       <UnnotifiedList />
+      <MasterDataManager />
     </div>
   );
 }

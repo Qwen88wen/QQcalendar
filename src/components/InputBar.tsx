@@ -1,11 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { createDiary } from '../lib/diary';
 import { getUserById } from '../lib/users';
-import type { DiaryStatus, DiaryTag } from '../types/database';
+import type { DiaryStatus, DiaryTag, WorkType, UnitType } from '../types/database';
 import './InputBar.css';
 
-// 标签选项
+// 标签选项 (工作类型)
 const TAG_OPTIONS: DiaryTag[] = [
   'HARVEST',
   'PRUNNING',
@@ -17,83 +17,31 @@ const TAG_OPTIONS: DiaryTag[] = [
   'BUILDING HOUSE',
 ];
 
-// 车号选项
-const VEHICLE_OPTIONS = [
-  'JTB1136',
-  'JRB9506',
-  'JTV1088',
-  'JWY2319',
-  'JWV3225',
-  'JVP4486',
-  'JPR7380',
-  'JXT6275',
-  'JNF1871',
-];
+// 工作类型对应的单位选项
+const WORK_TYPE_UNIT_MAP: Record<WorkType, UnitType[]> = {
+  'POISON': ['DAY', 'HALF DAY'],
+  'FERTILIZE': ['BAG', 'EKAR', 'JOB'],
+  'PRUNNING': ['EKAR', 'POKOK', 'JOB'],
+  'HARVEST': ['TON'],
+  'SEEDLING': ['POKOK'],
+  'SAND/ STONE': ['TON', 'JOB'],
+  'WELDING': ['JOB'],
+  'BUILDING HOUSE': ['JOB'],
+};
 
-// 备注选项（单位）
-const UNIT_OPTIONS = [
-  'TON',
-  'POKOK',
-  'EKAR',
-  'JOB',
-  'BAG',
-];
-
-// 默认工人列表
-const DEFAULT_WORKERS = [
-  'RUDI',
-  'KURNIADI',
-  'KARIADI',
-  'BOHANUDIN',
-  'SUKERI',
-  'NASAR',
-  'HAR',
-  'RASID',
-  'NURMAN',
-  'AMAT',
-  'NURSAN',
-  'MAWARDI',
-  'MAHIRUN',
-  'ISMARYADI',
-  'MURTI',
-  'JUHARDI',
-  'CHAIRUL',
-  'TARSIMUN',
-  'SUPANDI',
-  'LANI',
-  'EDI',
-  'MISNO',
-  'IHAP',
-  'ZAENUDIN',
-];
-
-// localStorage key
-const WORKERS_STORAGE_KEY = 'qq-calendar-workers';
-
-// 从 localStorage 获取工人列表
-function getStoredWorkers(): string[] {
-  try {
-    const stored = localStorage.getItem(WORKERS_STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch (e) {
-    console.error('Failed to load workers from localStorage:', e);
-  }
-  return DEFAULT_WORKERS;
-}
-
-// 保存工人列表到 localStorage
-function saveWorkers(workers: string[]) {
-  try {
-    localStorage.setItem(WORKERS_STORAGE_KEY, JSON.stringify(workers));
-  } catch (e) {
-    console.error('Failed to save workers to localStorage:', e);
-  }
-}
+// 所有单位选项 (用于未选择工作类型时)
+const ALL_UNIT_OPTIONS: UnitType[] = ['TON', 'POKOK', 'EKAR', 'JOB', 'BAG', 'DAY', 'HALF DAY'];
 
 export function InputBar() {
-  const { selectedDate, userId, userName, addDiary } = useAppStore();
+  const {
+    selectedDate,
+    userId,
+    userName,
+    addDiary,
+    workers: storeWorkers,
+    vehicles: storeVehicles,
+    customers: storeCustomers,
+  } = useAppStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false); // 默认收起
 
@@ -108,10 +56,8 @@ export function InputBar() {
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
   const [tag, setTag] = useState<DiaryTag | ''>('');
 
-  // 工人列表管理
-  const [workers, setWorkers] = useState<string[]>(DEFAULT_WORKERS);
-  const [showWorkerManager, setShowWorkerManager] = useState(false);
-  const [newWorkerName, setNewWorkerName] = useState('');
+  // 园主搜索状态
+  const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
 
   // 庆祝动画状态
   const [showCelebration, setShowCelebration] = useState(false);
@@ -120,18 +66,34 @@ export function InputBar() {
   const currentUser = userId ? getUserById(userId) : null;
   const currentUsername = currentUser?.username || 'QQrou';
 
-  // 加载工人列表
-  useEffect(() => {
-    setWorkers(getStoredWorkers());
-  }, []);
+  // 根据选择的工作类型获取可用单位
+  const availableUnits = useMemo(() => {
+    if (tag && tag in WORK_TYPE_UNIT_MAP) {
+      return WORK_TYPE_UNIT_MAP[tag as WorkType];
+    }
+    return ALL_UNIT_OPTIONS;
+  }, [tag]);
 
-  // 排序并过滤工人列表 (A-Z排序 + 搜索过滤)
+  // 从 store 获取工人名称列表并排序过滤
   const sortedFilteredWorkers = useMemo(() => {
-    const sorted = [...workers].sort((a, b) => a.localeCompare(b));
+    const workerNames = storeWorkers.map(w => w.name);
+    const sorted = [...workerNames].sort((a, b) => a.localeCompare(b));
     if (!workerSearch.trim()) return sorted;
     const search = workerSearch.toLowerCase();
     return sorted.filter(w => w.toLowerCase().includes(search));
-  }, [workers, workerSearch]);
+  }, [storeWorkers, workerSearch]);
+
+  // 从 store 获取车牌列表
+  const vehicleOptions = useMemo(() => {
+    return storeVehicles.map(v => v.plate_number);
+  }, [storeVehicles]);
+
+  // 从 store 获取园主列表并过滤
+  const filteredCustomers = useMemo(() => {
+    if (!customer.trim()) return storeCustomers;
+    const search = customer.toLowerCase();
+    return storeCustomers.filter(c => c.name.toLowerCase().includes(search));
+  }, [storeCustomers, customer]);
 
   // 切换工人选择
   const toggleWorker = (worker: string) => {
@@ -140,35 +102,6 @@ export function InputBar() {
         ? prev.filter(w => w !== worker)
         : [...prev, worker]
     );
-  };
-
-  // 添加新工人
-  const addWorker = () => {
-    const name = newWorkerName.trim().toUpperCase();
-    if (name && !workers.includes(name)) {
-      const newWorkers = [...workers, name];
-      setWorkers(newWorkers);
-      saveWorkers(newWorkers);
-      setNewWorkerName('');
-    }
-  };
-
-  // 删除工人
-  const removeWorker = (worker: string) => {
-    const newWorkers = workers.filter(w => w !== worker);
-    setWorkers(newWorkers);
-    saveWorkers(newWorkers);
-    // 同时从已选中移除
-    setSelectedWorkers(prev => prev.filter(w => w !== worker));
-  };
-
-  // 重置为默认列表
-  const resetWorkers = () => {
-    if (confirm('确定要恢复默认工人列表吗？')) {
-      setWorkers(DEFAULT_WORKERS);
-      saveWorkers(DEFAULT_WORKERS);
-      setSelectedWorkers([]);
-    }
   };
 
   const handleSubmit = async () => {
@@ -281,14 +214,37 @@ export function InputBar() {
               </thead>
               <tbody>
                 <tr>
-                  <td>
-                    <input
-                      type="text"
-                      value={customer}
-                      onChange={(e) => setCustomer(e.target.value)}
-                      placeholder="园主"
-                      disabled={isSubmitting}
-                    />
+                  <td className="customer-cell">
+                    <div className="customer-input-container">
+                      <input
+                        type="text"
+                        value={customer}
+                        onChange={(e) => {
+                          setCustomer(e.target.value);
+                          setShowCustomerDropdown(true);
+                        }}
+                        onFocus={() => setShowCustomerDropdown(true)}
+                        onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
+                        placeholder="园主"
+                        disabled={isSubmitting}
+                      />
+                      {showCustomerDropdown && filteredCustomers.length > 0 && (
+                        <div className="customer-dropdown">
+                          {filteredCustomers.slice(0, 10).map(c => (
+                            <div
+                              key={c.id}
+                              className="customer-option"
+                              onClick={() => {
+                                setCustomer(c.name);
+                                setShowCustomerDropdown(false);
+                              }}
+                            >
+                              {c.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td>
                     <select
@@ -319,32 +275,9 @@ export function InputBar() {
                       {showWorkerDropdown && (
                         <div className="worker-dropdown">
                           <div className="worker-dropdown-header">
-                            <span>选择工人</span>
-                            <button
-                              type="button"
-                              className="manage-workers-btn"
-                              onClick={() => setShowWorkerManager(!showWorkerManager)}
-                            >
-                              {showWorkerManager ? '完成' : '✏️ 编辑'}
-                            </button>
+                            <span>选择工人 (A-Z)</span>
+                            <button type="button" onClick={() => setShowWorkerDropdown(false)}>✕</button>
                           </div>
-                          {showWorkerManager && (
-                            <div className="worker-manager">
-                              <div className="add-worker-row">
-                                <input
-                                  type="text"
-                                  value={newWorkerName}
-                                  onChange={(e) => setNewWorkerName(e.target.value)}
-                                  placeholder="输入新工人名字"
-                                  onKeyDown={(e) => e.key === 'Enter' && addWorker()}
-                                />
-                                <button type="button" onClick={addWorker}>➕</button>
-                              </div>
-                              <button type="button" className="reset-btn" onClick={resetWorkers}>
-                                🔄 恢复默认
-                              </button>
-                            </div>
-                          )}
                           <div className="worker-search">
                             <input
                               type="text"
@@ -365,17 +298,11 @@ export function InputBar() {
                                   />
                                   <span>{worker}</span>
                                 </label>
-                                {showWorkerManager && (
-                                  <button
-                                    type="button"
-                                    className="delete-worker-btn"
-                                    onClick={() => removeWorker(worker)}
-                                  >
-                                    ✕
-                                  </button>
-                                )}
                               </div>
                             ))}
+                            {sortedFilteredWorkers.length === 0 && (
+                              <div className="no-workers">暂无工人数据，请在主档管理中添加</div>
+                            )}
                           </div>
                         </div>
                       )}
@@ -398,7 +325,7 @@ export function InputBar() {
                         className="quantity-unit"
                       >
                         <option value="">单位</option>
-                        {UNIT_OPTIONS.map(u => (
+                        {availableUnits.map(u => (
                           <option key={u} value={u}>{u}</option>
                         ))}
                       </select>
@@ -412,7 +339,7 @@ export function InputBar() {
                       className="vehicle-select"
                     >
                       <option value="">选择车号</option>
-                      {VEHICLE_OPTIONS.map(v => (
+                      {vehicleOptions.map(v => (
                         <option key={v} value={v}>{v}</option>
                       ))}
                     </select>
