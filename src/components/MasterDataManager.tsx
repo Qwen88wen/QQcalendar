@@ -445,6 +445,7 @@ export function MasterDataManager() {
                   ) : (
                     <>
                       <div className="item-info">
+                        {c.code && <span className="item-code">{c.code}</span>}
                         <span className="item-name">{c.name}</span>
                         {c.notes && <span className="item-notes">{c.notes}</span>}
                         {(c.harvest_customer_price || c.harvest_worker_price) && (
@@ -510,6 +511,7 @@ export function MasterDataManager() {
                   ) : (
                     <>
                       <div className="item-info">
+                        {w.code && <span className="item-code">{w.code}</span>}
                         <span className="item-name">{w.name}</span>
                         {!w.is_active && <span className="inactive-badge">已停用</span>}
                       </div>

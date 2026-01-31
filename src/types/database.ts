@@ -162,16 +162,19 @@ export interface CustomerUpdate {
 // workers 表 (工人主档)
 export interface Worker {
   id: string;
+  code: string | null;   // 工人代码
   name: string;
   is_active: boolean;
 }
 
 export interface WorkerInsert {
+  code?: string | null;
   name: string;
   is_active?: boolean;
 }
 
 export interface WorkerUpdate {
+  code?: string | null;
   name?: string;
   is_active?: boolean;
 }
