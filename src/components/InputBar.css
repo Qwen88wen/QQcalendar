@@ -1,4 +1,4 @@
-/* ========== Chiikawa 风格输入栏 ========== */
+/* ========== InputBar 样式 ========== */
 
 .input-bar {
   position: fixed;
@@ -7,15 +7,14 @@
   right: 0;
   background: linear-gradient(180deg, rgba(255, 245, 248, 0.98) 0%, rgba(255, 240, 245, 0.99) 100%);
   backdrop-filter: blur(10px);
-  padding: 14px 18px 18px;
+  padding: 10px 16px 14px;
   z-index: 100;
   box-shadow: 0 -4px 20px rgba(255, 182, 193, 0.25);
   border-top: 2px solid #FFD1DC;
-  transition: all 0.3s ease;
 }
 
 .input-bar.collapsed {
-  padding: 8px 18px;
+  padding: 8px 16px;
 }
 
 /* 展开/收起按钮 */
@@ -31,10 +30,10 @@
   border-radius: 12px;
   background: linear-gradient(135deg, #FFE4EC 0%, #FFD1DC 100%);
   cursor: pointer;
-  transition: all 0.3s ease;
   font-size: 0.9rem;
   color: #D4838F;
   font-weight: 600;
+  transition: all 0.3s ease;
 }
 
 .input-bar.collapsed .toggle-btn {
@@ -44,195 +43,103 @@
 }
 
 .toggle-btn:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(255, 145, 164, 0.3);
 }
 
 .toggle-icon {
-  font-size: 0.8rem;
-  transition: transform 0.3s ease;
+  font-size: 0.75rem;
 }
 
 .toggle-text {
   font-size: 0.85rem;
 }
 
-.user-switcher {
+/* 输入行 - Flex 布局 */
+.input-row {
   display: flex;
-  gap: 12px;
-  margin-bottom: 14px;
-  align-items: center;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: nowrap;
 }
 
-.user-btn {
+/* 输入字段 */
+.input-field {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  border: 2px solid #FFD1DC;
-  border-radius: 25px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.95rem;
-  box-shadow: 0 2px 8px rgba(255, 182, 193, 0.2);
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 
-.user-btn:hover {
-  transform: scale(1.05) translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 182, 193, 0.35);
-}
-
-.user-btn.qqrou.active {
-  background: linear-gradient(135deg, #E6E6FA 0%, #DCD0FF 100%);
-  border-color: #9370DB;
-  box-shadow: 0 4px 15px rgba(147, 112, 219, 0.4);
-}
-
-.user-btn.qqfang.active {
-  background: linear-gradient(135deg, #FFE4EC 0%, #FFD1DC 100%);
-  border-color: #FF91A4;
-  box-shadow: 0 4px 15px rgba(255, 145, 164, 0.4);
-}
-
-.user-btn.qqwen.active {
-  background: linear-gradient(135deg, #FCE4EC 0%, #F8BBD9 100%);
-  border-color: #F48FB1;
-  box-shadow: 0 4px 15px rgba(244, 143, 177, 0.4);
-}
-
-.user-icon {
-  font-size: 1.3rem;
-}
-
-.user-name {
-  font-weight: 600;
-  color: #555;
-}
-
-/* 输入表格 */
-.input-table {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.input-table table {
-  min-width: 900px;
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
-
-.input-table th {
-  padding: 8px 10px;
-  text-align: left;
-  font-size: 0.85rem;
+.input-field label {
+  font-size: 0.75rem;
   color: #B08B93;
   font-weight: 600;
   white-space: nowrap;
 }
 
-/* 列宽分配 */
-.input-table th:nth-child(1) { width: 15%; } /* 园主 */
-.input-table th:nth-child(2) { width: 18%; } /* 工作类型 */
-.input-table th:nth-child(3) { width: 15%; } /* 工人 */
-.input-table th:nth-child(4) { width: 22%; } /* 数量 */
-.input-table th:nth-child(5) { width: 12%; } /* 车号 */
-.input-table th:nth-child(6) { width: 10%; } /* 状态 */
-.input-table th:nth-child(7) { width: 8%; } /* 按钮 */
+/* 字段宽度分配 */
+.customer-field { flex: 2; min-width: 140px; }
+.tag-field { flex: 1.5; min-width: 120px; }
+.worker-field { flex: 1.5; min-width: 120px; }
+.quantity-field { flex: 1.5; min-width: 130px; }
+.vehicle-field { flex: 1; min-width: 100px; }
+.submit-field { flex: 0 0 auto; }
 
-.input-table td {
-  padding: 5px;
-}
-
-.input-table input,
-.input-table select {
-  width: 100%;
-  padding: 10px 12px;
-  border: 2px solid #FFD1DC;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  outline: none;
-  transition: all 0.3s ease;
-  background: white;
-}
-
-.input-table input:focus,
-.input-table select:focus {
-  border-color: #FF91A4;
-  box-shadow: 0 0 0 3px rgba(255, 145, 164, 0.2);
-}
-
-.input-table input::placeholder {
-  color: #D4A5AD;
-}
-
-.input-table select {
-  cursor: pointer;
-}
-
-/* 数量输入组合 */
-.quantity-input-group {
-  display: flex;
-  gap: 4px;
-}
-
-.quantity-input-group .quantity-number {
-  flex: 1;
-  min-width: 0;
-}
-
-.quantity-input-group .quantity-unit {
-  width: 80px;
-  flex-shrink: 0;
-}
-
-/* 工人多选下拉框 */
-.worker-cell {
+/* 下拉框容器 */
+.dropdown-container {
   position: relative;
 }
 
-.worker-select-container {
-  position: relative;
-}
-
-.worker-select-btn {
+/* 下拉按钮 */
+.dropdown-btn {
   width: 100%;
-  padding: 12px 14px;
+  padding: 8px 10px;
   border: 2px solid #FFD1DC;
-  border-radius: 12px;
-  font-size: 0.95rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
   background: white;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
+  gap: 4px;
+  transition: all 0.2s ease;
   color: #555;
+  min-height: 38px;
 }
 
-.worker-select-btn:hover {
+.dropdown-btn:hover:not(:disabled) {
   border-color: #FF91A4;
 }
 
-.worker-select-btn:disabled {
+.dropdown-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.dropdown-arrow {
-  font-size: 0.7rem;
-  color: #B08B93;
+.dropdown-btn-text {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.worker-dropdown {
+.dropdown-arrow {
+  font-size: 0.65rem;
+  color: #B08B93;
+  flex-shrink: 0;
+}
+
+/* 下拉面板 */
+.dropdown-panel {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
-  max-width: 400px;
-  bottom: 180px;
+  max-width: 350px;
+  bottom: 120px;
   background: white;
   border: 2px solid #FFD1DC;
   border-radius: 12px;
@@ -244,193 +151,180 @@
   flex-direction: column;
 }
 
-.worker-option {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  font-size: 0.9rem;
-  color: #555;
-}
-
-.worker-option:hover {
-  background: linear-gradient(135deg, #FFF5F8 0%, #FFE4EC 100%);
-}
-
-.worker-option input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: #FF91A4;
-  cursor: pointer;
-}
-
-.worker-option span {
-  flex: 1;
-}
-
-/* 工人下拉框头部 */
-.worker-dropdown-header {
+.dropdown-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 14px;
+  padding: 10px 14px;
   border-bottom: 1px solid #FFD1DC;
   background: linear-gradient(135deg, #FFF5F8 0%, #FFE4EC 100%);
-  border-radius: 10px 10px 0 0;
   font-weight: 600;
+  font-size: 0.9rem;
   color: #D4838F;
 }
 
-.manage-workers-btn {
-  padding: 4px 10px;
+.dropdown-header button {
+  padding: 2px 8px;
   border: 1px solid #FFD1DC;
-  border-radius: 8px;
-  background: white;
-  cursor: pointer;
-  font-size: 0.8rem;
-  color: #888;
-  transition: all 0.2s ease;
-}
-
-.manage-workers-btn:hover {
-  background: #FFE4EC;
-  border-color: #FF91A4;
-}
-
-/* 工人管理区域 */
-.worker-manager {
-  padding: 10px 14px;
-  border-bottom: 1px solid #FFD1DC;
-  background: #FFF9FA;
-}
-
-.add-worker-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.add-worker-row input {
-  flex: 1;
-  padding: 8px 12px;
-  border: 1px solid #FFD1DC;
-  border-radius: 8px;
-  font-size: 0.85rem;
-}
-
-.add-worker-row button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #FFB6C1 0%, #FF91A4 100%);
-  color: white;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.add-worker-row button:hover {
-  transform: scale(1.05);
-}
-
-.reset-btn {
-  width: 100%;
-  padding: 6px;
-  border: 1px solid #ddd;
   border-radius: 6px;
   background: white;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #888;
 }
 
-.reset-btn:hover {
-  background: #f5f5f5;
+.dropdown-header button:hover {
+  background: #FFE4EC;
+  color: #FF6B6B;
 }
 
-/* 工人搜索框 */
-.worker-search {
-  padding: 8px 14px;
+.dropdown-search {
+  padding: 8px 12px;
   border-bottom: 1px solid #FFD1DC;
 }
 
-.worker-search-input {
+.dropdown-search input {
   width: 100%;
-  padding: 8px 12px;
+  padding: 8px 10px;
   border: 1px solid #FFD1DC;
   border-radius: 8px;
   font-size: 0.85rem;
   outline: none;
 }
 
-.worker-search-input:focus {
+.dropdown-search input:focus {
   border-color: #FF91A4;
   box-shadow: 0 0 0 2px rgba(255, 145, 164, 0.2);
 }
 
-/* 工人列表 */
-.worker-list {
+.dropdown-list {
   flex: 1;
   overflow-y: auto;
-  min-height: 0;
+  max-height: 250px;
 }
 
-.worker-option {
+.dropdown-option {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
   padding: 10px 14px;
-  transition: background 0.2s ease;
-}
-
-.worker-option label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
   cursor: pointer;
-  font-size: 0.9rem;
+  transition: background 0.15s ease;
+  font-size: 0.85rem;
   color: #555;
 }
 
-.worker-option:hover {
+.dropdown-option:hover {
   background: linear-gradient(135deg, #FFF5F8 0%, #FFE4EC 100%);
 }
 
-.delete-worker-btn {
-  padding: 4px 8px;
-  border: none;
-  border-radius: 4px;
-  background: #FF6B6B;
-  color: white;
+.dropdown-option.selected {
+  background: #FFE4EC;
+  font-weight: 600;
+}
+
+.dropdown-option.checkbox-option {
+  padding: 0;
+}
+
+.dropdown-option.checkbox-option label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  width: 100%;
   cursor: pointer;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.dropdown-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #FF91A4;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.option-code {
+  font-size: 0.75rem;
+  color: #888;
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  flex-shrink: 0;
+}
+
+.option-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-empty {
+  padding: 20px;
+  text-align: center;
+  color: #B08B93;
+  font-size: 0.85rem;
+}
+
+/* 数量输入组 */
+.quantity-group {
+  display: flex;
+  gap: 4px;
+}
+
+.quantity-input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 2px solid #FFD1DC;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.quantity-input:focus {
+  border-color: #FF91A4;
+  box-shadow: 0 0 0 2px rgba(255, 145, 164, 0.2);
+}
+
+.unit-select {
+  width: 70px;
+  flex-shrink: 0;
+  padding: 8px 4px;
+  border: 2px solid #FFD1DC;
+  border-radius: 10px;
   font-size: 0.8rem;
-  opacity: 0.7;
+  background: white;
+  cursor: pointer;
+  outline: none;
 }
 
-.delete-worker-btn:hover {
-  opacity: 1;
+.unit-select:focus {
+  border-color: #FF91A4;
 }
 
+/* 添加按钮 */
 .add-btn {
-  padding: 12px 20px;
+  padding: 8px 16px;
   background: linear-gradient(135deg, #FFB6C1 0%, #FF91A4 100%);
   color: white;
   border: none;
-  border-radius: 14px;
-  font-size: 0.95rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
-  box-shadow: 0 3px 12px rgba(255, 145, 164, 0.4);
+  min-height: 38px;
 }
 
 .add-btn:hover:not(:disabled) {
-  transform: scale(1.05) translateY(-2px);
-  box-shadow: 0 5px 18px rgba(255, 145, 164, 0.5);
-  background: linear-gradient(135deg, #FF91A4 0%, #FF6B8A 100%);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 145, 164, 0.4);
 }
 
 .add-btn:disabled {
@@ -438,98 +332,7 @@
   cursor: not-allowed;
 }
 
-/* 移动端适配 */
-@media (max-width: 768px) {
-  .input-bar {
-    padding: 12px 14px 16px;
-  }
-
-  .user-btn {
-    padding: 8px 14px;
-    font-size: 0.9rem;
-  }
-
-  .input-table th {
-    font-size: 0.8rem;
-  }
-
-  .input-table input,
-  .input-table select {
-    padding: 10px 12px;
-    font-size: 0.9rem;
-  }
-
-  .add-btn {
-    padding: 10px 16px;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .input-bar {
-    padding: 10px 10px 12px;
-  }
-
-  .input-bar.collapsed {
-    padding: 6px 10px;
-  }
-
-  .toggle-btn {
-    padding: 6px;
-    margin-bottom: 8px;
-    font-size: 0.85rem;
-    border-radius: 10px;
-  }
-
-  .toggle-icon {
-    font-size: 0.7rem;
-  }
-
-  .toggle-text {
-    font-size: 0.8rem;
-  }
-
-  .user-switcher {
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-
-  .user-name {
-    display: none;
-  }
-
-  .user-btn {
-    padding: 8px 10px;
-  }
-
-  .user-icon {
-    font-size: 1.1rem;
-  }
-
-  .input-table th {
-    font-size: 0.75rem;
-    padding: 6px 4px;
-  }
-
-  .input-table td {
-    padding: 3px;
-  }
-
-  .input-table input,
-  .input-table select {
-    padding: 8px 10px;
-    font-size: 0.85rem;
-    border-radius: 10px;
-  }
-
-  .add-btn {
-    padding: 8px 14px;
-    font-size: 0.85rem;
-    border-radius: 10px;
-  }
-}
-
-/* ========== 添加记录庆祝动画 ========== */
+/* 庆祝动画 */
 .add-celebration-overlay {
   position: fixed;
   top: 0;
@@ -541,126 +344,107 @@
   justify-content: center;
   background: rgba(255, 245, 248, 0.9);
   z-index: 9999;
-  animation: add-celebration-fade 2s ease-out forwards;
+  animation: celebration-fade 2s ease-out forwards;
 }
 
 .add-celebration-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  animation: add-celebration-bounce 0.6s ease-out;
+  gap: 16px;
+  animation: celebration-bounce 0.5s ease-out;
 }
 
 .add-celebration-gif {
-  max-width: 250px;
-  max-height: 250px;
+  max-width: 200px;
+  max-height: 200px;
   object-fit: contain;
-  filter: drop-shadow(0 8px 30px rgba(255, 145, 164, 0.5));
 }
 
 .add-celebration-text {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #FF91A4;
-  text-shadow: 0 2px 10px rgba(255, 145, 164, 0.4);
 }
 
-@keyframes add-celebration-fade {
+@keyframes celebration-fade {
   0% { opacity: 0; }
   10% { opacity: 1; }
   75% { opacity: 1; }
   100% { opacity: 0; }
 }
 
-@keyframes add-celebration-bounce {
-  0% { transform: scale(0.2); opacity: 0; }
-  50% { transform: scale(1.15); }
-  70% { transform: scale(0.95); }
+@keyframes celebration-bounce {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.1); }
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* Desktop 大屏幕优化 */
-@media (min-width: 1440px) {
+/* 移动端适配 */
+@media (max-width: 900px) {
+  .input-row {
+    flex-wrap: wrap;
+  }
+
+  .customer-field { flex: 1 1 45%; min-width: 140px; }
+  .tag-field { flex: 1 1 45%; min-width: 120px; }
+  .worker-field { flex: 1 1 45%; min-width: 120px; }
+  .quantity-field { flex: 1 1 45%; min-width: 130px; }
+  .vehicle-field { flex: 1 1 30%; min-width: 100px; }
+  .submit-field { flex: 1 1 20%; min-width: 80px; }
+}
+
+@media (max-width: 600px) {
   .input-bar {
-    max-width: 1400px;
+    padding: 8px 12px 12px;
+  }
+
+  .input-row {
+    gap: 8px;
+  }
+
+  .input-field label {
+    font-size: 0.7rem;
+  }
+
+  .dropdown-btn {
+    padding: 6px 8px;
+    font-size: 0.8rem;
+    min-height: 34px;
+  }
+
+  .quantity-input,
+  .unit-select {
+    padding: 6px 8px;
+    font-size: 0.8rem;
+  }
+
+  .unit-select {
+    width: 60px;
+  }
+
+  .add-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    min-height: 34px;
+  }
+
+  .dropdown-panel {
+    bottom: 100px;
+    max-height: 60vh;
+  }
+}
+
+/* 大屏幕优化 */
+@media (min-width: 1200px) {
+  .input-bar {
+    max-width: 1200px;
     left: 50%;
     transform: translateX(-50%);
-    border-radius: 20px 20px 0 0;
-    padding: 12px 20px 14px;
+    border-radius: 16px 16px 0 0;
   }
 
-  .user-switcher {
-    margin-bottom: 10px;
+  .dropdown-panel {
+    max-width: 400px;
   }
-
-  .input-table input,
-  .input-table select {
-    padding: 10px 12px;
-  }
-}
-
-/* 园主自动完成下拉框 */
-.customer-cell {
-  position: relative;
-}
-
-.customer-input-container {
-  position: relative;
-}
-
-.customer-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 2px solid #FFD1DC;
-  border-top: none;
-  border-radius: 0 0 12px 12px;
-  box-shadow: 0 4px 12px rgba(255, 182, 193, 0.3);
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 200;
-}
-
-.customer-option {
-  padding: 10px 12px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  font-size: 0.9rem;
-  color: #555;
-}
-
-.customer-option:hover {
-  background: linear-gradient(135deg, #FFF5F8 0%, #FFE4EC 100%);
-}
-
-.customer-option:last-child {
-  border-radius: 0 0 10px 10px;
-}
-
-/* 无工人提示 */
-.no-workers {
-  padding: 20px 14px;
-  text-align: center;
-  color: #B08B93;
-  font-size: 0.9rem;
-}
-
-/* 关闭按钮样式 */
-.worker-dropdown-header button {
-  padding: 4px 10px;
-  border: 1px solid #FFD1DC;
-  border-radius: 8px;
-  background: white;
-  cursor: pointer;
-  font-size: 0.9rem;
-  color: #888;
-  transition: all 0.2s ease;
-}
-
-.worker-dropdown-header button:hover {
-  background: #FFE4EC;
-  border-color: #FF91A4;
 }
