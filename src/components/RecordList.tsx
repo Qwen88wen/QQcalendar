@@ -1,12 +1,29 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAppStore } from '../stores/appStore';
 import './RecordList.css';
 
 type StatusFilter = 'all' | 'incomplete' | 'complete';
 
 export function RecordList() {
-  const { diaries, showRecordList, toggleRecordList, setFocusedFlower, openModal } = useAppStore();
+  const { diaries, showRecordList, toggleRecordList, setFocusedFlower, openModal, customers } = useAppStore();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+
+  // 创建顾客名称到Code的映射
+  const customerCodeMap = useMemo(() => {
+    const map = new Map<string, string>();
+    customers.forEach(c => {
+      if (c.code) {
+        map.set(c.name, c.code);
+      }
+    });
+    return map;
+  }, [customers]);
+
+  // 获取顾客Code
+  const getCustomerCode = (customerName: string | null) => {
+    if (!customerName) return null;
+    return customerCodeMap.get(customerName) || null;
+  };
 
   // 统计数量
   const totalCount = diaries.length;
@@ -33,13 +50,6 @@ export function RecordList() {
     } else {
       return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
     }
-  };
-
-  const getFlowerIcon = (diary: any) => {
-    const userName = diary.user_name?.toLowerCase() || '';
-    if (userName.includes('qqrou') || diary.flower_type === 3) return '💐';
-    if (userName.includes('qqfang') || diary.flower_type === 1) return '🌹';
-    return '🌸';
   };
 
   const handleRecordClick = (diary: any) => {
@@ -87,22 +97,25 @@ export function RecordList() {
               <p className="empty-hint">种下第一朵花吧</p>
             </div>
           ) : (
-            filteredDiaries.map((diary) => (
-              <div
-                key={diary.id}
-                className="record-item"
-                onClick={() => handleRecordClick(diary)}
-              >
-                <span className="record-icon">{getFlowerIcon(diary)}</span>
-                <div className="record-content">
-                  <div className="record-user">{diary.customer || diary.user_name || '匿名'}</div>
-                  <div className={`record-status ${diary.status}`}>
-                    {diary.status === 'complete' ? '已完成' : '未完成'}
+            filteredDiaries.map((diary) => {
+              const customerCode = getCustomerCode(diary.customer);
+              return (
+                <div
+                  key={diary.id}
+                  className="record-item"
+                  onClick={() => handleRecordClick(diary)}
+                >
+                  {customerCode && <span className="record-code">{customerCode}</span>}
+                  <div className="record-content">
+                    <div className="record-user">{diary.customer || diary.user_name || '匿名'}</div>
+                    <div className={`record-status ${diary.status}`}>
+                      {diary.status === 'complete' ? '已完成' : '未完成'}
+                    </div>
                   </div>
+                  <div className="record-time">{formatTime(diary.created_at)}</div>
                 </div>
-                <div className="record-time">{formatTime(diary.created_at)}</div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
