@@ -133,6 +133,7 @@ export interface TodoUpdate {
 // customers 表 (园主主档)
 export interface Customer {
   id: string;
+  code: string | null;                    // 顾客代码 (如 A0001)
   name: string;
   notes: string | null;
   harvest_customer_price: number | null;  // HARVEST 向顾客收的价格/TON
@@ -141,6 +142,7 @@ export interface Customer {
 }
 
 export interface CustomerInsert {
+  code?: string | null;
   name: string;
   notes?: string | null;
   harvest_customer_price?: number | null;
@@ -149,6 +151,7 @@ export interface CustomerInsert {
 }
 
 export interface CustomerUpdate {
+  code?: string | null;
   name?: string;
   notes?: string | null;
   harvest_customer_price?: number | null;

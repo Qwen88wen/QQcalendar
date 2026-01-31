@@ -132,9 +132,10 @@ export async function activateCustomer(id: string): Promise<boolean> {
 
 // 批量导入园主 (从 CSV)
 export async function importCustomers(customers: CustomerInsert[]): Promise<number> {
+  // 使用 code 作为唯一标识进行 upsert
   const { data, error } = await supabase
     .from('customers')
-    .upsert(customers as never[], { onConflict: 'name' })
+    .upsert(customers as never[], { onConflict: 'code' })
     .select();
 
   if (error) {
