@@ -238,8 +238,14 @@
   margin-bottom: 4px;
 }
 
-.memo-flower {
-  font-size: 1.1rem;
+.memo-code {
+  font-size: 0.7rem;
+  font-family: monospace;
+  font-weight: 600;
+  color: #666;
+  background: #e8e8e8;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .memo-customer {
@@ -661,8 +667,8 @@
     margin-bottom: 8px;
   }
 
-  .memo-flower {
-    font-size: 1rem;
+  .memo-code {
+    font-size: 0.65rem;
   }
 
   .memo-customer {

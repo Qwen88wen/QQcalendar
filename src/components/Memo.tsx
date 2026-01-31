@@ -3,16 +3,25 @@ import { useAppStore } from '../stores/appStore';
 import { deleteDiary, createTodo as createTodoInDB, updateTodo as updateTodoInDB, deleteTodo as deleteTodoInDB } from '../lib/diary';
 import './Memo.css';
 
-const FLOWER_ICONS: Record<number, string> = {
-  1: '🌹',
-  2: '🌷',
-  3: '💐',
-  4: '🌸',
-  5: '🌻',
-};
-
 export function Memo() {
-  const { diaries, openModal, selectedDate, removeDiary, todos, activeInputUser } = useAppStore();
+  const { diaries, openModal, selectedDate, removeDiary, todos, activeInputUser, customers } = useAppStore();
+
+  // 创建顾客名称到Code的映射
+  const customerCodeMap = useMemo(() => {
+    const map = new Map<string, string>();
+    customers.forEach(c => {
+      if (c.code) {
+        map.set(c.name, c.code);
+      }
+    });
+    return map;
+  }, [customers]);
+
+  // 获取顾客Code
+  const getCustomerCode = (customerName: string | null) => {
+    if (!customerName) return null;
+    return customerCodeMap.get(customerName) || null;
+  };
   const [activeTab, setActiveTab] = useState<'records' | 'todos'>('records');
   const [filter, setFilter] = useState<'all' | 'incomplete' | 'complete'>('all');
 
@@ -349,9 +358,11 @@ export function Memo() {
                           {isSelected ? '✓' : ''}
                         </button>
                       )}
-                      <span className="memo-flower">
-                        {FLOWER_ICONS[diary.flower_type || 1]}
-                      </span>
+                      {getCustomerCode(diary.customer) && (
+                        <span className="memo-code">
+                          {getCustomerCode(diary.customer)}
+                        </span>
+                      )}
                       <span className="memo-customer">
                         {diary.customer || diary.user_name || '未命名'}
                       </span>
