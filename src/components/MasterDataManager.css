@@ -373,6 +373,47 @@
   font-size: 0.95rem;
 }
 
+/* CSV 导入 */
+.csv-import-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+  border-radius: 12px;
+  border: 2px solid #81C784;
+}
+
+.csv-import-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.csv-import-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.csv-import-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.import-status {
+  font-size: 0.9rem;
+  color: #2E7D32;
+  flex: 1;
+}
+
 /* 移动端适配 */
 @media (max-width: 600px) {
   .master-data-btn {

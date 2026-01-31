@@ -1,12 +1,81 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAppStore } from '../stores/appStore';
-import { createCustomer, updateCustomer, deactivateCustomer, activateCustomer } from '../lib/customers';
+import { createCustomer, updateCustomer, deactivateCustomer, activateCustomer, importCustomers } from '../lib/customers';
 import { createWorker, updateWorker, deactivateWorker, activateWorker } from '../lib/workers';
 import { createVehicle, updateVehicle, deactivateVehicle, activateVehicle } from '../lib/vehicles';
-import type { Customer, Worker, Vehicle } from '../types/database';
+import type { Customer, Worker, Vehicle, CustomerInsert } from '../types/database';
 import './MasterDataManager.css';
 
 type TabType = 'customers' | 'workers' | 'vehicles';
+
+// 解析 CSV 内容
+function parseCustomerCSV(csvText: string): CustomerInsert[] {
+  const lines = csvText.trim().split('\n');
+  if (lines.length < 2) return []; // 至少要有表头和一行数据
+
+  const results: CustomerInsert[] = [];
+
+  // 跳过表头，从第二行开始
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    // 解析 CSV 行 (处理逗号和引号)
+    const columns = parseCSVLine(line);
+    if (columns.length < 2) continue;
+
+    const [code, name, customerPriceStr, workerPriceStr] = columns;
+
+    // 解析价格 (数字或文字)
+    const customerPrice = parsePrice(customerPriceStr);
+    const workerPrice = parsePrice(workerPriceStr);
+
+    // 如果价格是文字，存到 notes
+    let notes: string | null = null;
+    if (customerPriceStr && isNaN(parseFloat(customerPriceStr))) {
+      notes = customerPriceStr;
+    }
+
+    results.push({
+      code: code?.trim() || null,
+      name: name?.trim() || '',
+      notes,
+      harvest_customer_price: customerPrice,
+      harvest_worker_price: workerPrice,
+    });
+  }
+
+  return results.filter(c => c.name); // 过滤掉没有名字的
+}
+
+// 解析 CSV 行 (处理逗号和引号)
+function parseCSVLine(line: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  result.push(current.trim());
+
+  return result;
+}
+
+// 解析价格 (返回数字或 null)
+function parsePrice(str: string | undefined): number | null {
+  if (!str) return null;
+  const num = parseFloat(str);
+  return isNaN(num) ? null : num;
+}
 
 export function MasterDataManager() {
   const {
@@ -19,12 +88,17 @@ export function MasterDataManager() {
     updateWorker: updateWorkerInStore,
     addVehicle,
     updateVehicle: updateVehicleInStore,
+    setCustomers,
   } = useAppStore();
 
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('customers');
   const [showInactive, setShowInactive] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // CSV 导入状态
+  const [importStatus, setImportStatus] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 编辑状态
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -179,6 +253,49 @@ export function MasterDataManager() {
     setIsSubmitting(false);
   };
 
+  // CSV 导入处理
+  const handleCSVImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsSubmitting(true);
+    setImportStatus('正在读取文件...');
+
+    try {
+      const text = await file.text();
+      const customersToImport = parseCustomerCSV(text);
+
+      if (customersToImport.length === 0) {
+        setImportStatus('CSV 文件格式错误或无有效数据');
+        setIsSubmitting(false);
+        return;
+      }
+
+      setImportStatus(`正在导入 ${customersToImport.length} 条数据...`);
+
+      const count = await importCustomers(customersToImport);
+
+      if (count > 0) {
+        setImportStatus(`成功导入 ${count} 条园主数据！`);
+        // 重新加载数据
+        const { getActiveCustomers } = await import('../lib/customers');
+        const newCustomers = await getActiveCustomers();
+        setCustomers(newCustomers);
+      } else {
+        setImportStatus('导入失败，请检查数据格式');
+      }
+    } catch (err) {
+      console.error('CSV 导入失败:', err);
+      setImportStatus('导入失败: ' + (err instanceof Error ? err.message : '未知错误'));
+    } finally {
+      setIsSubmitting(false);
+      // 清空文件输入
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   if (!isOpen) {
     return (
       <button className="master-data-btn" onClick={() => setIsOpen(true)}>
@@ -233,6 +350,26 @@ export function MasterDataManager() {
         {/* 园主管理 */}
         {activeTab === 'customers' && (
           <div className="tab-content">
+            {/* CSV 导入 */}
+            <div className="csv-import-section">
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleCSVImport}
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                id="csv-file-input"
+              />
+              <button
+                className="csv-import-btn"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isSubmitting}
+              >
+                CSV 导入园主
+              </button>
+              {importStatus && <span className="import-status">{importStatus}</span>}
+            </div>
+
             <div className="add-form customer-add-form">
               <input
                 type="text"
