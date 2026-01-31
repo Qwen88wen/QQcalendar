@@ -79,11 +79,12 @@
 }
 
 /* 字段宽度分配 */
-.customer-field { flex: 2; min-width: 140px; }
-.tag-field { flex: 1.5; min-width: 120px; }
-.worker-field { flex: 1.5; min-width: 120px; }
-.quantity-field { flex: 1.5; min-width: 130px; }
-.vehicle-field { flex: 1; min-width: 100px; }
+.customer-field { flex: 2; min-width: 120px; }
+.tag-field { flex: 1.2; min-width: 100px; }
+.worker-field { flex: 1.2; min-width: 100px; }
+.quantity-field { flex: 1.2; min-width: 110px; }
+.vehicle-field { flex: 0.8; min-width: 80px; }
+.status-field { flex: 1.2; min-width: 130px; }
 .submit-field { flex: 0 0 auto; }
 
 /* 下拉框容器 */
@@ -332,6 +333,59 @@
   cursor: not-allowed;
 }
 
+/* 状态切换按钮 */
+.status-toggle {
+  display: flex;
+  gap: 2px;
+  background: #f0f0f0;
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.status-btn {
+  flex: 1;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: #888;
+  white-space: nowrap;
+}
+
+.status-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.status-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-btn.active {
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+}
+
+.status-btn.active.unnotified {
+  color: #FF6B6B;
+}
+
+.status-btn.active.notified {
+  color: #4CAF50;
+}
+
+.status-btn.active.incomplete {
+  color: #FF9800;
+}
+
+.status-btn.active.complete {
+  color: #4CAF50;
+}
+
 /* 庆祝动画 */
 .add-celebration-overlay {
   position: fixed;
@@ -386,11 +440,12 @@
     flex-wrap: wrap;
   }
 
-  .customer-field { flex: 1 1 45%; min-width: 140px; }
-  .tag-field { flex: 1 1 45%; min-width: 120px; }
-  .worker-field { flex: 1 1 45%; min-width: 120px; }
-  .quantity-field { flex: 1 1 45%; min-width: 130px; }
-  .vehicle-field { flex: 1 1 30%; min-width: 100px; }
+  .customer-field { flex: 1 1 45%; min-width: 120px; }
+  .tag-field { flex: 1 1 45%; min-width: 100px; }
+  .worker-field { flex: 1 1 45%; min-width: 100px; }
+  .quantity-field { flex: 1 1 45%; min-width: 110px; }
+  .vehicle-field { flex: 1 1 30%; min-width: 80px; }
+  .status-field { flex: 1 1 45%; min-width: 130px; }
   .submit-field { flex: 1 1 20%; min-width: 80px; }
 }
 

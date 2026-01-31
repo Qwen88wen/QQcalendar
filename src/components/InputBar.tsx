@@ -52,6 +52,7 @@ export function InputBar() {
   const [vehicle, setVehicle] = useState('');
   const [weight, setWeight] = useState('');
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
+  const [notified, setNotified] = useState(false);
   const [tag, setTag] = useState<DiaryTag | ''>('');
 
   // 下拉框显示状态
@@ -165,6 +166,7 @@ export function InputBar() {
         vehicle: vehicle.trim() || null,
         weight: weight.trim() || null,
         status,
+        notified,
         tag: tag || null,
         operators: [currentUsername],
         created_at: createdAt,
@@ -182,6 +184,7 @@ export function InputBar() {
         setVehicle('');
         setWeight('');
         setStatus('incomplete');
+        setNotified(false);
         setTag('');
         closeAllDropdowns();
 
@@ -434,6 +437,52 @@ export function InputBar() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* 通知状态 */}
+          <div className="input-field status-field">
+            <label>通知</label>
+            <div className="status-toggle">
+              <button
+                type="button"
+                className={`status-btn ${!notified ? 'active unnotified' : ''}`}
+                onClick={() => setNotified(false)}
+                disabled={isSubmitting}
+              >
+                📞 未通知
+              </button>
+              <button
+                type="button"
+                className={`status-btn ${notified ? 'active notified' : ''}`}
+                onClick={() => setNotified(true)}
+                disabled={isSubmitting}
+              >
+                ✅ 已通知
+              </button>
+            </div>
+          </div>
+
+          {/* 割果状态 */}
+          <div className="input-field status-field">
+            <label>割果</label>
+            <div className="status-toggle">
+              <button
+                type="button"
+                className={`status-btn ${status === 'incomplete' ? 'active incomplete' : ''}`}
+                onClick={() => setStatus('incomplete')}
+                disabled={isSubmitting}
+              >
+                未完成
+              </button>
+              <button
+                type="button"
+                className={`status-btn ${status === 'complete' ? 'active complete' : ''}`}
+                onClick={() => setStatus('complete')}
+                disabled={isSubmitting}
+              >
+                已完成
+              </button>
             </div>
           </div>
 
