@@ -55,12 +55,25 @@
   font-size: 1rem;
 }
 
+/* 输入内容容器 - 两行布局 */
+.input-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 /* 输入行 - Flex 布局 */
 .input-row {
   display: flex;
   gap: 16px;
   align-items: flex-end;
   flex-wrap: nowrap;
+}
+
+/* 第二行状态行 */
+.input-row.status-row {
+  justify-content: flex-start;
+  align-items: flex-end;
 }
 
 /* 输入字段 */
@@ -78,14 +91,23 @@
   white-space: nowrap;
 }
 
-/* 字段宽度分配 */
-.customer-field { flex: 2; min-width: 150px; }
-.tag-field { flex: 1.5; min-width: 130px; }
-.worker-field { flex: 1.5; min-width: 130px; }
-.quantity-field { flex: 1.5; min-width: 140px; }
-.vehicle-field { flex: 1; min-width: 100px; }
-.status-field { flex: 1.5; min-width: 160px; }
-.submit-field { flex: 0 0 auto; }
+/* 第一行字段宽度分配 */
+.customer-field { flex: 2; min-width: 160px; }
+.tag-field { flex: 1.5; min-width: 140px; }
+.worker-field { flex: 1.5; min-width: 140px; }
+.quantity-field { flex: 1.5; min-width: 160px; }
+.vehicle-field { flex: 1; min-width: 120px; }
+
+/* 第二行字段宽度 */
+.status-row .status-field {
+  flex: 0 0 auto;
+  min-width: 200px;
+}
+.status-row .submit-field {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
 
 /* 下拉框容器 */
 .dropdown-container {
@@ -140,12 +162,12 @@
   transform: translateX(-50%);
   width: 90%;
   max-width: 400px;
-  bottom: 180px;
+  bottom: 220px;
   background: white;
   border: 2px solid #FFD1DC;
   border-radius: 14px;
   box-shadow: 0 -4px 20px rgba(255, 182, 193, 0.3);
-  max-height: 50vh;
+  max-height: 45vh;
   overflow: hidden;
   z-index: 300;
   display: flex;
@@ -295,9 +317,9 @@
 }
 
 .unit-select {
-  width: 80px;
+  width: 90px;
   flex-shrink: 0;
-  padding: 12px 6px;
+  padding: 12px 8px;
   border: 2px solid #FFD1DC;
   border-radius: 12px;
   font-size: 0.9rem;
@@ -313,22 +335,23 @@
 
 /* 添加按钮 */
 .add-btn {
-  padding: 12px 24px;
+  padding: 14px 32px;
   background: linear-gradient(135deg, #FFB6C1 0%, #FF91A4 100%);
   color: white;
   border: none;
   border-radius: 12px;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
   min-height: 48px;
+  min-width: 140px;
 }
 
 .add-btn:hover:not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(255, 145, 164, 0.4);
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(255, 145, 164, 0.4);
 }
 
 .add-btn:disabled {
@@ -340,7 +363,7 @@
 .status-toggle {
   display: flex;
   gap: 4px;
-  background: #f0f0f0;
+  background: #f5f5f5;
   border-radius: 10px;
   padding: 4px;
   min-height: 48px;
@@ -349,10 +372,10 @@
 
 .status-btn {
   flex: 1;
-  padding: 8px 12px;
+  padding: 10px 16px;
   border: none;
   border-radius: 8px;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
   background: transparent;
@@ -361,10 +384,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
 }
 
 .status-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .status-btn:disabled {
@@ -374,7 +398,7 @@
 
 .status-btn.active {
   background: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-weight: 600;
 }
 
@@ -451,12 +475,24 @@
   .customer-field { flex: 1 1 45%; min-width: 150px; }
   .tag-field { flex: 1 1 45%; min-width: 130px; }
   .worker-field { flex: 1 1 45%; min-width: 130px; }
-  .quantity-field { flex: 1 1 45%; min-width: 140px; }
+  .quantity-field { flex: 1 1 45%; min-width: 150px; }
   .vehicle-field { flex: 1 1 30%; min-width: 100px; }
-  .status-field { flex: 1 1 45%; min-width: 160px; }
-  .submit-field { flex: 1 1 20%; min-width: 100px; }
 
-  .add-btn {
+  .input-row.status-row {
+    flex-wrap: wrap;
+  }
+
+  .status-row .status-field {
+    flex: 1 1 45%;
+    min-width: 180px;
+  }
+
+  .status-row .submit-field {
+    flex: 1 1 100%;
+    justify-content: stretch;
+  }
+
+  .status-row .add-btn {
     width: 100%;
   }
 }
@@ -472,8 +508,12 @@
     margin-bottom: 12px;
   }
 
-  .input-row {
+  .input-content {
     gap: 12px;
+  }
+
+  .input-row {
+    gap: 10px;
   }
 
   .input-field label {
@@ -488,18 +528,18 @@
 
   .quantity-input,
   .unit-select {
-    padding: 10px 12px;
+    padding: 10px 10px;
     font-size: 0.9rem;
     min-height: 44px;
   }
 
   .unit-select {
-    width: 70px;
+    width: 75px;
   }
 
   .add-btn {
-    padding: 10px 18px;
-    font-size: 0.9rem;
+    padding: 12px 20px;
+    font-size: 0.95rem;
     min-height: 44px;
   }
 
@@ -509,23 +549,23 @@
 
   .status-btn {
     font-size: 0.8rem;
-    padding: 6px 8px;
+    padding: 8px 10px;
   }
 
   .dropdown-panel {
-    bottom: 160px;
-    max-height: 55vh;
+    bottom: 200px;
+    max-height: 50vh;
   }
 }
 
-/* 大屏幕优化 */
-@media (min-width: 1400px) {
+/* 大屏幕优化 - 全宽 */
+@media (min-width: 1200px) {
   .input-bar {
-    max-width: 1400px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-radius: 16px 16px 0 0;
-    padding: 20px 32px 28px;
+    padding: 20px 40px 28px;
+  }
+
+  .input-content {
+    gap: 20px;
   }
 
   .input-row {
@@ -535,7 +575,6 @@
   .dropdown-btn,
   .quantity-input,
   .unit-select,
-  .add-btn,
   .status-toggle {
     min-height: 52px;
   }
@@ -547,11 +586,40 @@
   }
 
   .add-btn {
-    padding: 14px 28px;
-    font-size: 1.05rem;
+    padding: 14px 40px;
+    font-size: 1.1rem;
+    min-height: 52px;
+    min-width: 160px;
+  }
+
+  .status-btn {
+    font-size: 0.95rem;
+    padding: 12px 20px;
   }
 
   .dropdown-panel {
     max-width: 450px;
+    bottom: 240px;
+  }
+}
+
+/* 超大屏幕 */
+@media (min-width: 1600px) {
+  .input-bar {
+    padding: 24px 60px 32px;
+  }
+
+  .input-row {
+    gap: 24px;
+  }
+
+  .customer-field { min-width: 200px; }
+  .tag-field { min-width: 180px; }
+  .worker-field { min-width: 180px; }
+  .quantity-field { min-width: 200px; }
+  .vehicle-field { min-width: 140px; }
+
+  .status-row .status-field {
+    min-width: 240px;
   }
 }

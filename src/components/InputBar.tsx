@@ -219,8 +219,10 @@ export function InputBar() {
 
       {/* 展开时显示的内容 */}
       {isExpanded && (
-        <div className="input-row">
-          {/* 园主选择 */}
+        <div className="input-content">
+          {/* 第一行：主要输入字段 */}
+          <div className="input-row">
+            {/* 园主选择 */}
           <div className="input-field customer-field">
             <label>园主 *</label>
             <div className="dropdown-container">
@@ -439,63 +441,66 @@ export function InputBar() {
               )}
             </div>
           </div>
-
-          {/* 通知状态 */}
-          <div className="input-field status-field">
-            <label>通知</label>
-            <div className="status-toggle">
-              <button
-                type="button"
-                className={`status-btn ${!notified ? 'active unnotified' : ''}`}
-                onClick={() => setNotified(false)}
-                disabled={isSubmitting}
-              >
-                📞 未通知
-              </button>
-              <button
-                type="button"
-                className={`status-btn ${notified ? 'active notified' : ''}`}
-                onClick={() => setNotified(true)}
-                disabled={isSubmitting}
-              >
-                ✅ 已通知
-              </button>
-            </div>
           </div>
 
-          {/* 割果状态 */}
-          <div className="input-field status-field">
-            <label>割果</label>
-            <div className="status-toggle">
+          {/* 第二行：状态和提交 */}
+          <div className="input-row status-row">
+            {/* 通知状态 */}
+            <div className="input-field status-field">
+              <label>通知状态</label>
+              <div className="status-toggle">
+                <button
+                  type="button"
+                  className={`status-btn ${!notified ? 'active unnotified' : ''}`}
+                  onClick={() => setNotified(false)}
+                  disabled={isSubmitting}
+                >
+                  📞 未通知
+                </button>
+                <button
+                  type="button"
+                  className={`status-btn ${notified ? 'active notified' : ''}`}
+                  onClick={() => setNotified(true)}
+                  disabled={isSubmitting}
+                >
+                  ✅ 已通知
+                </button>
+              </div>
+            </div>
+
+            {/* 割果状态 */}
+            <div className="input-field status-field">
+              <label>割果状态</label>
+              <div className="status-toggle">
+                <button
+                  type="button"
+                  className={`status-btn ${status === 'incomplete' ? 'active incomplete' : ''}`}
+                  onClick={() => setStatus('incomplete')}
+                  disabled={isSubmitting}
+                >
+                  未完成
+                </button>
+                <button
+                  type="button"
+                  className={`status-btn ${status === 'complete' ? 'active complete' : ''}`}
+                  onClick={() => setStatus('complete')}
+                  disabled={isSubmitting}
+                >
+                  已完成
+                </button>
+              </div>
+            </div>
+
+            {/* 添加按钮 */}
+            <div className="input-field submit-field">
               <button
-                type="button"
-                className={`status-btn ${status === 'incomplete' ? 'active incomplete' : ''}`}
-                onClick={() => setStatus('incomplete')}
-                disabled={isSubmitting}
+                className="add-btn"
+                onClick={handleSubmit}
+                disabled={!customer.trim() || isSubmitting}
               >
-                未完成
-              </button>
-              <button
-                type="button"
-                className={`status-btn ${status === 'complete' ? 'active complete' : ''}`}
-                onClick={() => setStatus('complete')}
-                disabled={isSubmitting}
-              >
-                已完成
+                {isSubmitting ? '提交中...' : '🌱 添加记录'}
               </button>
             </div>
-          </div>
-
-          {/* 添加按钮 */}
-          <div className="input-field submit-field">
-            <label>&nbsp;</label>
-            <button
-              className="add-btn"
-              onClick={handleSubmit}
-              disabled={!customer.trim() || isSubmitting}
-            >
-              {isSubmitting ? '...' : '添加'}
-            </button>
           </div>
         </div>
       )}
