@@ -226,6 +226,8 @@
   font-size: 0.85rem;
   color: #888;
   border-bottom: 1px solid #FFE4EC;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .floating-todo-stats .done {
@@ -236,6 +238,24 @@
 .floating-todo-stats .pending {
   color: #FFB74D;
   font-weight: 600;
+}
+
+.clear-completed-btn {
+  margin-left: auto;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+  border: 1px solid #FF8A80;
+  border-radius: 12px;
+  color: #C62828;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-completed-btn:hover {
+  background: linear-gradient(135deg, #FFCDD2 0%, #EF9A9A 100%);
+  transform: scale(1.05);
 }
 
 /* ========== 待办列表 ========== */
@@ -268,12 +288,36 @@
 /* ========== 待办分区标题 ========== */
 
 .floating-todo-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   font-size: 0.85rem;
   font-weight: 600;
   color: #D4838F;
   padding: 8px 4px;
   margin-bottom: 8px;
+  margin-top: 8px;
   border-bottom: 2px dashed #FFD1DC;
+}
+
+.floating-todo-section-title:first-child {
+  margin-top: 0;
+}
+
+.floating-todo-section-title.completed {
+  color: #66BB6A;
+  border-bottom-color: #C8E6C9;
+}
+
+.floating-todo-section-title .section-count {
+  font-size: 0.75rem;
+  background: rgba(212, 131, 143, 0.15);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.floating-todo-section-title.completed .section-count {
+  background: rgba(102, 187, 106, 0.15);
 }
 
 /* ========== 待办项 ========== */
@@ -385,6 +429,30 @@
   background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
   color: #E57373;
   transform: scale(1.1);
+}
+
+/* 删除确认状态 */
+.floating-delete.confirm {
+  opacity: 1;
+  width: auto;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #FF5252 0%, #D32F2F 100%);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  animation: shake 0.3s ease;
+}
+
+.floating-todo-item.delete-confirm {
+  border-color: #FF8A80;
+  background: linear-gradient(135deg, #FFF8F8 0%, #FFEBEE 100%);
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
 }
 
 /* ========== 庆祝动画 ========== */
