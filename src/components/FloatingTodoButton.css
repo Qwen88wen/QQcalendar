@@ -36,6 +36,29 @@
   animation: pulse-pending 2s infinite;
 }
 
+.floating-todo-btn.has-overdue {
+  animation: pulse-overdue 1s infinite;
+}
+
+@keyframes pulse-overdue {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.5);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(244, 67, 54, 0.8);
+  }
+}
+
+.floating-todo-badge.overdue {
+  background: linear-gradient(135deg, #F44336 0%, #D32F2F 100%);
+  animation: badge-pulse 1s infinite;
+}
+
+@keyframes badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
 .floating-todo-title {
   font-size: 0.95rem;
   font-weight: 600;
@@ -217,6 +240,14 @@
   cursor: not-allowed;
 }
 
+/* 新建待办日期选择器 */
+.new-todo-date {
+  width: 120px;
+  flex: none !important;
+  padding: 10px 8px !important;
+  font-size: 0.85rem !important;
+}
+
 /* ========== 待办统计 ========== */
 
 .floating-todo-stats {
@@ -238,6 +269,17 @@
 .floating-todo-stats .pending {
   color: #FFB74D;
   font-weight: 600;
+}
+
+.floating-todo-stats .overdue {
+  color: #F44336;
+  font-weight: 600;
+  animation: overdue-pulse 1.5s ease infinite;
+}
+
+@keyframes overdue-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 .clear-completed-btn {
@@ -360,6 +402,26 @@
   background: linear-gradient(135deg, #FFECB3 0%, #FFE082 100%);
 }
 
+/* 过期样式 */
+.floating-todo-item.overdue {
+  background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+  border-color: #EF9A9A;
+}
+
+.floating-todo-item.overdue:hover {
+  background: linear-gradient(135deg, #FFCDD2 0%, #EF9A9A 100%);
+}
+
+/* 即将到期样式 */
+.floating-todo-item.due-soon {
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+  border-color: #FFB74D;
+}
+
+.floating-todo-item.due-soon:hover {
+  background: linear-gradient(135deg, #FFE0B2 0%, #FFCC80 100%);
+}
+
 /* 拖拽状态 */
 .floating-todo-item.dragging {
   opacity: 0.5;
@@ -440,9 +502,68 @@
   cursor: text;
 }
 
+.floating-todo-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .floating-todo-date {
   font-size: 0.75rem;
   color: #C4A5AD;
+}
+
+/* 到期日期标签 */
+.due-date-tag {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(255, 182, 193, 0.2);
+  color: #D4838F;
+}
+
+.due-date-tag:hover {
+  background: rgba(255, 182, 193, 0.4);
+}
+
+.due-date-tag.no-date {
+  opacity: 0.5;
+}
+
+.floating-todo-item:hover .due-date-tag.no-date {
+  opacity: 1;
+}
+
+.due-date-tag.due-soon {
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+  color: #E65100;
+  font-weight: 600;
+}
+
+.due-date-tag.overdue {
+  background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+  color: #C62828;
+  font-weight: 600;
+  animation: overdue-tag-pulse 1.5s ease infinite;
+}
+
+@keyframes overdue-tag-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* 到期日期输入框 */
+.due-date-input {
+  padding: 2px 6px;
+  border: 2px solid #FF91A4;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  outline: none;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(255, 145, 164, 0.2);
 }
 
 /* 编辑输入框 */
