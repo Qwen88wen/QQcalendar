@@ -9,6 +9,7 @@ import { MissingVehicleList } from './components/MissingVehicleList';
 import { UnnotifiedList } from './components/UnnotifiedList';
 import { LoginModal } from './components/LoginModal';
 import { MasterDataManager } from './components/MasterDataManager';
+import { FloatingTodoButton } from './components/FloatingTodoButton';
 import { useAuth } from './hooks/useAuth';
 import { useRealtime } from './hooks/useRealtime';
 import { useAppStore, isSessionValid } from './stores/appStore';
@@ -238,6 +239,7 @@ function MainAppContent() {
       <MissingVehicleList />
       <UnnotifiedList />
       <MasterDataManager />
+      <FloatingTodoButton />
     </div>
   );
 }
