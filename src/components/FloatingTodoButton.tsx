@@ -71,16 +71,18 @@ export function FloatingTodoButton() {
   return (
     <>
       {/* 悬浮按钮 */}
-      <button
-        className={`floating-todo-btn ${todoStats.pending > 0 ? 'has-pending' : ''}`}
-        onClick={() => setIsOpen(true)}
-        title="查看待办事项"
-      >
-        <span className="floating-todo-icon">✓</span>
-        {todoStats.pending > 0 && (
-          <span className="floating-todo-badge">{todoStats.pending}</span>
-        )}
-      </button>
+      <div className="floating-todo-wrapper" onClick={() => setIsOpen(true)}>
+        <button
+          className={`floating-todo-btn ${todoStats.pending > 0 ? 'has-pending' : ''}`}
+          title="查看待办事项"
+        >
+          <span className="floating-todo-icon">✓</span>
+          {todoStats.pending > 0 && (
+            <span className="floating-todo-badge">{todoStats.pending}</span>
+          )}
+        </button>
+        <span className="floating-todo-title">待办事项</span>
+      </div>
 
       {/* 待办窗口遮罩 */}
       {isOpen && (
