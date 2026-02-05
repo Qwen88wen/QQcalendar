@@ -36,6 +36,29 @@
   animation: pulse-pending 2s infinite;
 }
 
+.floating-todo-btn.has-overdue {
+  animation: pulse-overdue 1s infinite;
+}
+
+@keyframes pulse-overdue {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.5);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(244, 67, 54, 0.8);
+  }
+}
+
+.floating-todo-badge.overdue {
+  background: linear-gradient(135deg, #F44336 0%, #D32F2F 100%);
+  animation: badge-pulse 1s infinite;
+}
+
+@keyframes badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
 .floating-todo-title {
   font-size: 0.95rem;
   font-weight: 600;
@@ -217,6 +240,14 @@
   cursor: not-allowed;
 }
 
+/* 新建待办日期选择器 */
+.new-todo-date {
+  width: 120px;
+  flex: none !important;
+  padding: 10px 8px !important;
+  font-size: 0.85rem !important;
+}
+
 /* ========== 待办统计 ========== */
 
 .floating-todo-stats {
@@ -238,6 +269,17 @@
 .floating-todo-stats .pending {
   color: #FFB74D;
   font-weight: 600;
+}
+
+.floating-todo-stats .overdue {
+  color: #F44336;
+  font-weight: 600;
+  animation: overdue-pulse 1.5s ease infinite;
+}
+
+@keyframes overdue-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 .clear-completed-btn {
@@ -325,7 +367,7 @@
 .floating-todo-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   padding: 12px;
   background: white;
   border-radius: 12px;
@@ -338,7 +380,6 @@
 .floating-todo-item:hover {
   background: linear-gradient(135deg, #FFF5F8 0%, #FFFAF5 100%);
   border-color: #FFD1DC;
-  transform: translateX(4px);
 }
 
 .floating-todo-item.done {
@@ -349,6 +390,65 @@
 .floating-todo-item.done .floating-todo-text {
   text-decoration: line-through;
   color: #9E9E9E;
+}
+
+/* 优先级高亮 */
+.floating-todo-item.priority {
+  background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%);
+  border-color: #FFD54F;
+}
+
+.floating-todo-item.priority:hover {
+  background: linear-gradient(135deg, #FFECB3 0%, #FFE082 100%);
+}
+
+/* 过期样式 */
+.floating-todo-item.overdue {
+  background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+  border-color: #EF9A9A;
+}
+
+.floating-todo-item.overdue:hover {
+  background: linear-gradient(135deg, #FFCDD2 0%, #EF9A9A 100%);
+}
+
+/* 即将到期样式 */
+.floating-todo-item.due-soon {
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+  border-color: #FFB74D;
+}
+
+.floating-todo-item.due-soon:hover {
+  background: linear-gradient(135deg, #FFE0B2 0%, #FFCC80 100%);
+}
+
+/* 拖拽状态 */
+.floating-todo-item.dragging {
+  opacity: 0.5;
+  transform: scale(0.98);
+}
+
+.floating-todo-item.drag-over {
+  border-color: #4FC3F7;
+  background: linear-gradient(135deg, #E1F5FE 0%, #B3E5FC 100%);
+}
+
+/* 拖拽手柄 */
+.drag-handle {
+  cursor: grab;
+  color: #C4A5AD;
+  font-size: 0.9rem;
+  padding: 0 4px;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+.drag-handle:hover {
+  color: #D4838F;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 /* ========== 复选框 ========== */
@@ -395,11 +495,126 @@
   font-size: 0.95rem;
   color: #555;
   word-break: break-word;
+  cursor: default;
+}
+
+.floating-todo-item:not(.done) .floating-todo-text {
+  cursor: text;
+}
+
+.floating-todo-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .floating-todo-date {
   font-size: 0.75rem;
   color: #C4A5AD;
+}
+
+/* 到期日期标签 */
+.due-date-tag {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(255, 182, 193, 0.2);
+  color: #D4838F;
+}
+
+.due-date-tag:hover {
+  background: rgba(255, 182, 193, 0.4);
+}
+
+.due-date-tag.no-date {
+  opacity: 0.5;
+}
+
+.floating-todo-item:hover .due-date-tag.no-date {
+  opacity: 1;
+}
+
+.due-date-tag.due-soon {
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+  color: #E65100;
+  font-weight: 600;
+}
+
+.due-date-tag.overdue {
+  background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+  color: #C62828;
+  font-weight: 600;
+  animation: overdue-tag-pulse 1.5s ease infinite;
+}
+
+@keyframes overdue-tag-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* 到期日期输入框 */
+.due-date-input {
+  padding: 2px 6px;
+  border: 2px solid #FF91A4;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  outline: none;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(255, 145, 164, 0.2);
+}
+
+/* 编辑输入框 */
+.edit-input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 2px solid #FF91A4;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(255, 145, 164, 0.2);
+}
+
+/* 优先级按钮 */
+.priority-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  opacity: 0.3;
+  filter: grayscale(100%);
+}
+
+.floating-todo-item:hover .priority-btn {
+  opacity: 0.7;
+}
+
+.priority-btn:hover {
+  opacity: 1 !important;
+  filter: grayscale(0%);
+  transform: scale(1.2);
+}
+
+.priority-btn.active {
+  opacity: 1;
+  filter: grayscale(0%);
+  animation: star-pulse 1s ease infinite;
+}
+
+@keyframes star-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
 }
 
 /* ========== 删除按钮 ========== */
@@ -560,7 +775,7 @@
 
   .floating-todo-item {
     padding: 10px;
-    gap: 10px;
+    gap: 8px;
   }
 
   .floating-checkbox {
@@ -574,5 +789,13 @@
 
   .floating-delete {
     opacity: 1;
+  }
+
+  .priority-btn {
+    opacity: 0.5;
+  }
+
+  .drag-handle {
+    display: none;
   }
 }
