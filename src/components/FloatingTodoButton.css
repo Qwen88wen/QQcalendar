@@ -245,6 +245,17 @@
   color: #D4A5AD;
 }
 
+/* ========== 待办分区标题 ========== */
+
+.floating-todo-section-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #D4838F;
+  padding: 8px 4px;
+  margin-bottom: 8px;
+  border-bottom: 2px dashed #FFD1DC;
+}
+
 /* ========== 待办项 ========== */
 
 .floating-todo-item {

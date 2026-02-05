@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useAppStore } from '../stores/appStore';
-import { deleteDiary, createTodo as createTodoInDB, updateTodo as updateTodoInDB, deleteTodo as deleteTodoInDB } from '../lib/diary';
+import { deleteDiary } from '../lib/diary';
 import './Memo.css';
 
 export function Memo() {
-  const { diaries, openModal, selectedDate, removeDiary, todos, activeInputUser, customers } = useAppStore();
+  const { diaries, openModal, selectedDate, removeDiary, customers } = useAppStore();
 
   // 创建顾客名称到Code的映射
   const customerCodeMap = useMemo(() => {
@@ -22,7 +22,7 @@ export function Memo() {
     if (!customerName) return null;
     return customerCodeMap.get(customerName) || null;
   };
-  const [activeTab, setActiveTab] = useState<'records' | 'todos'>('records');
+
   const [filter, setFilter] = useState<'all' | 'incomplete' | 'complete'>('all');
 
   // 选择模式状态
@@ -48,69 +48,6 @@ export function Memo() {
     return diaries.filter(d => new Date(d.created_at).toDateString() === viewDateStr);
   }, [diaries, viewDate]);
 
-  // 待办输入
-  const [newTodoText, setNewTodoText] = useState('');
-
-  // 添加待办庆祝动画
-  const [showAddTodoCelebration, setShowAddTodoCelebration] = useState(false);
-
-  // 完成待办庆祝动画
-  const [showCelebration, setShowCelebration] = useState(false);
-
-  // 添加待办
-  const addTodo = async () => {
-    if (!newTodoText.trim()) return;
-
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const viewDateOnly = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate());
-
-    // 如果是今天，使用当前实际时间；如果是其他日期，使用中午12点
-    let todoDate: Date;
-    if (viewDateOnly.getTime() === today.getTime()) {
-      todoDate = now;
-    } else {
-      todoDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate(), 12, 0, 0);
-    }
-
-    const newTodo = await createTodoInDB({
-      text: newTodoText.trim(),
-      done: false,
-      created_at: todoDate.toISOString(),
-      user_name: activeInputUser,
-    });
-
-    if (newTodo) {
-      // 不手动添加到状态，让 realtime 订阅处理
-      setNewTodoText('');
-
-      // 显示添加庆祝动画
-      setShowAddTodoCelebration(true);
-      setTimeout(() => setShowAddTodoCelebration(false), 1500);
-    }
-  };
-
-  // 切换待办状态
-  const toggleTodo = async (id: string) => {
-    const todo = todos.find(t => t.id === id);
-    if (!todo) return;
-
-    // 如果从未完成变成完成，显示庆祝动画
-    if (!todo.done) {
-      setShowCelebration(true);
-      setTimeout(() => setShowCelebration(false), 1500); // 1.5秒后隐藏
-    }
-
-    await updateTodoInDB(id, { done: !todo.done });
-    // 让 realtime 订阅处理状态更新
-  };
-
-  // 删除待办
-  const handleDeleteTodo = async (id: string) => {
-    await deleteTodoInDB(id);
-    // 让 realtime 订阅处理状态更新
-  };
-
   // 按状态筛选并排序（最新的在前）
   const filteredDiaries = useMemo(() => {
     let filtered = [...dateFilteredDiaries];
@@ -135,19 +72,6 @@ export function Memo() {
     const incomplete = dateFilteredDiaries.filter(d => d.status === 'incomplete').length;
     return { total, complete, incomplete };
   }, [dateFilteredDiaries]);
-
-  // 按日期筛选待办事项
-  const filteredTodos = useMemo(() => {
-    const viewDateStr = viewDate.toDateString();
-    return todos.filter(t => new Date(t.created_at).toDateString() === viewDateStr);
-  }, [todos, viewDate]);
-
-  // 待办统计（基于选中日期）
-  const todoStats = useMemo(() => {
-    const total = filteredTodos.length;
-    const done = filteredTodos.filter(t => t.done).length;
-    return { total, done, pending: total - done };
-  }, [filteredTodos]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -228,250 +152,161 @@ export function Memo() {
 
   return (
     <div className="memo">
-      {/* 完成待办庆祝动画 */}
-      {showCelebration && (
-        <div className="celebration-overlay">
-          <img src="/memo-bg.gif" alt="庆祝" className="celebration-gif" />
-        </div>
-      )}
-
-      {/* 添加待办庆祝动画 */}
-      {showAddTodoCelebration && (
-        <div className="celebration-overlay">
-          <img src="/flatno.gif" alt="收到！" className="celebration-gif" />
-        </div>
-      )}
-
-      {/* 标签切换 */}
-      <div className="memo-tabs">
-        <button
-          className={`memo-tab ${activeTab === 'records' ? 'active' : ''}`}
-          onClick={() => setActiveTab('records')}
-        >
-          📋 记录
-        </button>
-        <button
-          className={`memo-tab ${activeTab === 'todos' ? 'active' : ''}`}
-          onClick={() => setActiveTab('todos')}
-        >
-          ✅ 待办 {todoStats.pending > 0 && <span className="tab-badge">{todoStats.pending}</span>}
-        </button>
+      {/* 日期标题 */}
+      <div className="memo-date-header">
+        <span className="date-label">{formatViewDate()}</span>
+        <span className="date-hint">的记录</span>
       </div>
 
-      {activeTab === 'records' ? (
-        <>
-          {/* 日期标题 */}
-          <div className="memo-date-header">
-            <span className="date-label">{formatViewDate()}</span>
-            <span className="date-hint">的记录</span>
-          </div>
-
-          {/* 筛选器和操作栏 */}
-          <div className="memo-filter">
-            {isSelectMode ? (
-              <>
-                <button
-                  className="filter-btn select-all"
-                  onClick={toggleSelectAll}
-                >
-                  {selectedIds.size === filteredDiaries.length ? '取消全选' : '全选'}
-                </button>
-                <span className="selected-count">
-                  已选 {selectedIds.size} 项
-                </span>
-                <button
-                  className="filter-btn delete-btn"
-                  onClick={handleDeleteSelected}
-                  disabled={selectedIds.size === 0 || isDeleting}
-                >
-                  {isDeleting ? '删除中...' : '🗑️ 删除'}
-                </button>
-                <button
-                  className="filter-btn cancel-btn"
-                  onClick={exitSelectMode}
-                >
-                  取消
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-                  onClick={() => setFilter('all')}
-                >
-                  全部 ({stats.total})
-                </button>
-                <button
-                  className={`filter-btn ${filter === 'incomplete' ? 'active' : ''}`}
-                  onClick={() => setFilter('incomplete')}
-                >
-                  未完成 ({stats.incomplete})
-                </button>
-                <button
-                  className={`filter-btn ${filter === 'complete' ? 'active' : ''}`}
-                  onClick={() => setFilter('complete')}
-                >
-                  已完成 ({stats.complete})
-                </button>
-                {filteredDiaries.length > 0 && (
-                  <button
-                    className="filter-btn select-mode-btn"
-                    onClick={() => setIsSelectMode(true)}
-                  >
-                    选择
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* 记录列表 */}
-          <div className="memo-list">
-            {filteredDiaries.length === 0 ? (
-              <div className="memo-empty">
-                <span className="empty-icon">🌱</span>
-                <p>暂无记录</p>
-              </div>
-            ) : (
-              filteredDiaries.map(diary => {
-                const needsVehicle = !diary.vehicle;
-                const isIncomplete = diary.status === 'incomplete';
-                const isUnnotified = !diary.notified;
-                const hasWarning = needsVehicle || isIncomplete || isUnnotified;
-                const isSelected = selectedIds.has(diary.id);
-
-                return (
-                  <div
-                    key={diary.id}
-                    className={`memo-item ${diary.status} ${hasWarning ? 'has-warning' : ''} ${isSelectMode && isSelected ? 'selected' : ''}`}
-                    onClick={() => isSelectMode ? toggleSelect(diary.id) : openModal(diary)}
-                  >
-                    <div className="memo-item-header">
-                      {isSelectMode && (
-                        <button
-                          className={`memo-checkbox ${isSelected ? 'checked' : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleSelect(diary.id);
-                          }}
-                        >
-                          {isSelected ? '✓' : ''}
-                        </button>
-                      )}
-                      {getCustomerCode(diary.customer) && (
-                        <span className="memo-code">
-                          {getCustomerCode(diary.customer)}
-                        </span>
-                      )}
-                      <span className="memo-customer">
-                        {diary.customer || diary.user_name || '未命名'}
-                      </span>
-                      <span className={`memo-status ${diary.status}`}>
-                        {diary.status === 'complete' ? '✓' : '○'}
-                      </span>
-                      {!isSelectMode && (
-                        <button
-                          className="memo-delete-btn"
-                          onClick={(e) => handleDeleteSingle(diary.id, e)}
-                          disabled={isDeleting}
-                          title="删除记录"
-                        >
-                          🗑️
-                        </button>
-                      )}
-                    </div>
-
-                    {/* 警告标签 */}
-                    {hasWarning && (
-                      <div className="memo-warnings">
-                        {isUnnotified && (
-                          <span className="warning-tag unnotified">
-                            📞 未通知
-                          </span>
-                        )}
-                        {needsVehicle && (
-                          <span className="warning-tag vehicle">
-                            🚗 未填车号
-                          </span>
-                        )}
-                        {isIncomplete && (
-                          <span className="warning-tag status">
-                            ⏳ 未完成割果
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="memo-item-details">
-                      {diary.worker && <span className="detail">👷 {diary.worker}</span>}
-                      {diary.vehicle && <span className="detail">🚗 {diary.vehicle}</span>}
-                    </div>
-                    {diary.remark && (
-                      <div className="memo-item-remark">{diary.remark}</div>
-                    )}
-                    <div className="memo-item-time">{formatDate(diary.created_at)}</div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </>
-      ) : (
-        <>
-          {/* 待办输入 */}
-          <div className="todo-input">
-            <input
-              type="text"
-              value={newTodoText}
-              onChange={(e) => setNewTodoText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && addTodo()}
-              placeholder="输入待办事项..."
-            />
-            <button onClick={addTodo} disabled={!newTodoText.trim()}>
-              添加
+      {/* 筛选器和操作栏 */}
+      <div className="memo-filter">
+        {isSelectMode ? (
+          <>
+            <button
+              className="filter-btn select-all"
+              onClick={toggleSelectAll}
+            >
+              {selectedIds.size === filteredDiaries.length ? '取消全选' : '全选'}
             </button>
-          </div>
-
-          {/* 待办统计 */}
-          <div className="todo-stats">
-            <span>共 {todoStats.total} 项</span>
-            <span className="done">✓ {todoStats.done} 已完成</span>
-            <span className="pending">○ {todoStats.pending} 待办</span>
-          </div>
-
-          {/* 待办列表 */}
-          <div className="todo-list">
-            {filteredTodos.length === 0 ? (
-              <div className="memo-empty">
-                <span className="empty-icon">📝</span>
-                <p>{formatViewDate()}暂无待办</p>
-                <p className="empty-hint">添加一些待办事项吧</p>
-              </div>
-            ) : (
-              filteredTodos.map(todo => (
-                <div
-                  key={todo.id}
-                  className={`todo-item ${todo.done ? 'done' : ''}`}
-                >
-                  <button
-                    className="todo-checkbox"
-                    onClick={() => toggleTodo(todo.id)}
-                  >
-                    {todo.done ? '✓' : ''}
-                  </button>
-                  <span className="todo-text">{todo.text}</span>
-                  <button
-                    className="todo-delete"
-                    onClick={() => handleDeleteTodo(todo.id)}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))
+            <span className="selected-count">
+              已选 {selectedIds.size} 项
+            </span>
+            <button
+              className="filter-btn delete-btn"
+              onClick={handleDeleteSelected}
+              disabled={selectedIds.size === 0 || isDeleting}
+            >
+              {isDeleting ? '删除中...' : '🗑️ 删除'}
+            </button>
+            <button
+              className="filter-btn cancel-btn"
+              onClick={exitSelectMode}
+            >
+              取消
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+              onClick={() => setFilter('all')}
+            >
+              全部 ({stats.total})
+            </button>
+            <button
+              className={`filter-btn ${filter === 'incomplete' ? 'active' : ''}`}
+              onClick={() => setFilter('incomplete')}
+            >
+              未完成 ({stats.incomplete})
+            </button>
+            <button
+              className={`filter-btn ${filter === 'complete' ? 'active' : ''}`}
+              onClick={() => setFilter('complete')}
+            >
+              已完成 ({stats.complete})
+            </button>
+            {filteredDiaries.length > 0 && (
+              <button
+                className="filter-btn select-mode-btn"
+                onClick={() => setIsSelectMode(true)}
+              >
+                选择
+              </button>
             )}
+          </>
+        )}
+      </div>
+
+      {/* 记录列表 */}
+      <div className="memo-list">
+        {filteredDiaries.length === 0 ? (
+          <div className="memo-empty">
+            <span className="empty-icon">🌱</span>
+            <p>暂无记录</p>
           </div>
-        </>
-      )}
+        ) : (
+          filteredDiaries.map(diary => {
+            const needsVehicle = !diary.vehicle;
+            const isIncomplete = diary.status === 'incomplete';
+            const isUnnotified = !diary.notified;
+            const hasWarning = needsVehicle || isIncomplete || isUnnotified;
+            const isSelected = selectedIds.has(diary.id);
+
+            return (
+              <div
+                key={diary.id}
+                className={`memo-item ${diary.status} ${hasWarning ? 'has-warning' : ''} ${isSelectMode && isSelected ? 'selected' : ''}`}
+                onClick={() => isSelectMode ? toggleSelect(diary.id) : openModal(diary)}
+              >
+                <div className="memo-item-header">
+                  {isSelectMode && (
+                    <button
+                      className={`memo-checkbox ${isSelected ? 'checked' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSelect(diary.id);
+                      }}
+                    >
+                      {isSelected ? '✓' : ''}
+                    </button>
+                  )}
+                  {getCustomerCode(diary.customer) && (
+                    <span className="memo-code">
+                      {getCustomerCode(diary.customer)}
+                    </span>
+                  )}
+                  <span className="memo-customer">
+                    {diary.customer || diary.user_name || '未命名'}
+                  </span>
+                  <span className={`memo-status ${diary.status}`}>
+                    {diary.status === 'complete' ? '✓' : '○'}
+                  </span>
+                  {!isSelectMode && (
+                    <button
+                      className="memo-delete-btn"
+                      onClick={(e) => handleDeleteSingle(diary.id, e)}
+                      disabled={isDeleting}
+                      title="删除记录"
+                    >
+                      🗑️
+                    </button>
+                  )}
+                </div>
+
+                {/* 警告标签 */}
+                {hasWarning && (
+                  <div className="memo-warnings">
+                    {isUnnotified && (
+                      <span className="warning-tag unnotified">
+                        📞 未通知
+                      </span>
+                    )}
+                    {needsVehicle && (
+                      <span className="warning-tag vehicle">
+                        🚗 未填车号
+                      </span>
+                    )}
+                    {isIncomplete && (
+                      <span className="warning-tag status">
+                        ⏳ 未完成割果
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                <div className="memo-item-details">
+                  {diary.worker && <span className="detail">👷 {diary.worker}</span>}
+                  {diary.vehicle && <span className="detail">🚗 {diary.vehicle}</span>}
+                </div>
+                {diary.remark && (
+                  <div className="memo-item-remark">{diary.remark}</div>
+                )}
+                <div className="memo-item-time">{formatDate(diary.created_at)}</div>
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 }
