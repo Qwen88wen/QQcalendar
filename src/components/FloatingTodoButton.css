@@ -325,7 +325,7 @@
 .floating-todo-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   padding: 12px;
   background: white;
   border-radius: 12px;
@@ -338,7 +338,6 @@
 .floating-todo-item:hover {
   background: linear-gradient(135deg, #FFF5F8 0%, #FFFAF5 100%);
   border-color: #FFD1DC;
-  transform: translateX(4px);
 }
 
 .floating-todo-item.done {
@@ -349,6 +348,45 @@
 .floating-todo-item.done .floating-todo-text {
   text-decoration: line-through;
   color: #9E9E9E;
+}
+
+/* 优先级高亮 */
+.floating-todo-item.priority {
+  background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%);
+  border-color: #FFD54F;
+}
+
+.floating-todo-item.priority:hover {
+  background: linear-gradient(135deg, #FFECB3 0%, #FFE082 100%);
+}
+
+/* 拖拽状态 */
+.floating-todo-item.dragging {
+  opacity: 0.5;
+  transform: scale(0.98);
+}
+
+.floating-todo-item.drag-over {
+  border-color: #4FC3F7;
+  background: linear-gradient(135deg, #E1F5FE 0%, #B3E5FC 100%);
+}
+
+/* 拖拽手柄 */
+.drag-handle {
+  cursor: grab;
+  color: #C4A5AD;
+  font-size: 0.9rem;
+  padding: 0 4px;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+.drag-handle:hover {
+  color: #D4838F;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 /* ========== 复选框 ========== */
@@ -395,11 +433,67 @@
   font-size: 0.95rem;
   color: #555;
   word-break: break-word;
+  cursor: default;
+}
+
+.floating-todo-item:not(.done) .floating-todo-text {
+  cursor: text;
 }
 
 .floating-todo-date {
   font-size: 0.75rem;
   color: #C4A5AD;
+}
+
+/* 编辑输入框 */
+.edit-input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 2px solid #FF91A4;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(255, 145, 164, 0.2);
+}
+
+/* 优先级按钮 */
+.priority-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  opacity: 0.3;
+  filter: grayscale(100%);
+}
+
+.floating-todo-item:hover .priority-btn {
+  opacity: 0.7;
+}
+
+.priority-btn:hover {
+  opacity: 1 !important;
+  filter: grayscale(0%);
+  transform: scale(1.2);
+}
+
+.priority-btn.active {
+  opacity: 1;
+  filter: grayscale(0%);
+  animation: star-pulse 1s ease infinite;
+}
+
+@keyframes star-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
 }
 
 /* ========== 删除按钮 ========== */
@@ -560,7 +654,7 @@
 
   .floating-todo-item {
     padding: 10px;
-    gap: 10px;
+    gap: 8px;
   }
 
   .floating-checkbox {
@@ -574,5 +668,13 @@
 
   .floating-delete {
     opacity: 1;
+  }
+
+  .priority-btn {
+    opacity: 0.5;
+  }
+
+  .drag-handle {
+    display: none;
   }
 }
