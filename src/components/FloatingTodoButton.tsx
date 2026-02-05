@@ -136,7 +136,9 @@ export function FloatingTodoButton() {
                   <p className="empty-hint">添加一些待办吧</p>
                 </div>
               ) : (
-                sortedTodos.map(todo => (
+                <>
+                  <div className="floating-todo-section-title">待办</div>
+                  {sortedTodos.map(todo => (
                   <div
                     key={todo.id}
                     className={`floating-todo-item ${todo.done ? 'done' : ''}`}
@@ -158,7 +160,8 @@ export function FloatingTodoButton() {
                       ×
                     </button>
                   </div>
-                ))
+                ))}
+                </>
               )}
             </div>
           </div>
