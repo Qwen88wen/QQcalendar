@@ -225,6 +225,24 @@ export interface WorkPriceUpdate {
   is_fixed?: boolean;
 }
 
+// 薪资明细
+export interface SalaryDetail {
+  date: string;
+  customer: string;
+  workType: WorkType;
+  unit: string;
+  quantity: number;      // 该工人分摊后的数量
+  unitPrice: number;
+  subtotal: number;
+}
+
+// 工人薪资汇总
+export interface SalarySummary {
+  workerName: string;
+  details: SalaryDetail[];
+  total: number;
+}
+
 // Database 类型定义
 export interface Database {
   public: {
