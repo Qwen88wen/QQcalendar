@@ -49,7 +49,7 @@ export function InputBar() {
   const [customer, setCustomer] = useState('');
   const [selectedWorkers, setSelectedWorkers] = useState<string[]>([]);
   const [remark, setRemark] = useState('');
-  const [vehicle, setVehicle] = useState('');
+  const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
   const [weight, setWeight] = useState('');
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
   const [notified, setNotified] = useState(false);
@@ -73,14 +73,6 @@ export function InputBar() {
   // 获取当前登录用户信息
   const currentUser = userId ? getUserById(userId) : null;
   const currentUsername = currentUser?.username || 'QQrou';
-
-  // 根据选择的工作类型获取可用单位
-  const availableUnits = useMemo(() => {
-    if (tag && tag in WORK_TYPE_UNIT_MAP) {
-      return WORK_TYPE_UNIT_MAP[tag as WorkType];
-    }
-    return ALL_UNIT_OPTIONS;
-  }, [tag]);
 
   // 过滤园主列表
   const filteredCustomers = useMemo(() => {
@@ -128,6 +120,15 @@ export function InputBar() {
     );
   };
 
+  // 切换车辆选择
+  const toggleVehicle = (plate: string) => {
+    setSelectedVehicles(prev =>
+      prev.includes(plate)
+        ? prev.filter(v => v !== plate)
+        : [...prev, plate]
+    );
+  };
+
   // 关闭所有下拉框
   const closeAllDropdowns = () => {
     setShowCustomerDropdown(false);
@@ -163,7 +164,7 @@ export function InputBar() {
         customer: customer.trim(),
         worker: selectedWorkers.length > 0 ? selectedWorkers.join(', ') : null,
         remark: remark.trim() || null,
-        vehicle: vehicle.trim() || null,
+        vehicle: selectedVehicles.length > 0 ? selectedVehicles.join(', ') : null,
         weight: weight.trim() || null,
         status,
         notified,
@@ -176,12 +177,12 @@ export function InputBar() {
         addDiary(newDiary);
         setCustomer('');
         setSelectedWorkers([]);
+        setSelectedVehicles([]);
         setCustomerSearch('');
         setWorkerSearch('');
         setTagSearch('');
         setVehicleSearch('');
         setRemark('');
-        setVehicle('');
         setWeight('');
         setStatus('incomplete');
         setNotified(false);
@@ -381,17 +382,14 @@ export function InputBar() {
                 disabled={isSubmitting}
                 className="quantity-input"
               />
-              <select
+              <input
+                type="text"
                 value={remark}
                 onChange={(e) => setRemark(e.target.value)}
+                placeholder="单位/备注"
                 disabled={isSubmitting}
                 className="unit-select"
-              >
-                <option value="">单位</option>
-                {availableUnits.map(u => (
-                  <option key={u} value={u}>{u}</option>
-                ))}
-              </select>
+              />
             </div>
           </div>
 
@@ -405,13 +403,15 @@ export function InputBar() {
                 onClick={() => { closeAllDropdowns(); setShowVehicleDropdown(!showVehicleDropdown); }}
                 disabled={isSubmitting}
               >
-                <span className="dropdown-btn-text">{vehicle || '选择车号'}</span>
+                <span className="dropdown-btn-text">
+                  {selectedVehicles.length > 0 ? `已选 ${selectedVehicles.length} 辆` : '选择车号'}
+                </span>
                 <span className="dropdown-arrow">{showVehicleDropdown ? '▲' : '▼'}</span>
               </button>
               {showVehicleDropdown && (
                 <div className="dropdown-panel">
                   <div className="dropdown-header">
-                    <span>选择车号</span>
+                    <span>选择车号 ({selectedVehicles.length})</span>
                     <button type="button" onClick={() => setShowVehicleDropdown(false)}>✕</button>
                   </div>
                   <div className="dropdown-search">
@@ -425,12 +425,15 @@ export function InputBar() {
                   </div>
                   <div className="dropdown-list">
                     {filteredVehicles.map(v => (
-                      <div
-                        key={v.id}
-                        className={`dropdown-option ${vehicle === v.plate_number ? 'selected' : ''}`}
-                        onClick={() => { setVehicle(v.plate_number); setShowVehicleDropdown(false); }}
-                      >
-                        <span className="option-name">{v.plate_number}</span>
+                      <div key={v.id} className="dropdown-option checkbox-option">
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={selectedVehicles.includes(v.plate_number)}
+                            onChange={() => toggleVehicle(v.plate_number)}
+                          />
+                          <span className="option-name">{v.plate_number}</span>
+                        </label>
                       </div>
                     ))}
                     {filteredVehicles.length === 0 && (

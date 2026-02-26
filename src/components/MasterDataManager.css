@@ -199,6 +199,13 @@
   flex: 2;
 }
 
+/* 编号输入框 - 较窄 */
+.add-form .code-input {
+  flex: 0 0 90px;
+  min-width: 90px;
+  font-family: monospace;
+}
+
 /* 数据列表 */
 .data-list {
   max-height: 400px;
