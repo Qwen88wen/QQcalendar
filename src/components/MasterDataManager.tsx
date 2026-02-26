@@ -105,11 +105,13 @@ export function MasterDataManager() {
   const [editForm, setEditForm] = useState<Record<string, string>>({});
 
   // 新增表单状态
+  const [newCustomerCode, setNewCustomerCode] = useState('');
   const [newCustomerName, setNewCustomerName] = useState('');
   const [newCustomerNotes, setNewCustomerNotes] = useState('');
   const [newCustomerHarvestCustomerPrice, setNewCustomerHarvestCustomerPrice] = useState('');
   const [newCustomerHarvestWorkerPrice, setNewCustomerHarvestWorkerPrice] = useState('');
 
+  const [newWorkerCode, setNewWorkerCode] = useState('');
   const [newWorkerName, setNewWorkerName] = useState('');
   const [newVehiclePlate, setNewVehiclePlate] = useState('');
 
@@ -123,6 +125,7 @@ export function MasterDataManager() {
     if (!newCustomerName.trim()) return;
     setIsSubmitting(true);
     const result = await createCustomer({
+      code: newCustomerCode.trim() || null,
       name: newCustomerName.trim(),
       notes: newCustomerNotes.trim() || null,
       harvest_customer_price: newCustomerHarvestCustomerPrice ? parseFloat(newCustomerHarvestCustomerPrice) : null,
@@ -130,6 +133,7 @@ export function MasterDataManager() {
     });
     if (result) {
       addCustomer(result);
+      setNewCustomerCode('');
       setNewCustomerName('');
       setNewCustomerNotes('');
       setNewCustomerHarvestCustomerPrice('');
@@ -143,10 +147,12 @@ export function MasterDataManager() {
     if (!newWorkerName.trim()) return;
     setIsSubmitting(true);
     const result = await createWorker({
+      code: newWorkerCode.trim() || null,
       name: newWorkerName.trim().toUpperCase(),
     });
     if (result) {
       addWorker(result);
+      setNewWorkerCode('');
       setNewWorkerName('');
     }
     setIsSubmitting(false);
@@ -373,6 +379,14 @@ export function MasterDataManager() {
             <div className="add-form customer-add-form">
               <input
                 type="text"
+                value={newCustomerCode}
+                onChange={(e) => setNewCustomerCode(e.target.value)}
+                placeholder="编号"
+                disabled={isSubmitting}
+                className="code-input"
+              />
+              <input
+                type="text"
                 value={newCustomerName}
                 onChange={(e) => setNewCustomerName(e.target.value)}
                 placeholder="园主名称 *"
@@ -480,6 +494,14 @@ export function MasterDataManager() {
         {activeTab === 'workers' && (
           <div className="tab-content">
             <div className="add-form">
+              <input
+                type="text"
+                value={newWorkerCode}
+                onChange={(e) => setNewWorkerCode(e.target.value)}
+                placeholder="编号"
+                disabled={isSubmitting}
+                className="code-input"
+              />
               <input
                 type="text"
                 value={newWorkerName}
