@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { createDiary } from '../lib/diary';
 import { getUserById } from '../lib/users';
-import type { DiaryStatus, DiaryTag, WorkType, UnitType } from '../types/database';
+import type { DiaryStatus, DiaryTag } from '../types/database';
 import './InputBar.css';
 
 // 标签选项 (工作类型)
@@ -17,20 +17,6 @@ const TAG_OPTIONS: DiaryTag[] = [
   'BUILDING HOUSE',
 ];
 
-// 工作类型对应的单位选项
-const WORK_TYPE_UNIT_MAP: Record<WorkType, UnitType[]> = {
-  'POISON': ['DAY', 'HALF DAY'],
-  'FERTILIZE': ['BAG', 'EKAR', 'JOB'],
-  'PRUNNING': ['EKAR', 'POKOK', 'JOB'],
-  'HARVEST': ['TON'],
-  'SEEDLING': ['POKOK'],
-  'SAND/ STONE': ['TON', 'JOB'],
-  'WELDING': ['JOB'],
-  'BUILDING HOUSE': ['JOB'],
-};
-
-// 所有单位选项 (用于未选择工作类型时)
-const ALL_UNIT_OPTIONS: UnitType[] = ['TON', 'POKOK', 'EKAR', 'JOB', 'BAG', 'DAY', 'HALF DAY'];
 
 export function InputBar() {
   const {
