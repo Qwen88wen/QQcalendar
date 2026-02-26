@@ -190,13 +190,23 @@ export const useAppStore = create<AppState>()(
 
       setTodos: (todos: Todo[]) => set({ todos }),
 
-      addTodo: (todo: Todo) => set((state) => ({
-        todos: [todo, ...state.todos]
-      })),
+      addTodo: (todo: Todo) => set((state) => {
+        // 防止实时订阅 + 本地更新导致重复
+        if (state.todos.some((t) => t.id === todo.id)) {
+          return state;
+        }
+        return { todos: [todo, ...state.todos] };
+      }),
 
-      updateTodo: (todo: Todo) => set((state) => ({
-        todos: state.todos.map((t) => t.id === todo.id ? todo : t),
-      })),
+      updateTodo: (todo: Todo) => set((state) => {
+        const exists = state.todos.some((t) => t.id === todo.id);
+        if (!exists) {
+          return { todos: [todo, ...state.todos] };
+        }
+        return {
+          todos: state.todos.map((t) => t.id === todo.id ? todo : t),
+        };
+      }),
 
       removeTodo: (id: string) => set((state) => ({
         todos: state.todos.filter((t) => t.id !== id),

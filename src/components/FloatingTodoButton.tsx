@@ -38,7 +38,7 @@ const isToday = (dueDate: string | null) => {
 };
 
 export function FloatingTodoButton() {
-  const { todos, activeInputUser } = useAppStore();
+  const { todos, activeInputUser, addTodo: addTodoToStore, updateTodo: updateTodoInStore, removeTodo: removeTodoFromStore } = useAppStore();
   const [isOpen, setIsOpen] = useState(false);
   const [newTodoText, setNewTodoText] = useState('');
   const [newTodoDueDate, setNewTodoDueDate] = useState('');
@@ -171,6 +171,7 @@ export function FloatingTodoButton() {
     });
 
     if (newTodo) {
+      addTodoToStore(newTodo);
       setNewTodoText('');
       setNewTodoDueDate('');
       setShowAddCelebration(true);
@@ -189,7 +190,10 @@ export function FloatingTodoButton() {
       setTimeout(() => setShowCompleteCelebration(false), 1500);
     }
 
-    await updateTodoInDB(id, { done: !todo.done });
+    const updatedTodo = await updateTodoInDB(id, { done: !todo.done });
+    if (updatedTodo) {
+      updateTodoInStore(updatedTodo);
+    }
   };
 
   // 切换优先级
@@ -199,12 +203,18 @@ export function FloatingTodoButton() {
 
     const { isPriority, displayText } = parseTodo(todo.text);
     const newText = isPriority ? displayText : `${PRIORITY_PREFIX} ${todo.text}`;
-    await updateTodoInDB(id, { text: newText });
+    const updatedTodo = await updateTodoInDB(id, { text: newText });
+    if (updatedTodo) {
+      updateTodoInStore(updatedTodo);
+    }
   };
 
   // 设置到期日期
   const setDueDate = async (id: string, dueDate: string | null) => {
-    await updateTodoInDB(id, { due_date: dueDate });
+    const updatedTodo = await updateTodoInDB(id, { due_date: dueDate });
+    if (updatedTodo) {
+      updateTodoInStore(updatedTodo);
+    }
     setEditingDateId(null);
   };
 
@@ -229,7 +239,10 @@ export function FloatingTodoButton() {
     const { isPriority } = parseTodo(todo.text);
     const newText = isPriority ? `${PRIORITY_PREFIX} ${editText.trim()}` : editText.trim();
 
-    await updateTodoInDB(editingId, { text: newText });
+    const updatedTodo = await updateTodoInDB(editingId, { text: newText });
+    if (updatedTodo) {
+      updateTodoInStore(updatedTodo);
+    }
     setEditingId(null);
     setEditText('');
   };
@@ -237,7 +250,10 @@ export function FloatingTodoButton() {
   // 删除待办（带确认）
   const handleDeleteTodo = async (id: string) => {
     if (deleteConfirmId === id) {
-      await deleteTodoInDB(id);
+      const deleted = await deleteTodoInDB(id);
+      if (deleted) {
+        removeTodoFromStore(id);
+      }
       setDeleteConfirmId(null);
     } else {
       setDeleteConfirmId(id);
@@ -251,7 +267,10 @@ export function FloatingTodoButton() {
     if (!confirm(`确定要清除 ${completedTodos.length} 条已完成的待办吗？`)) return;
 
     for (const todo of completedTodos) {
-      await deleteTodoInDB(todo.id);
+      const deleted = await deleteTodoInDB(todo.id);
+      if (deleted) {
+        removeTodoFromStore(todo.id);
+      }
     }
   };
 
