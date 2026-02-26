@@ -13,6 +13,8 @@ export function TitleBar() {
     toggleMissingVehicleFilter,
     showOnlyUnnotified,
     toggleUnnotifiedFilter,
+    showSalaryReport,
+    toggleSalaryReport,
     setDiaries,
     userName,
     logoutUser,
@@ -114,6 +116,14 @@ export function TitleBar() {
           )}
         </div>
       )}
+
+      <button
+        className={`salary-toggle ${showSalaryReport ? 'active' : ''}`}
+        onClick={toggleSalaryReport}
+        title="薪资报表"
+      >
+        💰
+      </button>
 
       <button
         className={`record-toggle ${showRecordList ? 'active' : ''}`}

@@ -112,6 +112,34 @@
   font-size: 1.2rem;
 }
 
+/* 薪资报表按钮 */
+.salary-toggle {
+  width: 46px;
+  height: 46px;
+  border: 2px solid #FFD1DC;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(255, 182, 193, 0.25);
+}
+
+.salary-toggle:hover {
+  transform: scale(1.1) rotate(5deg);
+  background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+  border-color: #98D8AA;
+}
+
+.salary-toggle.active {
+  background: linear-gradient(135deg, #81C784 0%, #66BB6A 100%);
+  border-color: #66BB6A;
+  color: white;
+}
+
 .record-toggle {
   width: 46px;
   height: 46px;
@@ -419,6 +447,7 @@
     display: none;
   }
 
+  .salary-toggle,
   .refresh-btn,
   .export-btn,
   .record-toggle,

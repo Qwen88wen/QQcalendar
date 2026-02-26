@@ -9,6 +9,7 @@ import { MissingVehicleList } from './components/MissingVehicleList';
 import { UnnotifiedList } from './components/UnnotifiedList';
 import { LoginModal } from './components/LoginModal';
 import { MasterDataManager } from './components/MasterDataManager';
+import { SalaryReport } from './components/SalaryReport';
 import { FloatingTodoButton } from './components/FloatingTodoButton';
 import { useAuth } from './hooks/useAuth';
 import { useRealtime } from './hooks/useRealtime';
@@ -239,6 +240,7 @@ function MainAppContent() {
       <MissingVehicleList />
       <UnnotifiedList />
       <MasterDataManager />
+      <SalaryReport />
       <FloatingTodoButton />
     </div>
   );

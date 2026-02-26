@@ -63,6 +63,9 @@ interface AppState {
   // 只显示未通知的记录
   showOnlyUnnotified: boolean;
 
+  // 薪资报表
+  showSalaryReport: boolean;
+
   // Actions
   loginUser: (user: LocalUser) => void;
   logoutUser: () => void;
@@ -93,6 +96,7 @@ interface AppState {
   toggleMissingVehicleFilter: () => void;
   toggleUnnotifiedFilter: () => void;
   batchUpdateDiaries: (ids: string[], updates: Partial<Diary>) => void;
+  toggleSalaryReport: () => void;
 
   // 主档 Actions
   setCustomers: (customers: Customer[]) => void;
@@ -141,6 +145,7 @@ export const useAppStore = create<AppState>()(
       calendarMonth: new Date().getMonth(),
       showOnlyMissingVehicle: false,
       showOnlyUnnotified: false,
+      showSalaryReport: false,
 
       // Actions
       loginUser: (user) => set({
@@ -227,6 +232,7 @@ export const useAppStore = create<AppState>()(
       batchUpdateDiaries: (ids, updates) => set((state) => ({
         diaries: state.diaries.map((d) => ids.includes(d.id) ? { ...d, ...updates } as Diary : d),
       })),
+      toggleSalaryReport: () => set((state) => ({ showSalaryReport: !state.showSalaryReport })),
 
       // 主档 Actions
       setCustomers: (customers: Customer[]) => set({ customers }),

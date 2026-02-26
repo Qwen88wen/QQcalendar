@@ -1,0 +1,354 @@
+/* ========== 薪资报表面板 ========== */
+
+.salary-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 150;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.salary-panel {
+  width: 420px;
+  max-width: 90vw;
+  height: 100%;
+  background: white;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  animation: salarySlideIn 0.25s ease;
+}
+
+@keyframes salarySlideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* 标题 */
+.salary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+  background: linear-gradient(135deg, #FFF0F5 0%, #FFE4EC 100%);
+}
+
+.salary-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #D4838F;
+}
+
+.salary-close-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.salary-close-btn:hover {
+  background: #e0e0e0;
+}
+
+/* 筛选区 */
+.salary-filters {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.salary-date-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.salary-date-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.salary-date-group label {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+.salary-date-group input {
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.salary-date-group input:focus {
+  outline: none;
+  border-color: #FF91A4;
+}
+
+.salary-date-sep {
+  color: #999;
+  margin-top: 16px;
+}
+
+.salary-quick-months {
+  display: flex;
+  gap: 8px;
+}
+
+.salary-quick-months button {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  background: white;
+  font-size: 0.8rem;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.salary-quick-months button:hover {
+  border-color: #FF91A4;
+  background: #FFF0F5;
+  color: #D4838F;
+}
+
+.salary-worker-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.salary-worker-filter label {
+  font-size: 0.85rem;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.salary-worker-filter select {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  background: white;
+}
+
+.salary-worker-filter select:focus {
+  outline: none;
+  border-color: #FF91A4;
+}
+
+/* 汇总条 */
+.salary-summary-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+  font-size: 0.85rem;
+  color: #2E7D32;
+}
+
+.salary-grand-total {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* 内容区 */
+.salary-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.salary-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.salary-empty span {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.salary-empty p {
+  margin: 4px 0;
+}
+
+.salary-empty-hint {
+  font-size: 0.9rem;
+  color: #bbb;
+}
+
+/* 工人卡片 */
+.salary-worker-card {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.salary-worker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.salary-worker-header:hover {
+  background: #f8f8f8;
+}
+
+.salary-worker-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.salary-worker-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.salary-worker-count {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+.salary-worker-total {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #2E7D32;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.salary-expand-icon {
+  font-size: 0.8rem;
+  color: #999;
+  transition: transform 0.2s;
+  display: inline-block;
+}
+
+.salary-expand-icon.expanded {
+  transform: rotate(90deg);
+}
+
+/* 明细表格 */
+.salary-details {
+  padding: 0 12px 12px;
+  animation: detailsFadeIn 0.2s ease;
+}
+
+@keyframes detailsFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.salary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.salary-table th {
+  background: #f5f5f5;
+  padding: 6px 8px;
+  text-align: left;
+  color: #666;
+  font-weight: 600;
+  border-bottom: 1px solid #e0e0e0;
+  white-space: nowrap;
+}
+
+.salary-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #444;
+}
+
+.salary-table tr:hover td {
+  background: #fafafa;
+}
+
+.salary-subtotal {
+  font-weight: 600;
+  color: #2E7D32;
+}
+
+/* 底部操作 */
+.salary-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #eee;
+  background: #fafafa;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.salary-export-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #FF91A4 0%, #FF6B8A 100%);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.salary-export-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 3px 10px rgba(255, 107, 138, 0.3);
+}
+
+/* 移动端适配 */
+@media (max-width: 600px) {
+  .salary-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .salary-table {
+    font-size: 0.7rem;
+  }
+
+  .salary-table th,
+  .salary-table td {
+    padding: 4px 5px;
+  }
+
+  .salary-date-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .salary-date-sep {
+    display: none;
+  }
+}
