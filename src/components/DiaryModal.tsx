@@ -47,7 +47,7 @@ export function DiaryModal() {
   // 表单状态
   const [customer, setCustomer] = useState('');
   const [remark, setRemark] = useState('');
-  const [vehicle, setVehicle] = useState('');
+  const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
   const [weight, setWeight] = useState('');
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
   const [notified, setNotified] = useState(false);
@@ -58,6 +58,10 @@ export function DiaryModal() {
   const [selectedWorkers, setSelectedWorkers] = useState<string[]>([]);
   const [showWorkerDropdown, setShowWorkerDropdown] = useState(false);
   const [workerSearch, setWorkerSearch] = useState('');
+
+  // 车辆选择状态
+  const [showVehicleDropdown, setShowVehicleDropdown] = useState(false);
+  const [vehicleSearch, setVehicleSearch] = useState('');
 
   // 园主搜索状态
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
@@ -79,10 +83,13 @@ export function DiaryModal() {
     return sorted.filter(w => w.toLowerCase().includes(search));
   }, [storeWorkers, workerSearch]);
 
-  // 从 store 获取车牌列表
-  const vehicleOptions = useMemo(() => {
-    return storeVehicles.map(v => v.plate_number);
-  }, [storeVehicles]);
+  // 从 store 获取车牌列表（排序 + 过滤）
+  const filteredVehicleOptions = useMemo(() => {
+    const sorted = [...storeVehicles].sort((a, b) => a.plate_number.localeCompare(b.plate_number));
+    if (!vehicleSearch.trim()) return sorted;
+    const search = vehicleSearch.toLowerCase();
+    return sorted.filter(v => v.plate_number.toLowerCase().includes(search));
+  }, [storeVehicles, vehicleSearch]);
 
   // 从 store 获取园主列表并过滤
   const filteredCustomers = useMemo(() => {
@@ -100,6 +107,15 @@ export function DiaryModal() {
     );
   };
 
+  // 切换车辆选择
+  const toggleVehicle = (plate: string) => {
+    setSelectedVehicles(prev =>
+      prev.includes(plate)
+        ? prev.filter(x => x !== plate)
+        : [...prev, plate]
+    );
+  };
+
   // 记录当前打开的日记ID
   const currentDiaryIdRef = useRef<string | null>(null);
 
@@ -114,7 +130,6 @@ export function DiaryModal() {
       if (selectedDiary) {
         setCustomer(selectedDiary.customer || '');
         setRemark(selectedDiary.remark || '');
-        setVehicle(selectedDiary.vehicle || '');
         setWeight(selectedDiary.weight || '');
         setStatus(selectedDiary.status || 'incomplete');
         setNotified(selectedDiary.notified || false);
@@ -125,11 +140,16 @@ export function DiaryModal() {
         setSelectedWorkers(workerList);
         setWorkerSearch('');
         setShowWorkerDropdown(false);
+        // 解析车辆列表
+        const vehicleStr = selectedDiary.vehicle || '';
+        const vehicleList = vehicleStr ? vehicleStr.split(',').map(v => v.trim()).filter(Boolean) : [];
+        setSelectedVehicles(vehicleList);
+        setVehicleSearch('');
+        setShowVehicleDropdown(false);
       } else {
         // 新建时清空表单
         setCustomer('');
         setRemark('');
-        setVehicle('');
         setWeight('');
         setStatus('incomplete');
         setNotified(false);
@@ -137,6 +157,9 @@ export function DiaryModal() {
         setSelectedWorkers([]);
         setWorkerSearch('');
         setShowWorkerDropdown(false);
+        setSelectedVehicles([]);
+        setVehicleSearch('');
+        setShowVehicleDropdown(false);
       }
     }
   }, [selectedDiary]);
@@ -158,7 +181,7 @@ export function DiaryModal() {
       customer: customer || null,
       remark: remark || null,
       worker: selectedWorkers.length > 0 ? selectedWorkers.join(', ') : null,
-      vehicle: vehicle || null,
+      vehicle: selectedVehicles.length > 0 ? selectedVehicles.join(', ') : null,
       weight: weight || null,
       status,
       notified,
@@ -335,22 +358,55 @@ export function DiaryModal() {
               </div>
             </div>
 
-            <div className={`form-group ${!vehicle ? 'warning' : ''}`}>
+            <div className={`form-group worker-group ${selectedVehicles.length === 0 ? 'warning' : ''}`}>
               <label>
                 车号
-                {!vehicle && <span className="required-dot">*</span>}
+                {selectedVehicles.length === 0 && <span className="required-dot">*</span>}
               </label>
-              <select
-                value={vehicle}
-                onChange={(e) => setVehicle(e.target.value)}
-                className={`vehicle-select ${!vehicle ? 'input-warning' : ''}`}
-              >
-                <option value="">选择车号</option>
-                {vehicleOptions.map(v => (
-                  <option key={v} value={v}>{v}</option>
-                ))}
-              </select>
-              {!vehicle && (
+              <div className="worker-select-container">
+                <button
+                  type="button"
+                  className={`worker-select-btn ${selectedVehicles.length === 0 ? 'input-warning' : ''}`}
+                  onClick={() => setShowVehicleDropdown(!showVehicleDropdown)}
+                >
+                  {selectedVehicles.length > 0
+                    ? `已选 ${selectedVehicles.length} 辆: ${selectedVehicles.slice(0, 2).join(', ')}${selectedVehicles.length > 2 ? '...' : ''}`
+                    : '选择车号'}
+                  <span className="dropdown-arrow">{showVehicleDropdown ? '▲' : '▼'}</span>
+                </button>
+                {showVehicleDropdown && (
+                  <div className="worker-dropdown">
+                    <div className="worker-dropdown-header">
+                      <span>选择车号 ({selectedVehicles.length})</span>
+                      <button type="button" onClick={() => setShowVehicleDropdown(false)}>✕</button>
+                    </div>
+                    <div className="worker-search">
+                      <input
+                        type="text"
+                        value={vehicleSearch}
+                        onChange={(e) => setVehicleSearch(e.target.value)}
+                        placeholder="🔍 搜索车号..."
+                        className="worker-search-input"
+                      />
+                    </div>
+                    <div className="worker-list">
+                      {filteredVehicleOptions.map(v => (
+                        <div key={v.id} className="worker-option">
+                          <label>
+                            <input
+                              type="checkbox"
+                              checked={selectedVehicles.includes(v.plate_number)}
+                              onChange={() => toggleVehicle(v.plate_number)}
+                            />
+                            <span>{v.plate_number}</span>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              {selectedVehicles.length === 0 && (
                 <div className="vehicle-warning">
                   请记得填写车号！
                 </div>
