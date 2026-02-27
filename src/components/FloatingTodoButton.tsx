@@ -6,6 +6,37 @@ import './FloatingTodoButton.css';
 // 优先级前缀
 const PRIORITY_PREFIX = '⭐';
 
+// 检查是否过期
+const isOverdue = (dueDate: string | null) => {
+  if (!dueDate) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(dueDate);
+  due.setHours(0, 0, 0, 0);
+  return due < today;
+};
+
+// 检查是否即将到期（3天内）
+const isDueSoon = (dueDate: string | null) => {
+  if (!dueDate) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(dueDate);
+  due.setHours(0, 0, 0, 0);
+  const diffDays = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return diffDays >= 0 && diffDays <= 3;
+};
+
+// 检查是否是今天
+const isToday = (dueDate: string | null) => {
+  if (!dueDate) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(dueDate);
+  due.setHours(0, 0, 0, 0);
+  return due.getTime() === today.getTime();
+};
+
 export function FloatingTodoButton() {
   const { todos, activeInputUser, addTodo: addTodoToStore, updateTodo: updateTodoInStore, removeTodo: removeTodoFromStore } = useAppStore();
   const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +49,9 @@ export function FloatingTodoButton() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const editInputRef = useRef<HTMLInputElement>(null);
+
+  // 日期编辑状态
+  const [editingDateId, setEditingDateId] = useState<string | null>(null);
 
   // 删除确认状态
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -42,12 +76,28 @@ export function FloatingTodoButton() {
   const todoStats = useMemo(() => {
     const total = todos.length;
     const done = todos.filter(t => t.done).length;
-    return { total, done, pending: total - done };
+    const overdue = todos.filter(t => !t.done && isOverdue(t.due_date)).length;
+    return { total, done, pending: total - done, overdue };
   }, [todos]);
 
   // 分组：未完成和已完成，支持拖拽排序
   const { pendingTodos, completedTodos } = useMemo(() => {
     let sorted = [...todos].sort((a, b) => {
+      // 过期的排在最前面
+      const aOverdue = isOverdue(a.due_date);
+      const bOverdue = isOverdue(b.due_date);
+      if (aOverdue !== bOverdue) return aOverdue ? -1 : 1;
+
+      // 然后按到期日期排序（有日期的在前，日期早的在前）
+      if (a.due_date && b.due_date) {
+        const diff = new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+        if (diff !== 0) return diff;
+      } else if (a.due_date) {
+        return -1;
+      } else if (b.due_date) {
+        return 1;
+      }
+
       // 优先级高的排前面
       const aPriority = a.text.startsWith(PRIORITY_PREFIX);
       const bPriority = b.text.startsWith(PRIORITY_PREFIX);
@@ -82,6 +132,8 @@ export function FloatingTodoButton() {
         if (editingId) {
           setEditingId(null);
           setEditText('');
+        } else if (editingDateId) {
+          setEditingDateId(null);
         } else if (isOpen) {
           setIsOpen(false);
           setDeleteConfirmId(null);
@@ -90,7 +142,7 @@ export function FloatingTodoButton() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, editingId]);
+  }, [isOpen, editingId, editingDateId]);
 
   // 打开窗口时自动聚焦输入框
   useEffect(() => {
@@ -168,6 +220,15 @@ export function FloatingTodoButton() {
     if (updatedTodo) {
       updateTodoInStore(updatedTodo);
     }
+  };
+
+  // 设置到期日期
+  const setDueDate = async (id: string, dueDate: string | null) => {
+    const updatedTodo = await updateTodoInDB(id, { due_date: dueDate });
+    if (updatedTodo) {
+      updateTodoInStore(updatedTodo);
+    }
+    setEditingDateId(null);
   };
 
   // 开始编辑
@@ -273,15 +334,30 @@ export function FloatingTodoButton() {
     return `${date.getMonth() + 1}/${date.getDate()}`;
   };
 
+  // 格式化到期日期显示
+  const formatDueDate = (dueDate: string | null) => {
+    if (!dueDate) return null;
+    if (isToday(dueDate)) return '今天';
+    const date = new Date(dueDate);
+    const today = new Date();
+    const diffDays = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays === 1) return '明天';
+    if (diffDays === -1) return '昨天';
+    return `${date.getMonth() + 1}/${date.getDate()}`;
+  };
+
   // 渲染待办项
   const renderTodoItem = (todo: typeof todos[0], isDraggable: boolean = false) => {
     const { isPriority, displayText } = parseTodo(todo.text);
     const isEditing = editingId === todo.id;
+    const overdue = !todo.done && isOverdue(todo.due_date);
+    const dueSoon = !todo.done && !overdue && isDueSoon(todo.due_date);
+    const isEditingDate = editingDateId === todo.id;
 
     return (
       <div
         key={todo.id}
-        className={`floating-todo-item ${todo.done ? 'done' : ''} ${deleteConfirmId === todo.id ? 'delete-confirm' : ''} ${isPriority ? 'priority' : ''} ${draggedId === todo.id ? 'dragging' : ''} ${dragOverId === todo.id ? 'drag-over' : ''}`}
+        className={`floating-todo-item ${todo.done ? 'done' : ''} ${deleteConfirmId === todo.id ? 'delete-confirm' : ''} ${isPriority ? 'priority' : ''} ${overdue ? 'overdue' : ''} ${dueSoon ? 'due-soon' : ''} ${draggedId === todo.id ? 'dragging' : ''} ${dragOverId === todo.id ? 'drag-over' : ''}`}
         draggable={isDraggable && !isEditing && !todo.done}
         onDragStart={(e) => handleDragStart(e, todo.id)}
         onDragOver={(e) => handleDragOver(e, todo.id)}
@@ -328,6 +404,31 @@ export function FloatingTodoButton() {
           )}
           <div className="floating-todo-meta">
             <span className="floating-todo-date">{formatDate(todo.created_at)}</span>
+            {/* 到期日期显示/编辑 */}
+            {!todo.done && (
+              isEditingDate ? (
+                <input
+                  type="date"
+                  className="due-date-input"
+                  value={todo.due_date || ''}
+                  onChange={(e) => setDueDate(todo.id, e.target.value || null)}
+                  onBlur={() => setEditingDateId(null)}
+                  autoFocus
+                />
+              ) : (
+                <span
+                  className={`due-date-tag ${overdue ? 'overdue' : ''} ${dueSoon ? 'due-soon' : ''} ${!todo.due_date ? 'no-date' : ''}`}
+                  onClick={() => setEditingDateId(todo.id)}
+                  title="点击设置截止日期"
+                >
+                  {todo.due_date ? (
+                    <>📅 {formatDueDate(todo.due_date)}</>
+                  ) : (
+                    <>📅 设置日期</>
+                  )}
+                </span>
+              )
+            )}
           </div>
         </div>
 
@@ -358,12 +459,12 @@ export function FloatingTodoButton() {
       {/* 悬浮按钮 */}
       <div className="floating-todo-wrapper" onClick={() => setIsOpen(true)}>
         <button
-          className={`floating-todo-btn ${todoStats.pending > 0 ? 'has-pending' : ''}`}
+          className={`floating-todo-btn ${todoStats.pending > 0 ? 'has-pending' : ''} ${todoStats.overdue > 0 ? 'has-overdue' : ''}`}
           title="查看待办事项"
         >
           <span className="floating-todo-icon">✓</span>
           {todoStats.pending > 0 && (
-            <span className="floating-todo-badge">
+            <span className={`floating-todo-badge ${todoStats.overdue > 0 ? 'overdue' : ''}`}>
               {todoStats.pending}
             </span>
           )}
@@ -373,7 +474,7 @@ export function FloatingTodoButton() {
 
       {/* 待办窗口遮罩 */}
       {isOpen && (
-        <div className="floating-todo-overlay" onClick={() => { setIsOpen(false); setDeleteConfirmId(null); setEditingId(null); }}>
+        <div className="floating-todo-overlay" onClick={() => { setIsOpen(false); setDeleteConfirmId(null); setEditingId(null); setEditingDateId(null); }}>
           <div className="floating-todo-panel" onClick={e => e.stopPropagation()}>
             {/* 庆祝动画 */}
             {showAddCelebration && (
@@ -390,7 +491,7 @@ export function FloatingTodoButton() {
             {/* 面板头部 */}
             <div className="floating-todo-header">
               <h3>✅ 待办事项</h3>
-              <button className="floating-close-btn" onClick={() => { setIsOpen(false); setDeleteConfirmId(null); setEditingId(null); }}>
+              <button className="floating-close-btn" onClick={() => { setIsOpen(false); setDeleteConfirmId(null); setEditingId(null); setEditingDateId(null); }}>
                 ×
               </button>
             </div>
@@ -421,6 +522,9 @@ export function FloatingTodoButton() {
               <span>共 {todoStats.total} 项</span>
               <span className="done">✓ {todoStats.done} 已完成</span>
               <span className="pending">○ {todoStats.pending} 待办</span>
+              {todoStats.overdue > 0 && (
+                <span className="overdue">⚠ {todoStats.overdue} 过期</span>
+              )}
               {completedTodos.length > 0 && (
                 <button className="clear-completed-btn" onClick={clearCompleted}>
                   清除已完成
