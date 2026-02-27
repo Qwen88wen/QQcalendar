@@ -4,6 +4,12 @@ import type { Customer, Diary, SalarySummary, SalaryDetail, WorkPrice, WorkType 
 
 const round2 = (v: number) => Math.round(v * 100) / 100;
 
+const formatLocalDate = (value: string): string => {
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '-';
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
 const toUtcStartMs = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0, 0);
 const toUtcEndMs = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 23, 59, 59, 999);
 
@@ -34,7 +40,7 @@ export function calculateSalary(
     if (Number.isNaN(diaryMs) || diaryMs < startMs || diaryMs > endMs) continue;
 
     const workers = (diary.worker || '')
-      .split(',')
+      .split(/[,，、]/)
       .map(w => w.trim())
       .filter(w => w.length > 0);
 
@@ -60,7 +66,10 @@ export function calculateSalary(
 
     if (!poisonMode && !hasQty) continue;
 
-    for (const worker of workers) {
+    const sharedQtyCents = !poisonMode && hasQty ? Math.round(rawQty * 100) : 0;
+    const sharedSubtotalCents = !poisonMode && hasQty ? Math.round(rawQty * unitPrice * 100) : 0;
+
+    for (const [index, worker] of workers.entries()) {
       if (workerName && worker !== workerName) continue;
 
       let quantity: number | null;
@@ -76,13 +85,19 @@ export function calculateSalary(
           subtotal = round2(unitPrice);
         }
       } else {
-        const shareQuantity = rawQty / workers.length;
-        quantity = round2(shareQuantity);
-        subtotal = round2(shareQuantity * unitPrice);
+        const qtyBase = Math.floor(sharedQtyCents / workers.length);
+        const qtyRemainder = sharedQtyCents % workers.length;
+        const subtotalBase = Math.floor(sharedSubtotalCents / workers.length);
+        const subtotalRemainder = sharedSubtotalCents % workers.length;
+        const qtyCents = qtyBase + (index < qtyRemainder ? 1 : 0);
+        const subtotalCents = subtotalBase + (index < subtotalRemainder ? 1 : 0);
+
+        quantity = round2(qtyCents / 100);
+        subtotal = round2(subtotalCents / 100);
       }
 
       const detail: SalaryDetail = {
-        date: new Date(diary.created_at).toISOString().split('T')[0],
+        date: formatLocalDate(diary.created_at),
         customer: diary.customer || '-',
         workType,
         unit: diary.remark || '-',
