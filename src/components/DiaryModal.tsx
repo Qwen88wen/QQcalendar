@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { updateDiary } from '../lib/diary';
+import { resolveDiaryPrices } from '../lib/pricing';
 import type { DiaryStatus, DiaryTag, WorkType, UnitType } from '../types/database';
 import './DiaryModal.css';
 
@@ -42,6 +43,7 @@ export function DiaryModal() {
     workers: storeWorkers,
     vehicles: storeVehicles,
     customers: storeCustomers,
+    workPrices,
   } = useAppStore();
 
   // 表单状态
@@ -177,6 +179,14 @@ export function DiaryModal() {
       ? currentOperators
       : [...currentOperators, activeInputUser];
 
+    const resolvedPrices = resolveDiaryPrices(
+      tag,
+      remark || null,
+      customer || null,
+      storeCustomers,
+      workPrices
+    );
+
     const diaryData = {
       customer: customer || null,
       remark: remark || null,
@@ -186,6 +196,8 @@ export function DiaryModal() {
       status,
       notified,
       tag,
+      customer_price: resolvedPrices.customerPrice,
+      worker_price: resolvedPrices.workerPrice,
       operators: newOperators,
     };
 
