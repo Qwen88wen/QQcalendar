@@ -116,7 +116,6 @@ export interface Todo {
   done: boolean;
   created_at: string;
   user_name: string | null;
-  due_date: string | null;  // 截止日期
 }
 
 export interface TodoInsert {
@@ -124,13 +123,11 @@ export interface TodoInsert {
   done?: boolean;
   created_at?: string;
   user_name?: string | null;
-  due_date?: string | null;
 }
 
 export interface TodoUpdate {
   text?: string;
   done?: boolean;
-  due_date?: string | null;
 }
 
 // customers 表 (园主主档)

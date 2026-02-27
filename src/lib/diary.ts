@@ -138,19 +138,35 @@ export async function getTodos(): Promise<Todo[]> {
 export async function createTodo(todo: TodoInsert): Promise<Todo | null> {
   console.log('[DB] 正在创建待办:', todo);
 
-  const { data, error } = await supabase
-    .from('todos')
-    .insert(todo as never)
-    .select()
-    .single();
+  const payload: Record<string, unknown> = { ...todo };
 
-  if (error) {
+  // 兼容生产环境 schema cache 与类型定义不一致：
+  // 如果报错提示某个列不存在，则自动剔除该列后重试一次（可连续剔除多个列）
+  // 例如：Could not find the 'due_date' column of 'todos' in the schema cache
+  while (true) {
+    const { data, error } = await supabase
+      .from('todos')
+      .insert(payload as never)
+      .select()
+      .single();
+
+    if (!error) {
+      console.log('[DB] 待办创建成功:', data);
+      return data as Todo;
+    }
+
+    const missingColumn = error.message.match(/Could not find the '(.+)' column of 'todos' in the schema cache/i)?.[1];
+
+    if (missingColumn && missingColumn in payload) {
+      console.warn(`[DB] 创建待办时检测到缺失列 ${missingColumn}，将自动移除该字段后重试。`);
+      delete payload[missingColumn];
+      continue;
+    }
+
     console.error('[DB] 创建待办失败:', error.message, error);
+    alert(`添加待办失败: ${error.message}`);
     return null;
   }
-
-  console.log('[DB] 待办创建成功:', data);
-  return data as Todo;
 }
 
 export async function updateTodo(id: string, updates: TodoUpdate): Promise<Todo | null> {
