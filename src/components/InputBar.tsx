@@ -3,7 +3,7 @@ import { useAppStore } from '../stores/appStore';
 import { createDiary } from '../lib/diary';
 import { resolveDiaryPrices } from '../lib/pricing';
 import { getUserById } from '../lib/users';
-import type { DiaryStatus, DiaryTag } from '../types/database';
+import type { DiaryStatus, DiaryTag, UnitType, WorkType } from '../types/database';
 import './InputBar.css';
 
 // 标签选项 (工作类型)
@@ -17,6 +17,21 @@ const TAG_OPTIONS: DiaryTag[] = [
   'WELDING',
   'BUILDING HOUSE',
 ];
+
+// 工作类型对应的单位选项
+const WORK_TYPE_UNIT_MAP: Record<WorkType, UnitType[]> = {
+  'POISON': ['DAY', 'HALF DAY'],
+  'FERTILIZE': ['BAG', 'EKAR', 'JOB'],
+  'PRUNNING': ['EKAR', 'POKOK', 'JOB'],
+  'HARVEST': ['TON'],
+  'SEEDLING': ['POKOK'],
+  'SAND/ STONE': ['TON', 'JOB'],
+  'WELDING': ['JOB'],
+  'BUILDING HOUSE': ['JOB'],
+};
+
+// 所有单位选项 (用于未选择工作类型时)
+const ALL_UNIT_OPTIONS: UnitType[] = ['TON', 'POKOK', 'EKAR', 'JOB', 'BAG', 'DAY', 'HALF DAY'];
 
 
 export function InputBar() {
@@ -98,6 +113,15 @@ export function InputBar() {
     const search = vehicleSearch.toLowerCase();
     return sorted.filter(v => v.plate_number.toLowerCase().includes(search));
   }, [storeVehicles, vehicleSearch]);
+
+  // 根据工作类型获取可选单位
+  const availableUnits = useMemo(() => {
+    if (tag && tag in WORK_TYPE_UNIT_MAP) {
+      return WORK_TYPE_UNIT_MAP[tag as WorkType];
+    }
+
+    return ALL_UNIT_OPTIONS;
+  }, [tag]);
 
   // 切换工人选择
   const toggleWorker = (workerName: string) => {
@@ -380,14 +404,17 @@ export function InputBar() {
                 disabled={isSubmitting}
                 className="quantity-input"
               />
-              <input
-                type="text"
+              <select
                 value={remark}
                 onChange={(e) => setRemark(e.target.value)}
-                placeholder="单位/备注"
                 disabled={isSubmitting}
                 className="unit-select"
-              />
+              >
+                <option value="">单位/备注</option>
+                {availableUnits.map((unit) => (
+                  <option key={unit} value={unit}>{unit}</option>
+                ))}
+              </select>
             </div>
           </div>
 
