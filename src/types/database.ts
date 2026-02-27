@@ -228,7 +228,7 @@ export interface SalaryDetail {
   customer: string;
   workType: WorkType;
   unit: string;
-  quantity: number;      // 该工人分摊后的数量
+  quantity: number | null;  // 该工人分摊后的数量（为空时显示空白）
   unitPrice: number;
   subtotal: number;
 }

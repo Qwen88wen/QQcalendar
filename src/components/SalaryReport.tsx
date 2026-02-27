@@ -5,7 +5,7 @@ import type { SalarySummary } from '../types/database';
 import './SalaryReport.css';
 
 export function SalaryReport() {
-  const { diaries, showSalaryReport, toggleSalaryReport, workers } = useAppStore();
+  const { diaries, showSalaryReport, toggleSalaryReport, workers, customers, workPrices } = useAppStore();
 
   // 默认日期范围：当前月份
   const now = new Date();
@@ -25,9 +25,11 @@ export function SalaryReport() {
       diaries,
       new Date(startDate),
       new Date(endDate),
-      selectedWorker || undefined
+      selectedWorker || undefined,
+      customers,
+      workPrices
     );
-  }, [diaries, startDate, endDate, selectedWorker]);
+  }, [diaries, startDate, endDate, selectedWorker, customers, workPrices]);
 
   // 总计
   const grandTotal = useMemo(
@@ -167,7 +169,7 @@ export function SalaryReport() {
                             <td>{d.date}</td>
                             <td>{d.customer}</td>
                             <td>{d.workType}</td>
-                            <td>{d.quantity} {d.unit}</td>
+                            <td>{d.quantity == null ? '-' : d.quantity} {d.unit}</td>
                             <td>{d.unitPrice}</td>
                             <td className="salary-subtotal">{d.subtotal.toFixed(2)}</td>
                           </tr>

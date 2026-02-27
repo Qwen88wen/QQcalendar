@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { createDiary } from '../lib/diary';
+import { resolveDiaryPrices } from '../lib/pricing';
 import { getUserById } from '../lib/users';
 import type { DiaryStatus, DiaryTag } from '../types/database';
 import './InputBar.css';
@@ -27,6 +28,7 @@ export function InputBar() {
     workers: storeWorkers,
     vehicles: storeVehicles,
     customers: storeCustomers,
+    workPrices,
   } = useAppStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -144,6 +146,14 @@ export function InputBar() {
         ).toISOString();
       }
 
+      const resolvedPrices = resolveDiaryPrices(
+        tag || null,
+        remark.trim() || null,
+        customer.trim(),
+        storeCustomers,
+        workPrices
+      );
+
       const newDiary = await createDiary({
         user_id: currentUser?.id || userId || 'unknown',
         user_name: userName || currentUsername,
@@ -155,6 +165,8 @@ export function InputBar() {
         status,
         notified,
         tag: tag || null,
+        customer_price: resolvedPrices.customerPrice,
+        worker_price: resolvedPrices.workerPrice,
         operators: [currentUsername],
         created_at: createdAt,
       });
