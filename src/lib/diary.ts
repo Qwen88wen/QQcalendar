@@ -146,6 +146,7 @@ export async function createTodo(todo: TodoInsert): Promise<Todo | null> {
 
   if (error) {
     console.error('[DB] 创建待办失败:', error.message, error);
+    alert(`添加待办失败: ${error.message}`);
     return null;
   }
 

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, type FormEvent } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { createTodo as createTodoInDB, updateTodo as updateTodoInDB, deleteTodo as deleteTodoInDB } from '../lib/diary';
 import './FloatingTodoButton.css';
@@ -42,6 +42,7 @@ export function FloatingTodoButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [newTodoText, setNewTodoText] = useState('');
   const [newTodoDueDate, setNewTodoDueDate] = useState('');
+  const [isAddingTodo, setIsAddingTodo] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // 编辑状态
@@ -160,24 +161,35 @@ export function FloatingTodoButton() {
 
   // 添加待办
   const addTodo = async () => {
-    if (!newTodoText.trim()) return;
+    const text = newTodoText.trim();
+    if (!text || isAddingTodo) return;
 
-    const newTodo = await createTodoInDB({
-      text: newTodoText.trim(),
-      done: false,
-      created_at: new Date().toISOString(),
-      user_name: activeInputUser,
-      due_date: newTodoDueDate || null,
-    });
+    setIsAddingTodo(true);
+    try {
+      const newTodo = await createTodoInDB({
+        text,
+        done: false,
+        created_at: new Date().toISOString(),
+        user_name: activeInputUser,
+        due_date: newTodoDueDate || null,
+      });
 
-    if (newTodo) {
-      addTodoToStore(newTodo);
-      setNewTodoText('');
-      setNewTodoDueDate('');
-      setShowAddCelebration(true);
-      setTimeout(() => setShowAddCelebration(false), 1500);
-      inputRef.current?.focus();
+      if (newTodo) {
+        addTodoToStore(newTodo);
+        setNewTodoText('');
+        setNewTodoDueDate('');
+        setShowAddCelebration(true);
+        setTimeout(() => setShowAddCelebration(false), 1500);
+        inputRef.current?.focus();
+      }
+    } finally {
+      setIsAddingTodo(false);
     }
+  };
+
+  const handleSubmitNewTodo = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await addTodo();
   };
 
   // 切换待办状态
@@ -484,13 +496,12 @@ export function FloatingTodoButton() {
             </div>
 
             {/* 待办输入 */}
-            <div className="floating-todo-input">
+            <form className="floating-todo-input" onSubmit={handleSubmitNewTodo}>
               <input
                 ref={inputRef}
                 type="text"
                 value={newTodoText}
                 onChange={(e) => setNewTodoText(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && addTodo()}
                 placeholder="添加新待办..."
               />
               <input
@@ -500,10 +511,10 @@ export function FloatingTodoButton() {
                 onChange={(e) => setNewTodoDueDate(e.target.value)}
                 title="设置截止日期（可选）"
               />
-              <button onClick={addTodo} disabled={!newTodoText.trim()}>
+              <button type="submit" disabled={!newTodoText.trim() || isAddingTodo}>
                 添加
               </button>
-            </div>
+            </form>
 
             {/* 待办统计 */}
             <div className="floating-todo-stats">
