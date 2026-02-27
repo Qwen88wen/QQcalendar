@@ -186,6 +186,27 @@
   cursor: not-allowed;
 }
 
+/* 搜索框 */
+.search-form {
+  margin-bottom: 16px;
+}
+
+.search-form input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #FFD1DC;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.search-form input:focus {
+  border-color: #FF91A4;
+  box-shadow: 0 0 0 3px rgba(255, 145, 164, 0.2);
+}
+
 /* 园主添加表单 - 多行 */
 .customer-add-form {
   flex-wrap: wrap;

@@ -115,10 +115,35 @@ export function MasterDataManager() {
   const [newWorkerName, setNewWorkerName] = useState('');
   const [newVehiclePlate, setNewVehiclePlate] = useState('');
 
+  // 搜索状态
+  const [customerSearch, setCustomerSearch] = useState('');
+  const [workerSearch, setWorkerSearch] = useState('');
+  const [vehicleSearch, setVehicleSearch] = useState('');
+
   // 过滤数据
-  const filteredCustomers = showInactive ? customers : customers.filter(c => c.is_active);
-  const filteredWorkers = showInactive ? workers : workers.filter(w => w.is_active);
-  const filteredVehicles = showInactive ? vehicles : vehicles.filter(v => v.is_active);
+  const visibleCustomers = showInactive ? customers : customers.filter(c => c.is_active);
+  const visibleWorkers = showInactive ? workers : workers.filter(w => w.is_active);
+  const visibleVehicles = showInactive ? vehicles : vehicles.filter(v => v.is_active);
+
+  const customerKeyword = customerSearch.trim().toLowerCase();
+  const workerKeyword = workerSearch.trim().toLowerCase();
+  const vehicleKeyword = vehicleSearch.trim().toLowerCase();
+
+  const filteredCustomers = visibleCustomers.filter((c) =>
+    !customerKeyword ||
+    c.name.toLowerCase().includes(customerKeyword) ||
+    (c.code || '').toLowerCase().includes(customerKeyword) ||
+    (c.notes || '').toLowerCase().includes(customerKeyword)
+  );
+  const filteredWorkers = visibleWorkers.filter((w) =>
+    !workerKeyword ||
+    w.name.toLowerCase().includes(workerKeyword) ||
+    (w.code || '').toLowerCase().includes(workerKeyword)
+  );
+  const filteredVehicles = visibleVehicles.filter((v) =>
+    !vehicleKeyword ||
+    v.plate_number.toLowerCase().includes(vehicleKeyword)
+  );
 
   // 新增园主
   const handleAddCustomer = async () => {
@@ -420,6 +445,16 @@ export function MasterDataManager() {
               </button>
             </div>
 
+            <div className="search-form">
+              <input
+                type="text"
+                value={customerSearch}
+                onChange={(e) => setCustomerSearch(e.target.value)}
+                placeholder="搜索园主（名称/编号/备注）"
+                disabled={isSubmitting}
+              />
+            </div>
+
             <div className="data-list">
               {filteredCustomers.map((c) => (
                 <div key={c.id} className={`data-item ${!c.is_active ? 'inactive' : ''}`}>
@@ -514,6 +549,16 @@ export function MasterDataManager() {
               </button>
             </div>
 
+            <div className="search-form">
+              <input
+                type="text"
+                value={workerSearch}
+                onChange={(e) => setWorkerSearch(e.target.value)}
+                placeholder="搜索工人（名称/编号）"
+                disabled={isSubmitting}
+              />
+            </div>
+
             <div className="data-list">
               {filteredWorkers.map((w) => (
                 <div key={w.id} className={`data-item ${!w.is_active ? 'inactive' : ''}`}>
@@ -572,6 +617,16 @@ export function MasterDataManager() {
               <button onClick={handleAddVehicle} disabled={!newVehiclePlate.trim() || isSubmitting}>
                 添加
               </button>
+            </div>
+
+            <div className="search-form">
+              <input
+                type="text"
+                value={vehicleSearch}
+                onChange={(e) => setVehicleSearch(e.target.value)}
+                placeholder="搜索车辆（车牌号）"
+                disabled={isSubmitting}
+              />
             </div>
 
             <div className="data-list">
