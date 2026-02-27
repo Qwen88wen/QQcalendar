@@ -10,6 +10,7 @@ export function FloatingTodoButton() {
   const { todos, activeInputUser, addTodo: addTodoToStore, updateTodo: updateTodoInStore, removeTodo: removeTodoFromStore } = useAppStore();
   const [isOpen, setIsOpen] = useState(false);
   const [newTodoText, setNewTodoText] = useState('');
+  const [newTodoDueDate, setNewTodoDueDate] = useState('');
   const [isAddingTodo, setIsAddingTodo] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -116,16 +117,19 @@ export function FloatingTodoButton() {
       const newTodo = await createTodoInDB({
         text,
         done: false,
-        created_at: new Date().toISOString(),
         user_name: activeInputUser,
+        due_date: newTodoDueDate || null,
       });
 
       if (newTodo) {
         addTodoToStore(newTodo);
         setNewTodoText('');
+        setNewTodoDueDate('');
         setShowAddCelebration(true);
         setTimeout(() => setShowAddCelebration(false), 1500);
         inputRef.current?.focus();
+      } else {
+        alert('添加待办失败，请稍后重试');
       }
     } finally {
       setIsAddingTodo(false);
@@ -399,6 +403,13 @@ export function FloatingTodoButton() {
                 value={newTodoText}
                 onChange={(e) => setNewTodoText(e.target.value)}
                 placeholder="添加新待办..."
+              />
+              <input
+                type="date"
+                className="new-todo-date"
+                value={newTodoDueDate}
+                onChange={(e) => setNewTodoDueDate(e.target.value)}
+                title="设置截止日期（可选）"
               />
               <button type="submit" disabled={!newTodoText.trim() || isAddingTodo}>
                 添加
