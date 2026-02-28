@@ -57,6 +57,7 @@ export function InputBar() {
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
   const [notified, setNotified] = useState(false);
   const [tag, setTag] = useState<DiaryTag | ''>('');
+  const [manualWorkerPrice, setManualWorkerPrice] = useState('');
 
   // 下拉框显示状态
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
@@ -183,6 +184,13 @@ export function InputBar() {
         workPrices
       );
 
+      const parsedManualWorkerPrice = manualWorkerPrice.trim() === ''
+        ? null
+        : Number(manualWorkerPrice.trim());
+      const finalWorkerPrice = Number.isFinite(parsedManualWorkerPrice as number)
+        ? parsedManualWorkerPrice
+        : resolvedPrices.workerPrice;
+
       const newDiary = await createDiary({
         user_id: currentUser?.id || userId || 'unknown',
         user_name: userName || currentUsername,
@@ -195,7 +203,7 @@ export function InputBar() {
         notified,
         tag: tag || null,
         customer_price: resolvedPrices.customerPrice,
-        worker_price: resolvedPrices.workerPrice,
+        worker_price: finalWorkerPrice,
         customer_id: matchedCustomer?.id || null,
         salary_group: matchedCustomer?.salary_group_default || 'TongHuat',
         operators: [currentUsername],
@@ -216,6 +224,7 @@ export function InputBar() {
         setStatus('incomplete');
         setNotified(false);
         setTag('');
+        setManualWorkerPrice('');
         closeAllDropdowns();
 
         setShowCelebration(true);
@@ -423,6 +432,21 @@ export function InputBar() {
                 ))}
               </select>
             </div>
+          </div>
+
+          {/* 工资单价（可手动输入） */}
+          <div className="input-field quantity-field">
+            <label>工资单价（可选）</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={manualWorkerPrice}
+              onChange={(e) => setManualWorkerPrice(e.target.value)}
+              placeholder="留空则自动带出"
+              disabled={isSubmitting}
+              className="quantity-input"
+            />
           </div>
 
           {/* 车号选择 */}

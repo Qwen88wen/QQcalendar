@@ -1,21 +1,25 @@
-import { isPoisonWorkType } from './workPrices';
-import { resolveDiaryPrices } from './pricing';
+import { getSalaryCalcMode } from './workPrices';
+import { parseDiaryUnit, resolveDiaryPrices } from './pricing';
 import type { Customer, Diary, SalarySummary, SalaryDetail, WorkPrice, WorkType } from '../types/database';
 
 const round2 = (v: number) => Math.round(v * 100) / 100;
 
-const formatLocalDate = (value: string): string => {
+const MS_PER_HOUR = 60 * 60 * 1000;
+const KL_OFFSET_HOURS = 8;
+
+const formatKlDate = (value: string): string => {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return '-';
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const kl = new Date(d.getTime() + KL_OFFSET_HOURS * MS_PER_HOUR);
+  return `${kl.getUTCFullYear()}-${String(kl.getUTCMonth() + 1).padStart(2, '0')}-${String(kl.getUTCDate()).padStart(2, '0')}`;
 };
 
-const toUtcStartMs = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0, 0);
-const toUtcEndMs = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 23, 59, 59, 999);
+const toKlStartMs = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), -KL_OFFSET_HOURS, 0, 0, 0);
+const toKlEndMs = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 23 - KL_OFFSET_HOURS, 59, 59, 999);
 
 /**
  * 计算指定日期范围内的工人薪资
- * - 只计算 status='complete' 的记录
+ * - 统计所有状态记录（complete / incomplete）
  * - 普通工种: 多工人时平均分摊数量
  * - POISON: 每位工人独立计算，不平分
  * - 若 diary.worker_price 缺失，会尝试从 customer master / work_prices 回查
@@ -28,14 +32,12 @@ export function calculateSalary(
   customers: Customer[] = [],
   workPrices: WorkPrice[] = []
 ): SalarySummary[] {
-  const startMs = toUtcStartMs(startDate);
-  const endMs = toUtcEndMs(endDate);
+  const startMs = toKlStartMs(startDate);
+  const endMs = toKlEndMs(endDate);
 
   const workerMap = new Map<string, SalaryDetail[]>();
 
   for (const diary of diaries) {
-    if (diary.status !== 'complete') continue;
-
     const diaryMs = Date.parse(diary.created_at);
     if (Number.isNaN(diaryMs) || diaryMs < startMs || diaryMs > endMs) continue;
 
@@ -48,7 +50,9 @@ export function calculateSalary(
     if (workerName && !workers.includes(workerName)) continue;
 
     const workType = (diary.tag || 'HARVEST') as WorkType;
-    const poisonMode = isPoisonWorkType(workType);
+    const unit = parseDiaryUnit(diary.remark);
+    const calcMode = getSalaryCalcMode(workType, unit);
+    const perWorkerMode = calcMode === 'PER_WORKER';
 
     const resolved = resolveDiaryPrices(
       diary.tag,
@@ -64,10 +68,10 @@ export function calculateSalary(
     const rawQty = diary.weight ? parseFloat(diary.weight) : Number.NaN;
     const hasQty = Number.isFinite(rawQty) && rawQty > 0;
 
-    if (!poisonMode && !hasQty) continue;
+    if (!perWorkerMode && !hasQty) continue;
 
-    const sharedQtyCents = !poisonMode && hasQty ? Math.round(rawQty * 100) : 0;
-    const sharedSubtotalCents = !poisonMode && hasQty ? Math.round(rawQty * unitPrice * 100) : 0;
+    const sharedQtyCents = !perWorkerMode && hasQty ? Math.round(rawQty * 100) : 0;
+    const sharedSubtotalCents = !perWorkerMode && hasQty ? Math.round(rawQty * unitPrice * 100) : 0;
 
     for (const [index, worker] of workers.entries()) {
       if (workerName && worker !== workerName) continue;
@@ -75,7 +79,7 @@ export function calculateSalary(
       let quantity: number | null;
       let subtotal: number;
 
-      if (poisonMode) {
+      if (perWorkerMode) {
         if (hasQty) {
           quantity = round2(rawQty);
           subtotal = round2(rawQty * unitPrice);
@@ -97,7 +101,7 @@ export function calculateSalary(
       }
 
       const detail: SalaryDetail = {
-        date: formatLocalDate(diary.created_at),
+        date: formatKlDate(diary.created_at),
         customer: diary.customer || '-',
         workType,
         unit: diary.remark || '-',

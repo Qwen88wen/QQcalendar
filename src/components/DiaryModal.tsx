@@ -54,6 +54,7 @@ export function DiaryModal() {
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
   const [notified, setNotified] = useState(false);
   const [tag, setTag] = useState<DiaryTag | null>(null);
+  const [manualWorkerPrice, setManualWorkerPrice] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 工人选择状态
@@ -136,6 +137,7 @@ export function DiaryModal() {
         setStatus(selectedDiary.status || 'incomplete');
         setNotified(selectedDiary.notified || false);
         setTag(selectedDiary.tag || null);
+        setManualWorkerPrice(selectedDiary.worker_price == null ? '' : String(selectedDiary.worker_price));
         // 解析工人列表
         const workerStr = selectedDiary.worker || '';
         const workerList = workerStr ? workerStr.split(',').map(w => w.trim()).filter(Boolean) : [];
@@ -156,6 +158,7 @@ export function DiaryModal() {
         setStatus('incomplete');
         setNotified(false);
         setTag(null);
+        setManualWorkerPrice('');
         setSelectedWorkers([]);
         setWorkerSearch('');
         setShowWorkerDropdown(false);
@@ -187,6 +190,13 @@ export function DiaryModal() {
       workPrices
     );
 
+    const parsedManualWorkerPrice = manualWorkerPrice.trim() === ''
+      ? null
+      : Number(manualWorkerPrice.trim());
+    const finalWorkerPrice = Number.isFinite(parsedManualWorkerPrice as number)
+      ? parsedManualWorkerPrice
+      : resolvedPrices.workerPrice;
+
     const diaryData = {
       customer: customer || null,
       remark: remark || null,
@@ -197,7 +207,7 @@ export function DiaryModal() {
       notified,
       tag,
       customer_price: resolvedPrices.customerPrice,
-      worker_price: resolvedPrices.workerPrice,
+      worker_price: finalWorkerPrice,
       operators: newOperators,
     };
 
@@ -368,6 +378,18 @@ export function DiaryModal() {
                   </div>
                 )}
               </div>
+            </div>
+
+            <div className="form-group">
+              <label>工资单价（可选）</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={manualWorkerPrice}
+                onChange={(e) => setManualWorkerPrice(e.target.value)}
+                placeholder="留空则自动带出"
+              />
             </div>
 
             <div className={`form-group worker-group ${selectedVehicles.length === 0 ? 'warning' : ''}`}>
