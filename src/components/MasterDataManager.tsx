@@ -131,12 +131,22 @@ export function MasterDataManager() {
   const workerKeyword = workerSearch.trim().toLowerCase();
   const vehicleKeyword = vehicleSearch.trim().toLowerCase();
 
-  const filteredCustomers = visibleCustomers.filter((c) =>
-    !customerKeyword ||
-    c.name.toLowerCase().includes(customerKeyword) ||
-    (c.code || '').toLowerCase().includes(customerKeyword) ||
-    (c.notes || '').toLowerCase().includes(customerKeyword)
-  );
+  const filteredCustomers = visibleCustomers
+    .filter((c) =>
+      !customerKeyword ||
+      c.name.toLowerCase().includes(customerKeyword) ||
+      (c.code || '').toLowerCase().includes(customerKeyword) ||
+      (c.notes || '').toLowerCase().includes(customerKeyword)
+    )
+    .sort((a, b) => {
+      const codeA = (a.code || '').trim();
+      const codeB = (b.code || '').trim();
+      if (!codeA && codeB) return 1;
+      if (codeA && !codeB) return -1;
+      const codeCompare = codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' });
+      if (codeCompare !== 0) return codeCompare;
+      return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+    });
   const filteredWorkers = visibleWorkers.filter((w) =>
     !workerKeyword ||
     w.name.toLowerCase().includes(workerKeyword) ||
