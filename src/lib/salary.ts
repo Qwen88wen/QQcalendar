@@ -36,7 +36,7 @@ export function calculateSalary(
   const startMs = toKlStartMs(startDate);
   const endMs = toKlEndMs(endDate);
 
-  const workerMap = new Map<string, { displayName: string; details: SalaryDetail[] }>();
+  const workerMap = new Map<string, { workerId: string | null; displayName: string; details: SalaryDetail[] }>();
   const workerById = new Map(workers.map((w) => [w.id, w]));
   const workerIdByName = new Map(workers.map((w) => [w.name.trim().toLowerCase(), w.id]));
   const warnings: SalaryWarning[] = [];
@@ -141,10 +141,10 @@ export function calculateSalary(
           subtotal = round2(unitPrice);
         }
       } else {
-        const qtyBase = Math.floor(sharedQtyCents / workers.length);
-        const qtyRemainder = sharedQtyCents % workers.length;
-        const subtotalBase = Math.floor(sharedSubtotalCents / workers.length);
-        const subtotalRemainder = sharedSubtotalCents % workers.length;
+        const qtyBase = Math.floor(sharedQtyCents / workerEntries.length);
+        const qtyRemainder = sharedQtyCents % workerEntries.length;
+        const subtotalBase = Math.floor(sharedSubtotalCents / workerEntries.length);
+        const subtotalRemainder = sharedSubtotalCents % workerEntries.length;
         const qtyCents = qtyBase + (index < qtyRemainder ? 1 : 0);
         const subtotalCents = subtotalBase + (index < subtotalRemainder ? 1 : 0);
 
@@ -168,6 +168,7 @@ export function calculateSalary(
         existing.details.push(detail);
       } else {
         workerMap.set(workerKey, {
+          workerId: worker.id,
           displayName: worker.name,
           details: [detail],
         });
@@ -181,6 +182,7 @@ export function calculateSalary(
     details.sort((a, b) => a.date.localeCompare(b.date));
     const total = details.reduce((sum, d) => sum + d.subtotal, 0);
     summaries.push({
+      workerId: workerData.workerId,
       workerName: workerData.displayName,
       details,
       total: round2(total),
@@ -203,7 +205,17 @@ const escapeCsv = (value: string | number | null | undefined): string => {
 export function exportSalaryCSV(
   summaries: SalarySummary[],
   startDate: Date,
-  endDate: Date
+  endDate: Date,
+  deductionsByWorkerId: Record<string, {
+    adv: number;
+    advPeribadi: number;
+    motor: number;
+    epf: number;
+    socso: number;
+    permit: number;
+    makanan: number;
+  }> = {},
+  fixedAir = 30
 ): void {
   const formatDate = (d: Date) =>
     `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -212,13 +224,29 @@ export function exportSalaryCSV(
   csv += `${escapeCsv(`薪资报表 (${formatDate(startDate)} ~ ${formatDate(endDate)})`)}\n\n`;
 
   csv += '=== 汇总 ===\n';
-  csv += '工人,总薪资\n';
+  csv += '工人,总薪资,总扣除,净薪资\n';
   let grandTotal = 0;
+  let grandDeduction = 0;
+  let grandNet = 0;
   for (const s of summaries) {
-    csv += `${escapeCsv(s.workerName)},${escapeCsv(s.total.toFixed(2))}\n`;
+    const workerKey = s.workerId || s.workerName;
+    const d = deductionsByWorkerId[workerKey] || {
+      adv: 0,
+      advPeribadi: 0,
+      motor: 0,
+      epf: 0,
+      socso: 0,
+      permit: 0,
+      makanan: 0,
+    };
+    const deductionTotal = d.adv + d.advPeribadi + d.motor + d.epf + d.socso + d.permit + d.makanan + fixedAir;
+    const net = Math.max(0, s.total - deductionTotal);
+    csv += `${escapeCsv(s.workerName)},${escapeCsv(s.total.toFixed(2))},${escapeCsv(deductionTotal.toFixed(2))},${escapeCsv(net.toFixed(2))}\n`;
     grandTotal += s.total;
+    grandDeduction += deductionTotal;
+    grandNet += net;
   }
-  csv += `${escapeCsv('合计')},${escapeCsv(grandTotal.toFixed(2))}\n\n`;
+  csv += `${escapeCsv('合计')},${escapeCsv(grandTotal.toFixed(2))},${escapeCsv(grandDeduction.toFixed(2))},${escapeCsv(grandNet.toFixed(2))}\n\n`;
 
   csv += '=== 明细 ===\n';
   csv += '工人,日期,园主,工作类型,单位,数量,单价,小计\n';

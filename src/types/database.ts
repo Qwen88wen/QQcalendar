@@ -253,6 +253,7 @@ export interface SalaryDetail {
 
 // 工人薪资汇总
 export interface SalarySummary {
+  workerId?: string | null;
   workerName: string;
   details: SalaryDetail[];
   total: number;
