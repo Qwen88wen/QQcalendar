@@ -195,9 +195,49 @@
   color: #2E7D32;
 }
 
+.salary-warning-panel {
+  margin: 12px 24px 0;
+  padding: 10px 12px;
+  border: 1px solid #f0ad4e;
+  background: #fff8e8;
+  border-radius: 10px;
+}
+
+.salary-warning-title {
+  font-weight: 700;
+  color: #9a6700;
+  margin-bottom: 6px;
+}
+
+.salary-warning-list {
+  max-height: 120px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.salary-warning-item {
+  font-size: 12px;
+  color: #7a5a00;
+}
+
 .salary-grand-total {
   font-weight: 700;
   font-size: 1rem;
+}
+
+.salary-grand-totals {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.salary-grand-net-total {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #1B5E20;
 }
 
 /* 内容区 */
@@ -274,6 +314,18 @@
   gap: 6px;
 }
 
+.salary-worker-money {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.salary-worker-net {
+  font-size: 0.82rem;
+  color: #1B5E20;
+}
+
 .salary-expand-icon {
   font-size: 0.8rem;
   color: #999;
@@ -289,6 +341,58 @@
 .salary-details {
   padding: 0 12px 12px;
   animation: detailsFadeIn 0.2s ease;
+}
+
+.salary-deduction-panel {
+  margin-top: 10px;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fcfcfc;
+}
+
+.salary-deduction-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.salary-deduction-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.salary-deduction-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.73rem;
+  color: #666;
+}
+
+.salary-deduction-grid input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 0.8rem;
+}
+
+.salary-deduction-grid input:disabled {
+  background: #f2f2f2;
+  color: #888;
+}
+
+.salary-deduction-result {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #444;
 }
 
 @keyframes detailsFadeIn {

@@ -1,21 +1,25 @@
-import { isPoisonWorkType } from './workPrices';
-import { resolveDiaryPrices } from './pricing';
-import type { Customer, Diary, SalarySummary, SalaryDetail, WorkPrice, WorkType } from '../types/database';
+import { getSalaryCalcMode } from './workPrices';
+import { parseDiaryUnit, resolveDiaryPrices } from './pricing';
+import type { Customer, Diary, SalarySummary, SalaryDetail, SalaryWarning, SalaryCalculationResult, WorkPrice, WorkType, Worker } from '../types/database';
 
 const round2 = (v: number) => Math.round(v * 100) / 100;
 
-const formatLocalDate = (value: string): string => {
+const MS_PER_HOUR = 60 * 60 * 1000;
+const KL_OFFSET_HOURS = 8;
+
+const formatKlDate = (value: string): string => {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return '-';
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const kl = new Date(d.getTime() + KL_OFFSET_HOURS * MS_PER_HOUR);
+  return `${kl.getUTCFullYear()}-${String(kl.getUTCMonth() + 1).padStart(2, '0')}-${String(kl.getUTCDate()).padStart(2, '0')}`;
 };
 
-const toUtcStartMs = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0, 0);
-const toUtcEndMs = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 23, 59, 59, 999);
+const toKlStartMs = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), -KL_OFFSET_HOURS, 0, 0, 0);
+const toKlEndMs = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 23 - KL_OFFSET_HOURS, 59, 59, 999);
 
 /**
  * 计算指定日期范围内的工人薪资
- * - 只计算 status='complete' 的记录
+ * - 统计所有状态记录（complete / incomplete）
  * - 普通工种: 多工人时平均分摊数量
  * - POISON: 每位工人独立计算，不平分
  * - 若 diary.worker_price 缺失，会尝试从 customer master / work_prices 回查
@@ -24,34 +28,80 @@ export function calculateSalary(
   diaries: Diary[],
   startDate: Date,
   endDate: Date,
-  workerName?: string,
+  workerId?: string,
   customers: Customer[] = [],
-  workPrices: WorkPrice[] = []
-): SalarySummary[] {
-  const startMs = toUtcStartMs(startDate);
-  const endMs = toUtcEndMs(endDate);
+  workPrices: WorkPrice[] = [],
+  workers: Worker[] = []
+): SalaryCalculationResult {
+  const startMs = toKlStartMs(startDate);
+  const endMs = toKlEndMs(endDate);
 
-  const workerMap = new Map<string, SalaryDetail[]>();
+  const workerMap = new Map<string, { workerId: string | null; displayName: string; details: SalaryDetail[] }>();
+  const workerById = new Map(workers.map((w) => [w.id, w]));
+  const workerIdByName = new Map(workers.map((w) => [w.name.trim().toLowerCase(), w.id]));
+  const warnings: SalaryWarning[] = [];
+  let excludedCount = 0;
 
   for (const diary of diaries) {
-    if (diary.status !== 'complete') continue;
-
     const diaryMs = Date.parse(diary.created_at);
     if (Number.isNaN(diaryMs) || diaryMs < startMs || diaryMs > endMs) continue;
 
-    const workers = (diary.worker || '')
+    const workerNames = (diary.worker || '')
       .split(/[,，、]/)
       .map(w => w.trim())
       .filter(w => w.length > 0);
 
-    if (workers.length === 0) continue;
-    if (workerName && !workers.includes(workerName)) continue;
+    const normalizedNameList = [...new Set(workerNames.map((name) => name.trim()))];
+    const workerEntries = diary.worker_ids && diary.worker_ids.length > 0
+      ? diary.worker_ids.map((id) => {
+        const profile = workerById.get(id);
+        return {
+          id,
+          name: profile?.name || id,
+        };
+      })
+      : normalizedNameList.map((name) => {
+        const resolvedId = workerIdByName.get(name.toLowerCase()) || null;
+        return {
+          id: resolvedId,
+          name,
+        };
+      });
 
     const workType = (diary.tag || 'HARVEST') as WorkType;
-    const poisonMode = isPoisonWorkType(workType);
+    const displayDate = formatKlDate(diary.created_at);
+    const displayUnit = diary.unit || diary.remark || '-';
+
+    const warnAndExclude = (reason: SalaryWarning['reason'], message: string) => {
+      warnings.push({
+        diaryId: diary.id,
+        date: displayDate,
+        customer: diary.customer || '-',
+        workType,
+        unit: displayUnit,
+        reason,
+        message,
+      });
+      excludedCount += 1;
+    };
+
+    if (workerEntries.length === 0) {
+      warnAndExclude('missing_workers', '无工人，未纳入核算');
+      continue;
+    }
+    if (workerId && !workerEntries.some((entry) => entry.id === workerId)) continue;
+
+    const unit = parseDiaryUnit(diary.unit || diary.remark);
+    if (!unit) {
+      warnAndExclude('invalid_unit', '单位缺失或无效，未纳入核算');
+      continue;
+    }
+    const calcMode = getSalaryCalcMode(workType, unit);
+    const perWorkerMode = calcMode === 'PER_WORKER';
 
     const resolved = resolveDiaryPrices(
       diary.tag,
+      diary.unit || null,
       diary.remark,
       diary.customer,
       customers,
@@ -59,23 +109,29 @@ export function calculateSalary(
     );
 
     const unitPrice = diary.worker_price ?? resolved.workerPrice;
-    if (unitPrice == null) continue;
+    if (unitPrice == null) {
+      warnAndExclude('missing_unit_price', '缺少工资单价，未纳入核算');
+      continue;
+    }
 
     const rawQty = diary.weight ? parseFloat(diary.weight) : Number.NaN;
     const hasQty = Number.isFinite(rawQty) && rawQty > 0;
 
-    if (!poisonMode && !hasQty) continue;
+    if (!perWorkerMode && !hasQty) {
+      warnAndExclude('invalid_quantity', '普通工种数量缺失或无效，未纳入核算');
+      continue;
+    }
 
-    const sharedQtyCents = !poisonMode && hasQty ? Math.round(rawQty * 100) : 0;
-    const sharedSubtotalCents = !poisonMode && hasQty ? Math.round(rawQty * unitPrice * 100) : 0;
+    const sharedQtyCents = !perWorkerMode && hasQty ? Math.round(rawQty * 100) : 0;
+    const sharedSubtotalCents = !perWorkerMode && hasQty ? Math.round(rawQty * unitPrice * 100) : 0;
 
-    for (const [index, worker] of workers.entries()) {
-      if (workerName && worker !== workerName) continue;
+    for (const [index, worker] of workerEntries.entries()) {
+      if (workerId && worker.id !== workerId) continue;
 
       let quantity: number | null;
       let subtotal: number;
 
-      if (poisonMode) {
+      if (perWorkerMode) {
         if (hasQty) {
           quantity = round2(rawQty);
           subtotal = round2(rawQty * unitPrice);
@@ -85,10 +141,10 @@ export function calculateSalary(
           subtotal = round2(unitPrice);
         }
       } else {
-        const qtyBase = Math.floor(sharedQtyCents / workers.length);
-        const qtyRemainder = sharedQtyCents % workers.length;
-        const subtotalBase = Math.floor(sharedSubtotalCents / workers.length);
-        const subtotalRemainder = sharedSubtotalCents % workers.length;
+        const qtyBase = Math.floor(sharedQtyCents / workerEntries.length);
+        const qtyRemainder = sharedQtyCents % workerEntries.length;
+        const subtotalBase = Math.floor(sharedSubtotalCents / workerEntries.length);
+        const subtotalRemainder = sharedSubtotalCents % workerEntries.length;
         const qtyCents = qtyBase + (index < qtyRemainder ? 1 : 0);
         const subtotalCents = subtotalBase + (index < subtotalRemainder ? 1 : 0);
 
@@ -97,37 +153,44 @@ export function calculateSalary(
       }
 
       const detail: SalaryDetail = {
-        date: formatLocalDate(diary.created_at),
+        date: displayDate,
         customer: diary.customer || '-',
         workType,
-        unit: diary.remark || '-',
+        unit,
         quantity,
         unitPrice,
         subtotal,
       };
 
-      const existing = workerMap.get(worker);
+      const workerKey = worker.id || `name:${worker.name.toLowerCase()}`;
+      const existing = workerMap.get(workerKey);
       if (existing) {
-        existing.push(detail);
+        existing.details.push(detail);
       } else {
-        workerMap.set(worker, [detail]);
+        workerMap.set(workerKey, {
+          workerId: worker.id,
+          displayName: worker.name,
+          details: [detail],
+        });
       }
     }
   }
 
   const summaries: SalarySummary[] = [];
-  for (const [name, details] of workerMap) {
+  for (const [, workerData] of workerMap) {
+    const details = workerData.details;
     details.sort((a, b) => a.date.localeCompare(b.date));
     const total = details.reduce((sum, d) => sum + d.subtotal, 0);
     summaries.push({
-      workerName: name,
+      workerId: workerData.workerId,
+      workerName: workerData.displayName,
       details,
       total: round2(total),
     });
   }
 
   summaries.sort((a, b) => b.total - a.total);
-  return summaries;
+  return { summaries, warnings, excludedCount };
 }
 
 const escapeCsv = (value: string | number | null | undefined): string => {
@@ -142,7 +205,17 @@ const escapeCsv = (value: string | number | null | undefined): string => {
 export function exportSalaryCSV(
   summaries: SalarySummary[],
   startDate: Date,
-  endDate: Date
+  endDate: Date,
+  deductionsByWorkerId: Record<string, {
+    adv: number;
+    advPeribadi: number;
+    motor: number;
+    epf: number;
+    socso: number;
+    permit: number;
+    makanan: number;
+  }> = {},
+  fixedAir = 30
 ): void {
   const formatDate = (d: Date) =>
     `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -151,13 +224,29 @@ export function exportSalaryCSV(
   csv += `${escapeCsv(`薪资报表 (${formatDate(startDate)} ~ ${formatDate(endDate)})`)}\n\n`;
 
   csv += '=== 汇总 ===\n';
-  csv += '工人,总薪资\n';
+  csv += '工人,总薪资,总扣除,净薪资\n';
   let grandTotal = 0;
+  let grandDeduction = 0;
+  let grandNet = 0;
   for (const s of summaries) {
-    csv += `${escapeCsv(s.workerName)},${escapeCsv(s.total.toFixed(2))}\n`;
+    const workerKey = s.workerId || s.workerName;
+    const d = deductionsByWorkerId[workerKey] || {
+      adv: 0,
+      advPeribadi: 0,
+      motor: 0,
+      epf: 0,
+      socso: 0,
+      permit: 0,
+      makanan: 0,
+    };
+    const deductionTotal = d.adv + d.advPeribadi + d.motor + d.epf + d.socso + d.permit + d.makanan + fixedAir;
+    const net = Math.max(0, s.total - deductionTotal);
+    csv += `${escapeCsv(s.workerName)},${escapeCsv(s.total.toFixed(2))},${escapeCsv(deductionTotal.toFixed(2))},${escapeCsv(net.toFixed(2))}\n`;
     grandTotal += s.total;
+    grandDeduction += deductionTotal;
+    grandNet += net;
   }
-  csv += `${escapeCsv('合计')},${escapeCsv(grandTotal.toFixed(2))}\n\n`;
+  csv += `${escapeCsv('合计')},${escapeCsv(grandTotal.toFixed(2))},${escapeCsv(grandDeduction.toFixed(2))},${escapeCsv(grandNet.toFixed(2))}\n\n`;
 
   csv += '=== 明细 ===\n';
   csv += '工人,日期,园主,工作类型,单位,数量,单价,小计\n';

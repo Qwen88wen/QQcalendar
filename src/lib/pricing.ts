@@ -15,6 +15,7 @@ function findCustomerByName(customers: Customer[], customerName: string | null |
 
 export function resolveDiaryPrices(
   diaryTag: DiaryTag | null | undefined,
+  unitValue: string | null | undefined,
   remark: string | null | undefined,
   customerName: string | null | undefined,
   customers: Customer[],
@@ -32,7 +33,7 @@ export function resolveDiaryPrices(
     };
   }
 
-  const unit = normalizeUnit(remark);
+  const unit = normalizeUnit(unitValue) || normalizeUnit(remark);
   if (!unit) {
     return { customerPrice: null, workerPrice: null };
   }

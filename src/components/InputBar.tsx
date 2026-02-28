@@ -51,12 +51,14 @@ export function InputBar() {
   // 表单字段
   const [customer, setCustomer] = useState('');
   const [selectedWorkers, setSelectedWorkers] = useState<string[]>([]);
+  const [unit, setUnit] = useState<UnitType | ''>('');
   const [remark, setRemark] = useState('');
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
   const [weight, setWeight] = useState('');
   const [status, setStatus] = useState<DiaryStatus>('incomplete');
   const [notified, setNotified] = useState(false);
   const [tag, setTag] = useState<DiaryTag | ''>('');
+  const [manualWorkerPrice, setManualWorkerPrice] = useState('');
 
   // 下拉框显示状态
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
@@ -132,6 +134,20 @@ export function InputBar() {
     );
   };
 
+  const normalizeSelectedWorkers = (names: string[]): string[] => {
+    const seen = new Set<string>();
+    const normalized: string[] = [];
+    for (const name of names) {
+      const trimmed = name.trim();
+      if (!trimmed) continue;
+      const key = trimmed.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      normalized.push(trimmed);
+    }
+    return normalized;
+  };
+
   // 切换车辆选择
   const toggleVehicle = (plate: string) => {
     setSelectedVehicles(prev =>
@@ -175,19 +191,51 @@ export function InputBar() {
         c => c.name.trim().toLowerCase() === normalizedCustomerName.toLowerCase()
       );
 
+      if (!matchedCustomer?.salary_group_default) {
+        alert('该园主未配置薪资分组，请先在主档设置后再提交。');
+        return;
+      }
+
+      const parsedQty = weight.trim() === '' ? Number.NaN : Number(weight.trim());
+      const isPerWorkerType = tag === 'POISON';
+      if (!isPerWorkerType && (!Number.isFinite(parsedQty) || parsedQty <= 0)) {
+        alert('普通工种必须填写有效数量（大于 0）。');
+        return;
+      }
+
+      if (!unit) {
+        alert('请选择单位后再提交。');
+        return;
+      }
+
       const resolvedPrices = resolveDiaryPrices(
         tag || null,
+        unit || null,
         remark.trim() || null,
         normalizedCustomerName,
         storeCustomers,
         workPrices
       );
 
+      const parsedManualWorkerPrice = manualWorkerPrice.trim() === ''
+        ? null
+        : Number(manualWorkerPrice.trim());
+      const finalWorkerPrice = Number.isFinite(parsedManualWorkerPrice as number)
+        ? parsedManualWorkerPrice
+        : resolvedPrices.workerPrice;
+
+      const normalizedWorkers = normalizeSelectedWorkers(selectedWorkers);
+      const workerIds = normalizedWorkers
+        .map((name) => storeWorkers.find((w) => w.name.trim().toLowerCase() === name.toLowerCase())?.id)
+        .filter((id): id is string => Boolean(id));
+
       const newDiary = await createDiary({
         user_id: currentUser?.id || userId || 'unknown',
         user_name: userName || currentUsername,
         customer: normalizedCustomerName,
-        worker: selectedWorkers.length > 0 ? selectedWorkers.join(', ') : null,
+        worker: normalizedWorkers.length > 0 ? normalizedWorkers.join(', ') : null,
+        worker_ids: workerIds.length > 0 ? workerIds : null,
+        unit: unit || null,
         remark: remark.trim() || null,
         vehicle: selectedVehicles.length > 0 ? selectedVehicles.join(', ') : null,
         weight: weight.trim() || null,
@@ -195,9 +243,9 @@ export function InputBar() {
         notified,
         tag: tag || null,
         customer_price: resolvedPrices.customerPrice,
-        worker_price: resolvedPrices.workerPrice,
+        worker_price: finalWorkerPrice,
         customer_id: matchedCustomer?.id || null,
-        salary_group: matchedCustomer?.salary_group_default || 'TongHuat',
+        salary_group: matchedCustomer.salary_group_default,
         operators: [currentUsername],
         created_at: createdAt,
       });
@@ -211,11 +259,13 @@ export function InputBar() {
         setWorkerSearch('');
         setTagSearch('');
         setVehicleSearch('');
+        setUnit('');
         setRemark('');
         setWeight('');
         setStatus('incomplete');
         setNotified(false);
         setTag('');
+        setManualWorkerPrice('');
         closeAllDropdowns();
 
         setShowCelebration(true);
@@ -412,8 +462,8 @@ export function InputBar() {
                 className="quantity-input"
               />
               <select
-                value={remark}
-                onChange={(e) => setRemark(e.target.value)}
+                value={unit}
+                onChange={(e) => setUnit(e.target.value as UnitType | '')}
                 disabled={isSubmitting}
                 className="unit-select"
               >
@@ -423,6 +473,33 @@ export function InputBar() {
                 ))}
               </select>
             </div>
+          </div>
+
+          <div className="input-field quantity-field">
+            <label>备注</label>
+            <input
+              type="text"
+              value={remark}
+              onChange={(e) => setRemark(e.target.value)}
+              placeholder="备注（可选）"
+              disabled={isSubmitting}
+              className="quantity-input"
+            />
+          </div>
+
+          {/* 工资单价（可手动输入） */}
+          <div className="input-field quantity-field">
+            <label>工资单价（可选）</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={manualWorkerPrice}
+              onChange={(e) => setManualWorkerPrice(e.target.value)}
+              placeholder="留空则自动带出"
+              disabled={isSubmitting}
+              className="quantity-input"
+            />
           </div>
 
           {/* 车号选择 */}

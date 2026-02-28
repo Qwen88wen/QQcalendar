@@ -1,8 +1,22 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { calculateSalary, exportSalaryCSV } from '../lib/salary';
-import type { SalarySummary, SalaryGroup } from '../types/database';
+import type { SalarySummary, SalaryGroup, SalaryWarning } from '../types/database';
 import './SalaryReport.css';
+
+type DeductionKey = 'adv' | 'advPeribadi' | 'motor' | 'epf' | 'socso' | 'permit' | 'air' | 'makanan';
+type WorkerDeduction = Record<DeductionKey, number>;
+
+const DEFAULT_DEDUCTION: WorkerDeduction = {
+  adv: 0,
+  advPeribadi: 0,
+  motor: 0,
+  epf: 0,
+  socso: 0,
+  permit: 0,
+  air: 30,
+  makanan: 0,
+};
 
 export function SalaryReport() {
   const { diaries, showSalaryReport, toggleSalaryReport, workers, customers, workPrices } = useAppStore();
@@ -18,6 +32,12 @@ export function SalaryReport() {
   const [selectedWorker, setSelectedWorker] = useState('');
   const [expandedWorker, setExpandedWorker] = useState<string | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<SalaryGroup>('TongHuat');
+  const [deductionsByWorker, setDeductionsByWorker] = useState<Record<string, WorkerDeduction>>({});
+
+  const deductionStorageKey = useMemo(
+    () => `salary-deductions:${selectedGroup}:${startDate}:${endDate}`,
+    [selectedGroup, startDate, endDate]
+  );
 
   const groupFilteredDiaries = useMemo(
     () => diaries.filter((d) => (d.salary_group || 'TongHuat') === selectedGroup),
@@ -25,23 +45,81 @@ export function SalaryReport() {
   );
 
   // 计算薪资
-  const summaries: SalarySummary[] = useMemo(() => {
-    if (!startDate || !endDate) return [];
+  const calculationResult = useMemo(() => {
+    if (!startDate || !endDate) return { summaries: [], warnings: [], excludedCount: 0 };
     return calculateSalary(
       groupFilteredDiaries,
       new Date(startDate),
       new Date(endDate),
       selectedWorker || undefined,
       customers,
-      workPrices
+      workPrices,
+      workers
     );
-  }, [groupFilteredDiaries, startDate, endDate, selectedWorker, customers, workPrices]);
+  }, [groupFilteredDiaries, startDate, endDate, selectedWorker, customers, workPrices, workers]);
+
+  const summaries: SalarySummary[] = calculationResult.summaries;
+  const warnings: SalaryWarning[] = calculationResult.warnings;
+  const excludedCount = calculationResult.excludedCount;
 
   // 总计
   const grandTotal = useMemo(
     () => Math.round(summaries.reduce((sum, s) => sum + s.total, 0) * 100) / 100,
     [summaries]
   );
+
+  const getWorkerKey = (summary: SalarySummary): string => {
+    return summary.workerId || summary.workerName;
+  };
+
+  const getWorkerDeduction = (summary: SalarySummary): WorkerDeduction => {
+    return deductionsByWorker[getWorkerKey(summary)] || DEFAULT_DEDUCTION;
+  };
+
+  const calcWorkerDeductionTotal = (summary: SalarySummary): number => {
+    const d = getWorkerDeduction(summary);
+    return d.adv + d.advPeribadi + d.motor + d.epf + d.socso + d.permit + d.air + d.makanan;
+  };
+
+  const calcWorkerNetTotal = (summary: SalarySummary): number => {
+    return Math.max(0, summary.total - calcWorkerDeductionTotal(summary));
+  };
+
+  const grandNetTotal = useMemo(
+    () => Math.round(summaries.reduce((sum, s) => sum + calcWorkerNetTotal(s), 0) * 100) / 100,
+    [summaries, deductionsByWorker]
+  );
+
+  const handleDeductionChange = (summary: SalarySummary, key: DeductionKey, value: string) => {
+    const parsed = value.trim() === '' ? 0 : Number(value);
+    const amount = Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+    const workerKey = getWorkerKey(summary);
+    setDeductionsByWorker(prev => ({
+      ...prev,
+      [workerKey]: {
+        ...(prev[workerKey] || DEFAULT_DEDUCTION),
+        [key]: amount,
+      },
+    }));
+  };
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(deductionStorageKey);
+      if (!raw) {
+        setDeductionsByWorker({});
+        return;
+      }
+      const parsed = JSON.parse(raw) as Record<string, WorkerDeduction>;
+      setDeductionsByWorker(parsed || {});
+    } catch {
+      setDeductionsByWorker({});
+    }
+  }, [deductionStorageKey]);
+
+  useEffect(() => {
+    localStorage.setItem(deductionStorageKey, JSON.stringify(deductionsByWorker));
+  }, [deductionStorageKey, deductionsByWorker]);
 
   // 活跃工人列表
   const activeWorkers = useMemo(
@@ -64,7 +142,7 @@ export function SalaryReport() {
       alert('没有数据可导出');
       return;
     }
-    exportSalaryCSV(summaries, new Date(startDate), new Date(endDate));
+    exportSalaryCSV(summaries, new Date(startDate), new Date(endDate), deductionsByWorker, 0);
   };
 
   const toggleWorkerExpand = (workerName: string) => {
@@ -133,7 +211,7 @@ export function SalaryReport() {
             >
               <option value="">全部工人</option>
               {activeWorkers.map(w => (
-                <option key={w.id} value={w.name}>{w.name}</option>
+                <option key={w.id} value={w.id}>{w.name}</option>
               ))}
             </select>
           </div>
@@ -142,8 +220,24 @@ export function SalaryReport() {
         {/* 汇总 */}
         <div className="salary-summary-bar">
           <span>共 {summaries.length} 位工人</span>
-          <span className="salary-grand-total">总计: RM {grandTotal.toFixed(2)}</span>
+          <div className="salary-grand-totals">
+            <span className="salary-grand-total">毛额: RM {grandTotal.toFixed(2)}</span>
+            <span className="salary-grand-net-total">净额: RM {grandNetTotal.toFixed(2)}</span>
+          </div>
         </div>
+
+        {excludedCount > 0 && (
+          <div className="salary-warning-panel">
+            <div className="salary-warning-title">⚠️ 有 {excludedCount} 条记录未纳入核算</div>
+            <div className="salary-warning-list">
+              {warnings.map((w) => (
+                <div key={`${w.diaryId}-${w.reason}`} className="salary-warning-item">
+                  <strong>{w.date}</strong> · {w.customer} · {w.workType} ({w.unit})：{w.message}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* 报表内容 */}
         <div className="salary-content">
@@ -165,7 +259,10 @@ export function SalaryReport() {
                     <span className="salary-worker-count">{s.details.length} 条记录</span>
                   </div>
                   <div className="salary-worker-total">
-                    RM {s.total.toFixed(2)}
+                    <div className="salary-worker-money">
+                      <span>毛额 RM {s.total.toFixed(2)}</span>
+                      <span className="salary-worker-net">净额 RM {calcWorkerNetTotal(s).toFixed(2)}</span>
+                    </div>
                     <span className={`salary-expand-icon ${expandedWorker === s.workerName ? 'expanded' : ''}`}>
                       ▸
                     </span>
@@ -198,6 +295,24 @@ export function SalaryReport() {
                         ))}
                       </tbody>
                     </table>
+
+                    <div className="salary-deduction-panel">
+                      <div className="salary-deduction-title">扣除项（AIR 默认 RM 30，可修改）</div>
+                      <div className="salary-deduction-grid">
+                        <label>ADV<input type="number" min="0" step="0.01" value={getWorkerDeduction(s).adv} onChange={(e) => handleDeductionChange(s, 'adv', e.target.value)} /></label>
+                        <label>ADV PERIBADI<input type="number" min="0" step="0.01" value={getWorkerDeduction(s).advPeribadi} onChange={(e) => handleDeductionChange(s, 'advPeribadi', e.target.value)} /></label>
+                        <label>MOTOR<input type="number" min="0" step="0.01" value={getWorkerDeduction(s).motor} onChange={(e) => handleDeductionChange(s, 'motor', e.target.value)} /></label>
+                        <label>EPF<input type="number" min="0" step="0.01" value={getWorkerDeduction(s).epf} onChange={(e) => handleDeductionChange(s, 'epf', e.target.value)} /></label>
+                        <label>SOCSO<input type="number" min="0" step="0.01" value={getWorkerDeduction(s).socso} onChange={(e) => handleDeductionChange(s, 'socso', e.target.value)} /></label>
+                        <label>PERMIT<input type="number" min="0" step="0.01" value={getWorkerDeduction(s).permit} onChange={(e) => handleDeductionChange(s, 'permit', e.target.value)} /></label>
+                        <label>AIR<input type="number" min="0" step="0.01" value={getWorkerDeduction(s).air} onChange={(e) => handleDeductionChange(s, 'air', e.target.value)} /></label>
+                        <label>MAKANAN<input type="number" min="0" step="0.01" value={getWorkerDeduction(s).makanan} onChange={(e) => handleDeductionChange(s, 'makanan', e.target.value)} /></label>
+                      </div>
+                      <div className="salary-deduction-result">
+                        <span>扣除合计: RM {calcWorkerDeductionTotal(s).toFixed(2)}</span>
+                        <strong>实发: RM {calcWorkerNetTotal(s).toFixed(2)}</strong>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

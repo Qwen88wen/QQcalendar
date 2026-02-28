@@ -1,6 +1,8 @@
 import { supabase } from './supabase';
 import type { WorkPrice, WorkPriceInsert, WorkPriceUpdate, WorkType, UnitType } from '../types/database';
 
+export type SalaryCalcMode = 'SHARED_BY_WORKERS' | 'PER_WORKER';
+
 // 获取所有工作价格
 export async function getAllWorkPrices(): Promise<WorkPrice[]> {
   const { data, error } = await supabase
@@ -116,4 +118,17 @@ export function needsCustomerPrice(workType: WorkType): boolean {
 // 判断 POISON 是否不需要平分（每人独立计算）
 export function isPoisonWorkType(workType: WorkType): boolean {
   return workType === 'POISON';
+}
+
+/**
+ * 薪资计算模式
+ * - SHARED_BY_WORKERS: 同一条记录按工人人数平分数量与金额
+ * - PER_WORKER: 每位工人独立按整笔数量（或按单价一笔）计算
+ *
+ * 目前仅 POISON 采用 PER_WORKER，其他工种统一按 SHARED_BY_WORKERS。
+ * 该函数用于把规则显式化，方便后续扩展到「按工种+单位」差异化策略。
+ */
+export function getSalaryCalcMode(workType: WorkType, _unit: UnitType | null): SalaryCalcMode {
+  if (workType === 'POISON') return 'PER_WORKER';
+  return 'SHARED_BY_WORKERS';
 }
