@@ -45,8 +45,10 @@ export interface Diary {
   status: DiaryStatus;            // 状态: complete/incomplete
   customer: string | null;        // 园主名称 (旧字段，保留兼容)
   customer_id: string | null;     // 园主ID (关联 customers 表)
-  remark: string | null;          // 单位
+  unit: UnitType | null;          // 单位（新字段）
+  remark: string | null;          // 备注
   worker: string | null;          // 工人
+  worker_ids: string[] | null;    // 工人ID列表（结构化字段）
   vehicle: string | null;         // 车号
   weight: string | null;          // 数量
   flower_type: FlowerType | null;
@@ -68,7 +70,9 @@ export interface DiaryInsert {
   customer?: string | null;
   customer_id?: string | null;
   remark?: string | null;
+  unit?: UnitType | null;
   worker?: string | null;
+  worker_ids?: string[] | null;
   vehicle?: string | null;
   weight?: string | null;
   flower_type?: FlowerType | null;
@@ -87,7 +91,9 @@ export interface DiaryUpdate {
   customer?: string | null;
   customer_id?: string | null;
   remark?: string | null;
+  unit?: UnitType | null;
   worker?: string | null;
+  worker_ids?: string[] | null;
   vehicle?: string | null;
   weight?: string | null;
   flower_type?: FlowerType | null;
@@ -250,6 +256,28 @@ export interface SalarySummary {
   workerName: string;
   details: SalaryDetail[];
   total: number;
+}
+
+export type SalaryWarningReason =
+  | 'missing_workers'
+  | 'missing_unit_price'
+  | 'invalid_quantity'
+  | 'invalid_unit';
+
+export interface SalaryWarning {
+  diaryId: string;
+  date: string;
+  customer: string;
+  workType: WorkType;
+  unit: string;
+  reason: SalaryWarningReason;
+  message: string;
+}
+
+export interface SalaryCalculationResult {
+  summaries: SalarySummary[];
+  warnings: SalaryWarning[];
+  excludedCount: number;
 }
 
 // Database 类型定义

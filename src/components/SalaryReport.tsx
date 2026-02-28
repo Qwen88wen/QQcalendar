@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { calculateSalary, exportSalaryCSV } from '../lib/salary';
-import type { SalarySummary, SalaryGroup } from '../types/database';
+import type { SalarySummary, SalaryGroup, SalaryWarning } from '../types/database';
 import './SalaryReport.css';
 
 export function SalaryReport() {
@@ -25,17 +25,22 @@ export function SalaryReport() {
   );
 
   // 计算薪资
-  const summaries: SalarySummary[] = useMemo(() => {
-    if (!startDate || !endDate) return [];
+  const calculationResult = useMemo(() => {
+    if (!startDate || !endDate) return { summaries: [], warnings: [], excludedCount: 0 };
     return calculateSalary(
       groupFilteredDiaries,
       new Date(startDate),
       new Date(endDate),
       selectedWorker || undefined,
       customers,
-      workPrices
+      workPrices,
+      workers
     );
-  }, [groupFilteredDiaries, startDate, endDate, selectedWorker, customers, workPrices]);
+  }, [groupFilteredDiaries, startDate, endDate, selectedWorker, customers, workPrices, workers]);
+
+  const summaries: SalarySummary[] = calculationResult.summaries;
+  const warnings: SalaryWarning[] = calculationResult.warnings;
+  const excludedCount = calculationResult.excludedCount;
 
   // 总计
   const grandTotal = useMemo(
@@ -133,7 +138,7 @@ export function SalaryReport() {
             >
               <option value="">全部工人</option>
               {activeWorkers.map(w => (
-                <option key={w.id} value={w.name}>{w.name}</option>
+                <option key={w.id} value={w.id}>{w.name}</option>
               ))}
             </select>
           </div>
@@ -144,6 +149,19 @@ export function SalaryReport() {
           <span>共 {summaries.length} 位工人</span>
           <span className="salary-grand-total">总计: RM {grandTotal.toFixed(2)}</span>
         </div>
+
+        {excludedCount > 0 && (
+          <div className="salary-warning-panel">
+            <div className="salary-warning-title">⚠️ 有 {excludedCount} 条记录未纳入核算</div>
+            <div className="salary-warning-list">
+              {warnings.map((w) => (
+                <div key={`${w.diaryId}-${w.reason}`} className="salary-warning-item">
+                  <strong>{w.date}</strong> · {w.customer} · {w.workType} ({w.unit})：{w.message}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* 报表内容 */}
         <div className="salary-content">
