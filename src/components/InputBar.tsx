@@ -170,10 +170,15 @@ export function InputBar() {
         ).toISOString();
       }
 
+      const normalizedCustomerName = customer.trim();
+      const matchedCustomer = storeCustomers.find(
+        c => c.name.trim().toLowerCase() === normalizedCustomerName.toLowerCase()
+      );
+
       const resolvedPrices = resolveDiaryPrices(
         tag || null,
         remark.trim() || null,
-        customer.trim(),
+        normalizedCustomerName,
         storeCustomers,
         workPrices
       );
@@ -181,7 +186,7 @@ export function InputBar() {
       const newDiary = await createDiary({
         user_id: currentUser?.id || userId || 'unknown',
         user_name: userName || currentUsername,
-        customer: customer.trim(),
+        customer: normalizedCustomerName,
         worker: selectedWorkers.length > 0 ? selectedWorkers.join(', ') : null,
         remark: remark.trim() || null,
         vehicle: selectedVehicles.length > 0 ? selectedVehicles.join(', ') : null,
@@ -191,6 +196,8 @@ export function InputBar() {
         tag: tag || null,
         customer_price: resolvedPrices.customerPrice,
         worker_price: resolvedPrices.workerPrice,
+        customer_id: matchedCustomer?.id || null,
+        salary_group: matchedCustomer?.salary_group_default || 'TongHuat',
         operators: [currentUsername],
         created_at: createdAt,
       });

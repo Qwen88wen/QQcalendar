@@ -16,6 +16,9 @@ export type DiaryTag = WorkType;
 // 单位类型
 export type UnitType = 'TON' | 'POKOK' | 'EKAR' | 'JOB' | 'BAG' | 'DAY' | 'HALF DAY';
 
+// 薪资分组
+export type SalaryGroup = 'TongHuat' | 'AhSeng';
+
 // 工作类型对应的可用单位
 export const WORK_TYPE_UNITS: Record<WorkType, UnitType[]> = {
   'POISON': ['DAY', 'HALF DAY'],
@@ -53,6 +56,7 @@ export interface Diary {
   tag: DiaryTag | null;           // 工作类型
   customer_price: number | null;  // 向顾客收的价格 (用户自定义时)
   worker_price: number | null;    // 付给工人的价格 (用户自定义时)
+  salary_group: SalaryGroup | null; // 薪资分组
   created_at: string;
   updated_at: string;
 }
@@ -74,6 +78,7 @@ export interface DiaryInsert {
   tag?: DiaryTag | null;
   customer_price?: number | null;
   worker_price?: number | null;
+  salary_group?: SalaryGroup | null;
   created_at?: string;  // 允许指定创建日期
 }
 
@@ -92,6 +97,7 @@ export interface DiaryUpdate {
   tag?: DiaryTag | null;
   customer_price?: number | null;
   worker_price?: number | null;
+  salary_group?: SalaryGroup | null;
 }
 
 // diary_remarks 表 (无 user_id，只有 user_name)
@@ -141,6 +147,7 @@ export interface Customer {
   notes: string | null;
   harvest_customer_price: number | null;  // HARVEST 向顾客收的价格/TON
   harvest_worker_price: number | null;    // HARVEST 付给工人的价格/TON
+  salary_group_default: SalaryGroup | null; // 默认薪资分组
   is_active: boolean;
 }
 
@@ -150,6 +157,7 @@ export interface CustomerInsert {
   notes?: string | null;
   harvest_customer_price?: number | null;
   harvest_worker_price?: number | null;
+  salary_group_default?: SalaryGroup | null;
   is_active?: boolean;
 }
 
@@ -159,6 +167,7 @@ export interface CustomerUpdate {
   notes?: string | null;
   harvest_customer_price?: number | null;
   harvest_worker_price?: number | null;
+  salary_group_default?: SalaryGroup | null;
   is_active?: boolean;
 }
 

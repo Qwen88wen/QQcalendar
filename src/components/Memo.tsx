@@ -57,6 +57,17 @@ export function Memo() {
       filtered = filtered.filter(d => d.status === 'complete');
     }
     return filtered.sort((a, b) => {
+      const codeA = (getCustomerCode(a.customer) || '').trim();
+      const codeB = (getCustomerCode(b.customer) || '').trim();
+      if (!codeA && codeB) return 1;
+      if (codeA && !codeB) return -1;
+
+      const codeCompare = codeA.localeCompare(codeB, undefined, {
+        numeric: true,
+        sensitivity: 'base',
+      });
+      if (codeCompare !== 0) return codeCompare;
+
       const customerA = (a.customer || '').toLowerCase();
       const customerB = (b.customer || '').toLowerCase();
       if (customerA < customerB) return -1;

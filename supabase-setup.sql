@@ -27,6 +27,7 @@ CREATE TABLE diaries (
   flower_type INT4 DEFAULT 1 CHECK (flower_type BETWEEN 1 AND 5),
   operators TEXT[] DEFAULT '{}',  -- 操作过的用户列表
   notified BOOLEAN DEFAULT false, -- 是否已通知园主
+  salary_group TEXT DEFAULT 'TongHuat' CHECK (salary_group IN ('TongHuat', 'AhSeng')), -- 薪资分组
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

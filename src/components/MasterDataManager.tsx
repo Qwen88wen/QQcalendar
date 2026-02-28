@@ -3,7 +3,7 @@ import { useAppStore } from '../stores/appStore';
 import { createCustomer, updateCustomer, deactivateCustomer, activateCustomer, importCustomers } from '../lib/customers';
 import { createWorker, updateWorker, deactivateWorker, activateWorker } from '../lib/workers';
 import { createVehicle, updateVehicle, deactivateVehicle, activateVehicle } from '../lib/vehicles';
-import type { Customer, Worker, Vehicle, CustomerInsert } from '../types/database';
+import type { Customer, Worker, Vehicle, CustomerInsert, SalaryGroup } from '../types/database';
 import './MasterDataManager.css';
 
 type TabType = 'customers' | 'workers' | 'vehicles';
@@ -42,6 +42,7 @@ function parseCustomerCSV(csvText: string): CustomerInsert[] {
       notes,
       harvest_customer_price: customerPrice,
       harvest_worker_price: workerPrice,
+      salary_group_default: 'TongHuat',
     });
   }
 
@@ -110,6 +111,7 @@ export function MasterDataManager() {
   const [newCustomerNotes, setNewCustomerNotes] = useState('');
   const [newCustomerHarvestCustomerPrice, setNewCustomerHarvestCustomerPrice] = useState('');
   const [newCustomerHarvestWorkerPrice, setNewCustomerHarvestWorkerPrice] = useState('');
+  const [newCustomerSalaryGroup, setNewCustomerSalaryGroup] = useState<SalaryGroup>('TongHuat');
 
   const [newWorkerCode, setNewWorkerCode] = useState('');
   const [newWorkerName, setNewWorkerName] = useState('');
@@ -129,12 +131,22 @@ export function MasterDataManager() {
   const workerKeyword = workerSearch.trim().toLowerCase();
   const vehicleKeyword = vehicleSearch.trim().toLowerCase();
 
-  const filteredCustomers = visibleCustomers.filter((c) =>
-    !customerKeyword ||
-    c.name.toLowerCase().includes(customerKeyword) ||
-    (c.code || '').toLowerCase().includes(customerKeyword) ||
-    (c.notes || '').toLowerCase().includes(customerKeyword)
-  );
+  const filteredCustomers = visibleCustomers
+    .filter((c) =>
+      !customerKeyword ||
+      c.name.toLowerCase().includes(customerKeyword) ||
+      (c.code || '').toLowerCase().includes(customerKeyword) ||
+      (c.notes || '').toLowerCase().includes(customerKeyword)
+    )
+    .sort((a, b) => {
+      const codeA = (a.code || '').trim();
+      const codeB = (b.code || '').trim();
+      if (!codeA && codeB) return 1;
+      if (codeA && !codeB) return -1;
+      const codeCompare = codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' });
+      if (codeCompare !== 0) return codeCompare;
+      return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+    });
   const filteredWorkers = visibleWorkers.filter((w) =>
     !workerKeyword ||
     w.name.toLowerCase().includes(workerKeyword) ||
@@ -155,6 +167,7 @@ export function MasterDataManager() {
       notes: newCustomerNotes.trim() || null,
       harvest_customer_price: newCustomerHarvestCustomerPrice ? parseFloat(newCustomerHarvestCustomerPrice) : null,
       harvest_worker_price: newCustomerHarvestWorkerPrice ? parseFloat(newCustomerHarvestWorkerPrice) : null,
+      salary_group_default: newCustomerSalaryGroup,
     });
     if (result) {
       addCustomer(result);
@@ -163,6 +176,7 @@ export function MasterDataManager() {
       setNewCustomerNotes('');
       setNewCustomerHarvestCustomerPrice('');
       setNewCustomerHarvestWorkerPrice('');
+      setNewCustomerSalaryGroup('TongHuat');
     }
     setIsSubmitting(false);
   };
@@ -207,6 +221,7 @@ export function MasterDataManager() {
         notes: c.notes || '',
         harvest_customer_price: c.harvest_customer_price?.toString() || '',
         harvest_worker_price: c.harvest_worker_price?.toString() || '',
+        salary_group_default: c.salary_group_default || 'TongHuat',
       });
     } else if (type === 'workers') {
       setEditForm({ name: (item as Worker).name });
@@ -226,6 +241,7 @@ export function MasterDataManager() {
         notes: editForm.notes || null,
         harvest_customer_price: editForm.harvest_customer_price ? parseFloat(editForm.harvest_customer_price) : null,
         harvest_worker_price: editForm.harvest_worker_price ? parseFloat(editForm.harvest_worker_price) : null,
+        salary_group_default: (editForm.salary_group_default as SalaryGroup) || 'TongHuat',
       });
       if (result) updateCustomerInStore(result);
     } else if (type === 'workers') {
@@ -440,6 +456,14 @@ export function MasterDataManager() {
                 placeholder="割果工人价"
                 disabled={isSubmitting}
               />
+              <select
+                value={newCustomerSalaryGroup}
+                onChange={(e) => setNewCustomerSalaryGroup(e.target.value as SalaryGroup)}
+                disabled={isSubmitting}
+              >
+                <option value="TongHuat">TongHuat</option>
+                <option value="AhSeng">AhSeng</option>
+              </select>
               <button onClick={handleAddCustomer} disabled={!newCustomerName.trim() || isSubmitting}>
                 添加
               </button>
@@ -486,6 +510,13 @@ export function MasterDataManager() {
                         onChange={(e) => setEditForm({ ...editForm, harvest_worker_price: e.target.value })}
                         placeholder="工人价"
                       />
+                      <select
+                        value={editForm.salary_group_default || 'TongHuat'}
+                        onChange={(e) => setEditForm({ ...editForm, salary_group_default: e.target.value })}
+                      >
+                        <option value="TongHuat">TongHuat</option>
+                        <option value="AhSeng">AhSeng</option>
+                      </select>
                       <div className="edit-actions">
                         <button onClick={() => saveEdit('customers')} disabled={isSubmitting}>保存</button>
                         <button onClick={cancelEdit} className="cancel-btn">取消</button>
@@ -497,6 +528,7 @@ export function MasterDataManager() {
                         {c.code && <span className="item-code">{c.code}</span>}
                         <span className="item-name">{c.name}</span>
                         {c.notes && <span className="item-notes">{c.notes}</span>}
+                        <span className="item-notes">薪资组: {c.salary_group_default || 'TongHuat'}</span>
                         {(c.harvest_customer_price || c.harvest_worker_price) && (
                           <span className="item-prices">
                             割果: {c.harvest_customer_price || '-'} / {c.harvest_worker_price || '-'}
