@@ -62,10 +62,6 @@ export function SalaryReport() {
   const warnings: SalaryWarning[] = calculationResult.warnings;
   const excludedCount = calculationResult.excludedCount;
 
-  const summaries: SalarySummary[] = calculationResult.summaries;
-  const warnings: SalaryWarning[] = calculationResult.warnings;
-  const excludedCount = calculationResult.excludedCount;
-
   // 总计
   const grandTotal = useMemo(
     () => Math.round(summaries.reduce((sum, s) => sum + s.total, 0) * 100) / 100,

@@ -1,6 +1,6 @@
 import { getSalaryCalcMode } from './workPrices';
 import { parseDiaryUnit, resolveDiaryPrices } from './pricing';
-import type { Customer, Diary, SalarySummary, SalaryDetail, SalaryWarning, SalaryCalculationResult, WorkPrice, WorkType } from '../types/database';
+import type { Customer, Diary, SalarySummary, SalaryDetail, SalaryWarning, SalaryCalculationResult, WorkPrice, WorkType, Worker } from '../types/database';
 
 const round2 = (v: number) => Math.round(v * 100) / 100;
 
@@ -30,23 +30,28 @@ export function calculateSalary(
   endDate: Date,
   workerId?: string,
   customers: Customer[] = [],
-  workPrices: WorkPrice[] = []
+  workPrices: WorkPrice[] = [],
+  workers: Worker[] = []
 ): SalaryCalculationResult {
   const startMs = toKlStartMs(startDate);
   const endMs = toKlEndMs(endDate);
 
-  const workerMap = new Map<string, SalaryDetail[]>();
+  type WorkerBucket = {
+    workerId: string | null;
+    displayName: string;
+    details: SalaryDetail[];
+  };
+
+  const workerMap = new Map<string, WorkerBucket>();
   const warnings: SalaryWarning[] = [];
   let excludedCount = 0;
+
+  const workersById = new Map(workers.map((w) => [w.id, w]));
+  const workersByName = new Map(workers.map((w) => [w.name.trim().toLowerCase(), w]));
 
   for (const diary of diaries) {
     const diaryMs = Date.parse(diary.created_at);
     if (Number.isNaN(diaryMs) || diaryMs < startMs || diaryMs > endMs) continue;
-
-    const workerNames = (diary.worker || '')
-      .split(/[,，、]/)
-      .map(w => w.trim())
-      .filter(w => w.length > 0);
 
     const workType = (diary.tag || 'HARVEST') as WorkType;
     const displayDate = formatKlDate(diary.created_at);
@@ -65,11 +70,50 @@ export function calculateSalary(
       excludedCount += 1;
     };
 
-    if (workers.length === 0) {
+    const workerEntries: Array<{ id: string | null; name: string }> = [];
+    const seenWorkerKeys = new Set<string>();
+
+    for (const id of diary.worker_ids || []) {
+      const worker = workersById.get(id);
+      if (!worker) continue;
+      const key = `id:${worker.id}`;
+      if (seenWorkerKeys.has(key)) continue;
+      seenWorkerKeys.add(key);
+      workerEntries.push({ id: worker.id, name: worker.name });
+    }
+
+    const workerNames = (diary.worker || '')
+      .split(/[,，、]/)
+      .map((w) => w.trim())
+      .filter((w) => w.length > 0);
+
+    for (const workerName of workerNames) {
+      const matched = workersByName.get(workerName.toLowerCase());
+      if (matched) {
+        const key = `id:${matched.id}`;
+        if (seenWorkerKeys.has(key)) continue;
+        seenWorkerKeys.add(key);
+        workerEntries.push({ id: matched.id, name: matched.name });
+        continue;
+      }
+
+      const key = `name:${workerName.toLowerCase()}`;
+      if (seenWorkerKeys.has(key)) continue;
+      seenWorkerKeys.add(key);
+      workerEntries.push({ id: null, name: workerName });
+    }
+
+    if (workerEntries.length === 0) {
       warnAndExclude('missing_workers', '无工人，未纳入核算');
       continue;
     }
-    if (workerName && !workers.includes(workerName)) continue;
+
+    if (workerId) {
+      const filteredEntries = workerEntries.filter((w) => w.id === workerId);
+      if (filteredEntries.length === 0) continue;
+      workerEntries.length = 0;
+      workerEntries.push(...filteredEntries);
+    }
 
     const unit = parseDiaryUnit(diary.unit || diary.remark);
     if (!unit) {
@@ -106,8 +150,6 @@ export function calculateSalary(
     const sharedSubtotalCents = !perWorkerMode && hasQty ? Math.round(rawQty * unitPrice * 100) : 0;
 
     for (const [index, worker] of workerEntries.entries()) {
-      if (workerId && worker.id !== workerId) continue;
-
       let quantity: number | null;
       let subtotal: number;
 
@@ -116,7 +158,6 @@ export function calculateSalary(
           quantity = round2(rawQty);
           subtotal = round2(rawQty * unitPrice);
         } else {
-          // 保留空白数量但仍记录该工作（按单价计一笔）
           quantity = null;
           subtotal = round2(unitPrice);
         }
