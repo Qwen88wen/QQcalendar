@@ -4,9 +4,10 @@ import { calculateSalary, exportSalaryCSV } from '../lib/salary';
 import type { SalarySummary, SalaryGroup, SalaryWarning } from '../types/database';
 import './SalaryReport.css';
 
-type DeductionKey = 'adv' | 'advPeribadi' | 'motor' | 'epf' | 'socso' | 'permit' | 'air' | 'makanan';
+type DeductionKey = 'adv' | 'advPeribadi' | 'motor' | 'epf' | 'socso' | 'permit' | 'makanan';
 type WorkerDeduction = Record<DeductionKey, number>;
 
+const FIXED_AIR = 30;
 const DEFAULT_DEDUCTION: WorkerDeduction = {
   adv: 0,
   advPeribadi: 0,
@@ -14,7 +15,6 @@ const DEFAULT_DEDUCTION: WorkerDeduction = {
   epf: 0,
   socso: 0,
   permit: 0,
-  air: 30,
   makanan: 0,
 };
 
@@ -62,6 +62,10 @@ export function SalaryReport() {
   const warnings: SalaryWarning[] = calculationResult.warnings;
   const excludedCount = calculationResult.excludedCount;
 
+  const summaries: SalarySummary[] = calculationResult.summaries;
+  const warnings: SalaryWarning[] = calculationResult.warnings;
+  const excludedCount = calculationResult.excludedCount;
+
   // 总计
   const grandTotal = useMemo(
     () => Math.round(summaries.reduce((sum, s) => sum + s.total, 0) * 100) / 100,
@@ -78,7 +82,7 @@ export function SalaryReport() {
 
   const calcWorkerDeductionTotal = (summary: SalarySummary): number => {
     const d = getWorkerDeduction(summary);
-    return d.adv + d.advPeribadi + d.motor + d.epf + d.socso + d.permit + d.air + d.makanan;
+    return d.adv + d.advPeribadi + d.motor + d.epf + d.socso + d.permit + d.makanan + FIXED_AIR;
   };
 
   const calcWorkerNetTotal = (summary: SalarySummary): number => {
@@ -142,7 +146,7 @@ export function SalaryReport() {
       alert('没有数据可导出');
       return;
     }
-    exportSalaryCSV(summaries, new Date(startDate), new Date(endDate), deductionsByWorker, 0);
+    exportSalaryCSV(summaries, new Date(startDate), new Date(endDate), deductionsByWorker, FIXED_AIR);
   };
 
   const toggleWorkerExpand = (workerName: string) => {
@@ -297,7 +301,7 @@ export function SalaryReport() {
                     </table>
 
                     <div className="salary-deduction-panel">
-                      <div className="salary-deduction-title">扣除项（AIR 默认 RM 30，可修改）</div>
+                      <div className="salary-deduction-title">扣除项（AIR 固定 RM {FIXED_AIR.toFixed(2)}）</div>
                       <div className="salary-deduction-grid">
                         <label>ADV<input type="number" min="0" step="0.01" value={getWorkerDeduction(s).adv} onChange={(e) => handleDeductionChange(s, 'adv', e.target.value)} /></label>
                         <label>ADV PERIBADI<input type="number" min="0" step="0.01" value={getWorkerDeduction(s).advPeribadi} onChange={(e) => handleDeductionChange(s, 'advPeribadi', e.target.value)} /></label>
@@ -305,8 +309,8 @@ export function SalaryReport() {
                         <label>EPF<input type="number" min="0" step="0.01" value={getWorkerDeduction(s).epf} onChange={(e) => handleDeductionChange(s, 'epf', e.target.value)} /></label>
                         <label>SOCSO<input type="number" min="0" step="0.01" value={getWorkerDeduction(s).socso} onChange={(e) => handleDeductionChange(s, 'socso', e.target.value)} /></label>
                         <label>PERMIT<input type="number" min="0" step="0.01" value={getWorkerDeduction(s).permit} onChange={(e) => handleDeductionChange(s, 'permit', e.target.value)} /></label>
-                        <label>AIR<input type="number" min="0" step="0.01" value={getWorkerDeduction(s).air} onChange={(e) => handleDeductionChange(s, 'air', e.target.value)} /></label>
                         <label>MAKANAN<input type="number" min="0" step="0.01" value={getWorkerDeduction(s).makanan} onChange={(e) => handleDeductionChange(s, 'makanan', e.target.value)} /></label>
+                        <label>AIR<input type="number" value={FIXED_AIR.toFixed(2)} disabled /></label>
                       </div>
                       <div className="salary-deduction-result">
                         <span>扣除合计: RM {calcWorkerDeductionTotal(s).toFixed(2)}</span>

@@ -249,11 +249,6 @@ export function DiaryModal() {
       ? parsedManualWorkerPrice
       : resolvedPrices.workerPrice;
 
-    const normalizedWorkers = normalizeSelectedWorkers(selectedWorkers);
-    const workerIds = normalizedWorkers
-      .map((name) => storeWorkers.find((w) => w.name.trim().toLowerCase() === name.toLowerCase())?.id)
-      .filter((id): id is string => Boolean(id));
-
     const diaryData = {
       customer: customer || null,
       unit: unit || null,
