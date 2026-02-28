@@ -4,6 +4,20 @@ import { calculateSalary, exportSalaryCSV } from '../lib/salary';
 import type { SalarySummary, SalaryGroup, SalaryWarning } from '../types/database';
 import './SalaryReport.css';
 
+type DeductionKey = 'adv' | 'advPeribadi' | 'motor' | 'epf' | 'socso' | 'permit' | 'makanan';
+type WorkerDeduction = Record<DeductionKey, number>;
+
+const FIXED_AIR = 30;
+const DEFAULT_DEDUCTION: WorkerDeduction = {
+  adv: 0,
+  advPeribadi: 0,
+  motor: 0,
+  epf: 0,
+  socso: 0,
+  permit: 0,
+  makanan: 0,
+};
+
 export function SalaryReport() {
   const { diaries, showSalaryReport, toggleSalaryReport, workers, customers, workPrices } = useAppStore();
 
@@ -18,6 +32,7 @@ export function SalaryReport() {
   const [selectedWorker, setSelectedWorker] = useState('');
   const [expandedWorker, setExpandedWorker] = useState<string | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<SalaryGroup>('TongHuat');
+  const [deductionsByWorker, setDeductionsByWorker] = useState<Record<string, WorkerDeduction>>({});
 
   const groupFilteredDiaries = useMemo(
     () => diaries.filter((d) => (d.salary_group || 'TongHuat') === selectedGroup),
@@ -47,6 +62,36 @@ export function SalaryReport() {
     () => Math.round(summaries.reduce((sum, s) => sum + s.total, 0) * 100) / 100,
     [summaries]
   );
+
+  const getWorkerDeduction = (workerName: string): WorkerDeduction => {
+    return deductionsByWorker[workerName] || DEFAULT_DEDUCTION;
+  };
+
+  const calcWorkerDeductionTotal = (workerName: string): number => {
+    const d = getWorkerDeduction(workerName);
+    return d.adv + d.advPeribadi + d.motor + d.epf + d.socso + d.permit + d.makanan + FIXED_AIR;
+  };
+
+  const calcWorkerNetTotal = (summary: SalarySummary): number => {
+    return Math.max(0, summary.total - calcWorkerDeductionTotal(summary.workerName));
+  };
+
+  const grandNetTotal = useMemo(
+    () => Math.round(summaries.reduce((sum, s) => sum + calcWorkerNetTotal(s), 0) * 100) / 100,
+    [summaries, deductionsByWorker]
+  );
+
+  const handleDeductionChange = (workerName: string, key: DeductionKey, value: string) => {
+    const parsed = value.trim() === '' ? 0 : Number(value);
+    const amount = Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+    setDeductionsByWorker(prev => ({
+      ...prev,
+      [workerName]: {
+        ...(prev[workerName] || DEFAULT_DEDUCTION),
+        [key]: amount,
+      },
+    }));
+  };
 
   // 活跃工人列表
   const activeWorkers = useMemo(
@@ -147,7 +192,10 @@ export function SalaryReport() {
         {/* 汇总 */}
         <div className="salary-summary-bar">
           <span>共 {summaries.length} 位工人</span>
-          <span className="salary-grand-total">总计: RM {grandTotal.toFixed(2)}</span>
+          <div className="salary-grand-totals">
+            <span className="salary-grand-total">毛额: RM {grandTotal.toFixed(2)}</span>
+            <span className="salary-grand-net-total">净额: RM {grandNetTotal.toFixed(2)}</span>
+          </div>
         </div>
 
         {excludedCount > 0 && (
@@ -183,7 +231,10 @@ export function SalaryReport() {
                     <span className="salary-worker-count">{s.details.length} 条记录</span>
                   </div>
                   <div className="salary-worker-total">
-                    RM {s.total.toFixed(2)}
+                    <div className="salary-worker-money">
+                      <span>毛额 RM {s.total.toFixed(2)}</span>
+                      <span className="salary-worker-net">净额 RM {calcWorkerNetTotal(s).toFixed(2)}</span>
+                    </div>
                     <span className={`salary-expand-icon ${expandedWorker === s.workerName ? 'expanded' : ''}`}>
                       ▸
                     </span>
@@ -216,6 +267,24 @@ export function SalaryReport() {
                         ))}
                       </tbody>
                     </table>
+
+                    <div className="salary-deduction-panel">
+                      <div className="salary-deduction-title">扣除项（AIR 固定 RM {FIXED_AIR.toFixed(2)}）</div>
+                      <div className="salary-deduction-grid">
+                        <label>ADV<input type="number" min="0" step="0.01" value={getWorkerDeduction(s.workerName).adv} onChange={(e) => handleDeductionChange(s.workerName, 'adv', e.target.value)} /></label>
+                        <label>ADV PERIBADI<input type="number" min="0" step="0.01" value={getWorkerDeduction(s.workerName).advPeribadi} onChange={(e) => handleDeductionChange(s.workerName, 'advPeribadi', e.target.value)} /></label>
+                        <label>MOTOR<input type="number" min="0" step="0.01" value={getWorkerDeduction(s.workerName).motor} onChange={(e) => handleDeductionChange(s.workerName, 'motor', e.target.value)} /></label>
+                        <label>EPF<input type="number" min="0" step="0.01" value={getWorkerDeduction(s.workerName).epf} onChange={(e) => handleDeductionChange(s.workerName, 'epf', e.target.value)} /></label>
+                        <label>SOCSO<input type="number" min="0" step="0.01" value={getWorkerDeduction(s.workerName).socso} onChange={(e) => handleDeductionChange(s.workerName, 'socso', e.target.value)} /></label>
+                        <label>PERMIT<input type="number" min="0" step="0.01" value={getWorkerDeduction(s.workerName).permit} onChange={(e) => handleDeductionChange(s.workerName, 'permit', e.target.value)} /></label>
+                        <label>MAKANAN<input type="number" min="0" step="0.01" value={getWorkerDeduction(s.workerName).makanan} onChange={(e) => handleDeductionChange(s.workerName, 'makanan', e.target.value)} /></label>
+                        <label>AIR<input type="number" value={FIXED_AIR.toFixed(2)} disabled /></label>
+                      </div>
+                      <div className="salary-deduction-result">
+                        <span>扣除合计: RM {calcWorkerDeductionTotal(s.workerName).toFixed(2)}</span>
+                        <strong>实发: RM {calcWorkerNetTotal(s).toFixed(2)}</strong>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
