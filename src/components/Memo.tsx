@@ -89,6 +89,17 @@ export function Memo() {
     return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
   };
 
+  const normalizeLegacyUnit = (value: string | null | undefined) => {
+    if (!value) return null;
+    const normalized = value.trim().toUpperCase();
+    const validUnits = ['TON', 'POKOK', 'EKAR', 'JOB', 'BAG', 'DAY', 'HALF DAY'];
+    return validUnits.includes(normalized) ? normalized : null;
+  };
+
+  const getDisplayUnit = (diary: { unit: string | null; remark: string | null }) => {
+    return diary.unit || normalizeLegacyUnit(diary.remark);
+  };
+
   // 切换选择
   const toggleSelect = (id: string) => {
     const newSelected = new Set(selectedIds);
@@ -306,6 +317,9 @@ export function Memo() {
                 )}
 
                 <div className="memo-item-details">
+                  {diary.weight && (
+                    <span className="detail">⚖️ {diary.weight} {getDisplayUnit(diary) || ''}</span>
+                  )}
                   {diary.worker && <span className="detail">👷 {diary.worker}</span>}
                   {diary.vehicle && <span className="detail">🚗 {diary.vehicle}</span>}
                 </div>

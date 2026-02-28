@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { createDiary } from '../lib/diary';
 import { resolveDiaryPrices } from '../lib/pricing';
@@ -125,6 +125,13 @@ export function InputBar() {
     return ALL_UNIT_OPTIONS;
   }, [tag]);
 
+  // 当工种变化导致当前单位不再可用时，主动清空单位，避免提交到错误组合
+  useEffect(() => {
+    if (unit && !availableUnits.includes(unit)) {
+      setUnit('');
+    }
+  }, [unit, availableUnits]);
+
   // 切换工人选择
   const toggleWorker = (workerName: string) => {
     setSelectedWorkers(prev =>
@@ -224,11 +231,13 @@ export function InputBar() {
         ? parsedManualWorkerPrice
         : resolvedPrices.workerPrice;
 
+      const normalizedWorkers = normalizeSelectedWorkers(selectedWorkers);
+
       const newDiary = await createDiary({
         user_id: currentUser?.id || userId || 'unknown',
         user_name: userName || currentUsername,
         customer: normalizedCustomerName,
-        worker: selectedWorkers.length > 0 ? selectedWorkers.join(', ') : null,
+        worker: normalizedWorkers.length > 0 ? normalizedWorkers.join(', ') : null,
         unit: unit || null,
         remark: remark.trim() || null,
         vehicle: selectedVehicles.length > 0 ? selectedVehicles.join(', ') : null,
@@ -461,7 +470,7 @@ export function InputBar() {
                 disabled={isSubmitting}
                 className="unit-select"
               >
-                <option value="">单位/备注</option>
+                <option value="">单位</option>
                 {availableUnits.map((unit) => (
                   <option key={unit} value={unit}>{unit}</option>
                 ))}
