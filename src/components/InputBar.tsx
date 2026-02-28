@@ -224,17 +224,11 @@ export function InputBar() {
         ? parsedManualWorkerPrice
         : resolvedPrices.workerPrice;
 
-      const normalizedWorkers = normalizeSelectedWorkers(selectedWorkers);
-      const workerIds = normalizedWorkers
-        .map((name) => storeWorkers.find((w) => w.name.trim().toLowerCase() === name.toLowerCase())?.id)
-        .filter((id): id is string => Boolean(id));
-
       const newDiary = await createDiary({
         user_id: currentUser?.id || userId || 'unknown',
         user_name: userName || currentUsername,
         customer: normalizedCustomerName,
-        worker: normalizedWorkers.length > 0 ? normalizedWorkers.join(', ') : null,
-        worker_ids: workerIds.length > 0 ? workerIds : null,
+        worker: selectedWorkers.length > 0 ? selectedWorkers.join(', ') : null,
         unit: unit || null,
         remark: remark.trim() || null,
         vehicle: selectedVehicles.length > 0 ? selectedVehicles.join(', ') : null,

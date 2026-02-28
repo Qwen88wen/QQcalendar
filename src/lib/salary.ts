@@ -1,6 +1,6 @@
 import { getSalaryCalcMode } from './workPrices';
 import { parseDiaryUnit, resolveDiaryPrices } from './pricing';
-import type { Customer, Diary, SalarySummary, SalaryDetail, SalaryWarning, SalaryCalculationResult, WorkPrice, WorkType, Worker } from '../types/database';
+import type { Customer, Diary, SalarySummary, SalaryDetail, SalaryWarning, SalaryCalculationResult, WorkPrice, WorkType } from '../types/database';
 
 const round2 = (v: number) => Math.round(v * 100) / 100;
 
@@ -30,15 +30,12 @@ export function calculateSalary(
   endDate: Date,
   workerId?: string,
   customers: Customer[] = [],
-  workPrices: WorkPrice[] = [],
-  workers: Worker[] = []
+  workPrices: WorkPrice[] = []
 ): SalaryCalculationResult {
   const startMs = toKlStartMs(startDate);
   const endMs = toKlEndMs(endDate);
 
-  const workerMap = new Map<string, { workerId: string | null; displayName: string; details: SalaryDetail[] }>();
-  const workerById = new Map(workers.map((w) => [w.id, w]));
-  const workerIdByName = new Map(workers.map((w) => [w.name.trim().toLowerCase(), w.id]));
+  const workerMap = new Map<string, SalaryDetail[]>();
   const warnings: SalaryWarning[] = [];
   let excludedCount = 0;
 
@@ -50,23 +47,6 @@ export function calculateSalary(
       .split(/[,，、]/)
       .map(w => w.trim())
       .filter(w => w.length > 0);
-
-    const normalizedNameList = [...new Set(workerNames.map((name) => name.trim()))];
-    const workerEntries = diary.worker_ids && diary.worker_ids.length > 0
-      ? diary.worker_ids.map((id) => {
-        const profile = workerById.get(id);
-        return {
-          id,
-          name: profile?.name || id,
-        };
-      })
-      : normalizedNameList.map((name) => {
-        const resolvedId = workerIdByName.get(name.toLowerCase()) || null;
-        return {
-          id: resolvedId,
-          name,
-        };
-      });
 
     const workType = (diary.tag || 'HARVEST') as WorkType;
     const displayDate = formatKlDate(diary.created_at);
@@ -85,11 +65,11 @@ export function calculateSalary(
       excludedCount += 1;
     };
 
-    if (workerEntries.length === 0) {
+    if (workers.length === 0) {
       warnAndExclude('missing_workers', '无工人，未纳入核算');
       continue;
     }
-    if (workerId && !workerEntries.some((entry) => entry.id === workerId)) continue;
+    if (workerName && !workers.includes(workerName)) continue;
 
     const unit = parseDiaryUnit(diary.unit || diary.remark);
     if (!unit) {
