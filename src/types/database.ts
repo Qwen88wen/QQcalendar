@@ -48,6 +48,7 @@ export interface Diary {
   unit: UnitType | null;          // 单位（新字段）
   remark: string | null;          // 备注
   worker: string | null;          // 工人
+  worker_ids: string[] | null;    // 工人ID列表（结构化字段）
   vehicle: string | null;         // 车号
   weight: string | null;          // 数量
   flower_type: FlowerType | null;
@@ -71,6 +72,7 @@ export interface DiaryInsert {
   remark?: string | null;
   unit?: UnitType | null;
   worker?: string | null;
+  worker_ids?: string[] | null;
   vehicle?: string | null;
   weight?: string | null;
   flower_type?: FlowerType | null;
@@ -91,6 +93,7 @@ export interface DiaryUpdate {
   remark?: string | null;
   unit?: UnitType | null;
   worker?: string | null;
+  worker_ids?: string[] | null;
   vehicle?: string | null;
   weight?: string | null;
   flower_type?: FlowerType | null;
@@ -250,6 +253,7 @@ export interface SalaryDetail {
 
 // 工人薪资汇总
 export interface SalarySummary {
+  workerId?: string | null;
   workerName: string;
   details: SalaryDetail[];
   total: number;

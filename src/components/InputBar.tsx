@@ -134,6 +134,20 @@ export function InputBar() {
     );
   };
 
+  const normalizeSelectedWorkers = (names: string[]): string[] => {
+    const seen = new Set<string>();
+    const normalized: string[] = [];
+    for (const name of names) {
+      const trimmed = name.trim();
+      if (!trimmed) continue;
+      const key = trimmed.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      normalized.push(trimmed);
+    }
+    return normalized;
+  };
+
   // 切换车辆选择
   const toggleVehicle = (plate: string) => {
     setSelectedVehicles(prev =>

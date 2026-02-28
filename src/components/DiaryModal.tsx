@@ -111,6 +111,20 @@ export function DiaryModal() {
     );
   };
 
+  const normalizeSelectedWorkers = (names: string[]): string[] => {
+    const seen = new Set<string>();
+    const normalized: string[] = [];
+    for (const name of names) {
+      const trimmed = name.trim();
+      if (!trimmed) continue;
+      const key = trimmed.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      normalized.push(trimmed);
+    }
+    return normalized;
+  };
+
   // 切换车辆选择
   const toggleVehicle = (plate: string) => {
     setSelectedVehicles(prev =>
@@ -146,8 +160,12 @@ export function DiaryModal() {
         setTag(selectedDiary.tag || null);
         setManualWorkerPrice(selectedDiary.worker_price == null ? '' : String(selectedDiary.worker_price));
         // 解析工人列表
+        const workerFromIds = (selectedDiary.worker_ids || [])
+          .map((id) => storeWorkers.find((w) => w.id === id)?.name)
+          .filter((name): name is string => Boolean(name));
         const workerStr = selectedDiary.worker || '';
-        const workerList = workerStr ? workerStr.split(',').map(w => w.trim()).filter(Boolean) : [];
+        const workerFromText = workerStr ? workerStr.split(',').map(w => w.trim()).filter(Boolean) : [];
+        const workerList = workerFromIds.length > 0 ? workerFromIds : workerFromText;
         setSelectedWorkers(workerList);
         setWorkerSearch('');
         setShowWorkerDropdown(false);
@@ -175,7 +193,7 @@ export function DiaryModal() {
         setShowVehicleDropdown(false);
       }
     }
-  }, [selectedDiary]);
+  }, [selectedDiary, storeWorkers]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -235,7 +253,8 @@ export function DiaryModal() {
       customer: customer || null,
       unit: unit || null,
       remark: remark || null,
-      worker: selectedWorkers.length > 0 ? selectedWorkers.join(', ') : null,
+      worker: normalizedWorkers.length > 0 ? normalizedWorkers.join(', ') : null,
+      worker_ids: workerIds.length > 0 ? workerIds : null,
       vehicle: selectedVehicles.length > 0 ? selectedVehicles.join(', ') : null,
       weight: weight || null,
       status,
