@@ -78,6 +78,13 @@ export function DiaryModal() {
     return ALL_UNIT_OPTIONS;
   }, [tag]);
 
+  // 当工种变化导致单位不再合法时，清空单位避免保存错误组合
+  useEffect(() => {
+    if (unit && !availableUnits.includes(unit)) {
+      setUnit('');
+    }
+  }, [unit, availableUnits]);
+
   // 从 store 获取工人名称列表并排序过滤
   const sortedFilteredWorkers = useMemo(() => {
     const workerNames = storeWorkers.map(w => w.name);
@@ -249,6 +256,11 @@ export function DiaryModal() {
       ? parsedManualWorkerPrice
       : resolvedPrices.workerPrice;
 
+    const normalizedWorkers = normalizeSelectedWorkers(selectedWorkers);
+    const workerIds = normalizedWorkers
+      .map((name) => storeWorkers.find((w) => w.name === name)?.id)
+      .filter((id): id is string => Boolean(id));
+
     const diaryData = {
       customer: customer || null,
       unit: unit || null,
@@ -376,8 +388,8 @@ export function DiaryModal() {
                   className="quantity-number"
                 />
                 <select
-                  value={remark}
-                  onChange={(e) => setRemark(e.target.value)}
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value as UnitType | '')}
                   className="quantity-unit"
                 >
                   <option value="">单位</option>
