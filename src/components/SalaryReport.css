@@ -62,6 +62,32 @@
   background: #e0e0e0;
 }
 
+
+.salary-group-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px 0;
+  background: #fafafa;
+}
+
+.salary-group-tab {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  background: white;
+  color: #666;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.salary-group-tab.active {
+  border-color: #FF91A4;
+  background: #FFF0F5;
+  color: #D4838F;
+  font-weight: 600;
+}
+
 /* 筛选区 */
 .salary-filters {
   padding: 12px 16px;

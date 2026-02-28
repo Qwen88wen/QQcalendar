@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { calculateSalary, exportSalaryCSV } from '../lib/salary';
-import type { SalarySummary } from '../types/database';
+import type { SalarySummary, SalaryGroup } from '../types/database';
 import './SalaryReport.css';
 
 export function SalaryReport() {
@@ -17,19 +17,25 @@ export function SalaryReport() {
   const [endDate, setEndDate] = useState(defaultEnd);
   const [selectedWorker, setSelectedWorker] = useState('');
   const [expandedWorker, setExpandedWorker] = useState<string | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<SalaryGroup>('TongHuat');
+
+  const groupFilteredDiaries = useMemo(
+    () => diaries.filter((d) => (d.salary_group || 'TongHuat') === selectedGroup),
+    [diaries, selectedGroup]
+  );
 
   // 计算薪资
   const summaries: SalarySummary[] = useMemo(() => {
     if (!startDate || !endDate) return [];
     return calculateSalary(
-      diaries,
+      groupFilteredDiaries,
       new Date(startDate),
       new Date(endDate),
       selectedWorker || undefined,
       customers,
       workPrices
     );
-  }, [diaries, startDate, endDate, selectedWorker, customers, workPrices]);
+  }, [groupFilteredDiaries, startDate, endDate, selectedWorker, customers, workPrices]);
 
   // 总计
   const grandTotal = useMemo(
@@ -74,6 +80,22 @@ export function SalaryReport() {
         <div className="salary-header">
           <h3>薪资报表</h3>
           <button className="salary-close-btn" onClick={toggleSalaryReport}>×</button>
+        </div>
+
+        {/* 分组标签 */}
+        <div className="salary-group-tabs">
+          <button
+            className={`salary-group-tab ${selectedGroup === 'TongHuat' ? 'active' : ''}`}
+            onClick={() => setSelectedGroup('TongHuat')}
+          >
+            TongHuat
+          </button>
+          <button
+            className={`salary-group-tab ${selectedGroup === 'AhSeng' ? 'active' : ''}`}
+            onClick={() => setSelectedGroup('AhSeng')}
+          >
+            AhSeng
+          </button>
         </div>
 
         {/* 筛选区 */}
