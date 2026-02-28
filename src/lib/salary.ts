@@ -1,6 +1,6 @@
 import { getSalaryCalcMode } from './workPrices';
 import { parseDiaryUnit, resolveDiaryPrices } from './pricing';
-import type { Customer, Diary, SalarySummary, SalaryDetail, WorkPrice, WorkType } from '../types/database';
+import type { Customer, Diary, SalarySummary, SalaryDetail, SalaryWarning, SalaryCalculationResult, WorkPrice, WorkType } from '../types/database';
 
 const round2 = (v: number) => Math.round(v * 100) / 100;
 
@@ -31,11 +31,13 @@ export function calculateSalary(
   workerName?: string,
   customers: Customer[] = [],
   workPrices: WorkPrice[] = []
-): SalarySummary[] {
+): SalaryCalculationResult {
   const startMs = toKlStartMs(startDate);
   const endMs = toKlEndMs(endDate);
 
   const workerMap = new Map<string, SalaryDetail[]>();
+  const warnings: SalaryWarning[] = [];
+  let excludedCount = 0;
 
   for (const diary of diaries) {
     const diaryMs = Date.parse(diary.created_at);
@@ -46,16 +48,40 @@ export function calculateSalary(
       .map(w => w.trim())
       .filter(w => w.length > 0);
 
-    if (workers.length === 0) continue;
+    const workType = (diary.tag || 'HARVEST') as WorkType;
+    const displayDate = formatKlDate(diary.created_at);
+    const displayUnit = diary.unit || diary.remark || '-';
+
+    const warnAndExclude = (reason: SalaryWarning['reason'], message: string) => {
+      warnings.push({
+        diaryId: diary.id,
+        date: displayDate,
+        customer: diary.customer || '-',
+        workType,
+        unit: displayUnit,
+        reason,
+        message,
+      });
+      excludedCount += 1;
+    };
+
+    if (workers.length === 0) {
+      warnAndExclude('missing_workers', '无工人，未纳入核算');
+      continue;
+    }
     if (workerName && !workers.includes(workerName)) continue;
 
-    const workType = (diary.tag || 'HARVEST') as WorkType;
-    const unit = parseDiaryUnit(diary.remark);
+    const unit = parseDiaryUnit(diary.unit || diary.remark);
+    if (!unit) {
+      warnAndExclude('invalid_unit', '单位缺失或无效，未纳入核算');
+      continue;
+    }
     const calcMode = getSalaryCalcMode(workType, unit);
     const perWorkerMode = calcMode === 'PER_WORKER';
 
     const resolved = resolveDiaryPrices(
       diary.tag,
+      diary.unit || null,
       diary.remark,
       diary.customer,
       customers,
@@ -63,12 +89,18 @@ export function calculateSalary(
     );
 
     const unitPrice = diary.worker_price ?? resolved.workerPrice;
-    if (unitPrice == null) continue;
+    if (unitPrice == null) {
+      warnAndExclude('missing_unit_price', '缺少工资单价，未纳入核算');
+      continue;
+    }
 
     const rawQty = diary.weight ? parseFloat(diary.weight) : Number.NaN;
     const hasQty = Number.isFinite(rawQty) && rawQty > 0;
 
-    if (!perWorkerMode && !hasQty) continue;
+    if (!perWorkerMode && !hasQty) {
+      warnAndExclude('invalid_quantity', '普通工种数量缺失或无效，未纳入核算');
+      continue;
+    }
 
     const sharedQtyCents = !perWorkerMode && hasQty ? Math.round(rawQty * 100) : 0;
     const sharedSubtotalCents = !perWorkerMode && hasQty ? Math.round(rawQty * unitPrice * 100) : 0;
@@ -101,10 +133,10 @@ export function calculateSalary(
       }
 
       const detail: SalaryDetail = {
-        date: formatKlDate(diary.created_at),
+        date: displayDate,
         customer: diary.customer || '-',
         workType,
-        unit: diary.remark || '-',
+        unit,
         quantity,
         unitPrice,
         subtotal,
@@ -131,7 +163,7 @@ export function calculateSalary(
   }
 
   summaries.sort((a, b) => b.total - a.total);
-  return summaries;
+  return { summaries, warnings, excludedCount };
 }
 
 const escapeCsv = (value: string | number | null | undefined): string => {

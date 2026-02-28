@@ -48,6 +48,7 @@ export function DiaryModal() {
 
   // 表单状态
   const [customer, setCustomer] = useState('');
+  const [unit, setUnit] = useState<UnitType | ''>('');
   const [remark, setRemark] = useState('');
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
   const [weight, setWeight] = useState('');
@@ -132,7 +133,13 @@ export function DiaryModal() {
 
       if (selectedDiary) {
         setCustomer(selectedDiary.customer || '');
-        setRemark(selectedDiary.remark || '');
+        const rawRemark = selectedDiary.remark || '';
+        const normalizedRemark = rawRemark.trim().toUpperCase();
+        const unitFromLegacy = ['TON', 'POKOK', 'EKAR', 'JOB', 'BAG', 'DAY', 'HALF DAY'].includes(normalizedRemark)
+          ? normalizedRemark
+          : '';
+        setUnit((selectedDiary.unit as UnitType | null) || (unitFromLegacy as UnitType | ''));
+        setRemark(unitFromLegacy ? '' : rawRemark);
         setWeight(selectedDiary.weight || '');
         setStatus(selectedDiary.status || 'incomplete');
         setNotified(selectedDiary.notified || false);
@@ -153,6 +160,7 @@ export function DiaryModal() {
       } else {
         // 新建时清空表单
         setCustomer('');
+        setUnit('');
         setRemark('');
         setWeight('');
         setStatus('incomplete');
@@ -182,8 +190,34 @@ export function DiaryModal() {
       ? currentOperators
       : [...currentOperators, activeInputUser];
 
+    const normalizedCustomerName = (customer || '').trim();
+    const matchedCustomer = storeCustomers.find(
+      c => c.name.trim().toLowerCase() === normalizedCustomerName.toLowerCase()
+    );
+
+    if (!matchedCustomer?.salary_group_default) {
+      alert('该园主未配置薪资分组，请先在主档设置后再保存。');
+      setIsSubmitting(false);
+      return;
+    }
+
+    const parsedQty = weight.trim() === '' ? Number.NaN : Number(weight.trim());
+    const isPerWorkerType = tag === 'POISON';
+    if (!isPerWorkerType && (!Number.isFinite(parsedQty) || parsedQty <= 0)) {
+      alert('普通工种必须填写有效数量（大于 0）。');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!unit) {
+      alert('请选择单位后再保存。');
+      setIsSubmitting(false);
+      return;
+    }
+
     const resolvedPrices = resolveDiaryPrices(
       tag,
+      unit || null,
       remark || null,
       customer || null,
       storeCustomers,
@@ -199,6 +233,7 @@ export function DiaryModal() {
 
     const diaryData = {
       customer: customer || null,
+      unit: unit || null,
       remark: remark || null,
       worker: selectedWorkers.length > 0 ? selectedWorkers.join(', ') : null,
       vehicle: selectedVehicles.length > 0 ? selectedVehicles.join(', ') : null,
@@ -208,6 +243,7 @@ export function DiaryModal() {
       tag,
       customer_price: resolvedPrices.customerPrice,
       worker_price: finalWorkerPrice,
+      salary_group: matchedCustomer.salary_group_default,
       operators: newOperators,
     };
 
@@ -331,6 +367,16 @@ export function DiaryModal() {
                   ))}
                 </select>
               </div>
+            </div>
+
+            <div className="form-group">
+              <label>备注</label>
+              <input
+                type="text"
+                value={remark}
+                onChange={(e) => setRemark(e.target.value)}
+                placeholder="备注（可选）"
+              />
             </div>
 
             <div className="form-group worker-group">

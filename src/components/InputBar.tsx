@@ -51,6 +51,7 @@ export function InputBar() {
   // 表单字段
   const [customer, setCustomer] = useState('');
   const [selectedWorkers, setSelectedWorkers] = useState<string[]>([]);
+  const [unit, setUnit] = useState<UnitType | ''>('');
   const [remark, setRemark] = useState('');
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
   const [weight, setWeight] = useState('');
@@ -176,8 +177,26 @@ export function InputBar() {
         c => c.name.trim().toLowerCase() === normalizedCustomerName.toLowerCase()
       );
 
+      if (!matchedCustomer?.salary_group_default) {
+        alert('该园主未配置薪资分组，请先在主档设置后再提交。');
+        return;
+      }
+
+      const parsedQty = weight.trim() === '' ? Number.NaN : Number(weight.trim());
+      const isPerWorkerType = tag === 'POISON';
+      if (!isPerWorkerType && (!Number.isFinite(parsedQty) || parsedQty <= 0)) {
+        alert('普通工种必须填写有效数量（大于 0）。');
+        return;
+      }
+
+      if (!unit) {
+        alert('请选择单位后再提交。');
+        return;
+      }
+
       const resolvedPrices = resolveDiaryPrices(
         tag || null,
+        unit || null,
         remark.trim() || null,
         normalizedCustomerName,
         storeCustomers,
@@ -196,6 +215,7 @@ export function InputBar() {
         user_name: userName || currentUsername,
         customer: normalizedCustomerName,
         worker: selectedWorkers.length > 0 ? selectedWorkers.join(', ') : null,
+        unit: unit || null,
         remark: remark.trim() || null,
         vehicle: selectedVehicles.length > 0 ? selectedVehicles.join(', ') : null,
         weight: weight.trim() || null,
@@ -205,7 +225,7 @@ export function InputBar() {
         customer_price: resolvedPrices.customerPrice,
         worker_price: finalWorkerPrice,
         customer_id: matchedCustomer?.id || null,
-        salary_group: matchedCustomer?.salary_group_default || 'TongHuat',
+        salary_group: matchedCustomer.salary_group_default,
         operators: [currentUsername],
         created_at: createdAt,
       });
@@ -219,6 +239,7 @@ export function InputBar() {
         setWorkerSearch('');
         setTagSearch('');
         setVehicleSearch('');
+        setUnit('');
         setRemark('');
         setWeight('');
         setStatus('incomplete');
@@ -421,8 +442,8 @@ export function InputBar() {
                 className="quantity-input"
               />
               <select
-                value={remark}
-                onChange={(e) => setRemark(e.target.value)}
+                value={unit}
+                onChange={(e) => setUnit(e.target.value as UnitType | '')}
                 disabled={isSubmitting}
                 className="unit-select"
               >
@@ -432,6 +453,18 @@ export function InputBar() {
                 ))}
               </select>
             </div>
+          </div>
+
+          <div className="input-field quantity-field">
+            <label>备注</label>
+            <input
+              type="text"
+              value={remark}
+              onChange={(e) => setRemark(e.target.value)}
+              placeholder="备注（可选）"
+              disabled={isSubmitting}
+              className="quantity-input"
+            />
           </div>
 
           {/* 工资单价（可手动输入） */}

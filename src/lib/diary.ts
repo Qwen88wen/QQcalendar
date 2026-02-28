@@ -22,21 +22,31 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 
 export async function createDiary(diary: DiaryInsert): Promise<Diary | null> {
   console.log('[DB] 正在创建记录:', diary);
+  const payload: Record<string, unknown> = { ...diary };
 
-  const { data, error } = await supabase
-    .from('diaries')
-    .insert(diary as never)
-    .select()
-    .single();
+  while (true) {
+    const { data, error } = await supabase
+      .from('diaries')
+      .insert(payload as never)
+      .select()
+      .single();
 
-  if (error) {
+    if (!error) {
+      console.log('[DB] 记录创建成功:', data);
+      return data as Diary;
+    }
+
+    const missingColumn = error.message.match(/Could not find the '(.+)' column of 'diaries' in the schema cache/i)?.[1];
+    if (missingColumn && missingColumn in payload) {
+      console.warn(`[DB] 创建记录时检测到缺失列 ${missingColumn}，自动移除后重试。`);
+      delete payload[missingColumn];
+      continue;
+    }
+
     console.error('[DB] 创建记录失败:', error.message, error);
     alert(`创建失败: ${error.message}`);
     return null;
   }
-
-  console.log('[DB] 记录创建成功:', data);
-  return data as Diary;
 }
 
 export async function getDiaries(): Promise<Diary[]> {
@@ -55,22 +65,32 @@ export async function getDiaries(): Promise<Diary[]> {
 
 export async function updateDiary(id: string, updates: DiaryUpdate): Promise<Diary | null> {
   console.log('[DB] 正在更新记录:', id, updates);
+  const payload: Record<string, unknown> = { ...updates };
 
-  const { data, error } = await supabase
-    .from('diaries')
-    .update(updates as never)
-    .eq('id', id)
-    .select()
-    .single();
+  while (true) {
+    const { data, error } = await supabase
+      .from('diaries')
+      .update(payload as never)
+      .eq('id', id)
+      .select()
+      .single();
 
-  if (error) {
+    if (!error) {
+      console.log('[DB] 记录更新成功:', data);
+      return data as Diary;
+    }
+
+    const missingColumn = error.message.match(/Could not find the '(.+)' column of 'diaries' in the schema cache/i)?.[1];
+    if (missingColumn && missingColumn in payload) {
+      console.warn(`[DB] 更新记录时检测到缺失列 ${missingColumn}，自动移除后重试。`);
+      delete payload[missingColumn];
+      continue;
+    }
+
     console.error('[DB] 更新记录失败:', error.message, error);
     alert(`更新失败: ${error.message}`);
     return null;
   }
-
-  console.log('[DB] 记录更新成功:', data);
-  return data as Diary;
 }
 
 export async function deleteDiary(id: string): Promise<boolean> {
