@@ -225,15 +225,6 @@ export function DiaryModal() {
       setIsSubmitting(false);
       return;
     }
-
-    const parsedQty = weight.trim() === '' ? Number.NaN : Number(weight.trim());
-    const isPerWorkerType = tag === 'POISON';
-    if (!isPerWorkerType && (!Number.isFinite(parsedQty) || parsedQty <= 0)) {
-      alert('普通工种必须填写有效数量（大于 0）。');
-      setIsSubmitting(false);
-      return;
-    }
-
     if (!unit) {
       alert('请选择单位后再保存。');
       setIsSubmitting(false);
