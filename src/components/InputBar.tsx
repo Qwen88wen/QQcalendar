@@ -132,6 +132,7 @@ export function InputBar() {
     }
   }, [unit, availableUnits]);
 
+
   // 切换工人选择
   const toggleWorker = (workerName: string) => {
     setSelectedWorkers(prev =>
@@ -203,12 +204,6 @@ export function InputBar() {
         return;
       }
 
-      const parsedQty = weight.trim() === '' ? Number.NaN : Number(weight.trim());
-      const isPerWorkerType = tag === 'POISON';
-      if (!isPerWorkerType && (!Number.isFinite(parsedQty) || parsedQty <= 0)) {
-        alert('普通工种必须填写有效数量（大于 0）。');
-        return;
-      }
 
       if (!unit) {
         alert('请选择单位后再提交。');
