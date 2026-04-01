@@ -132,6 +132,13 @@ export function InputBar() {
     }
   }, [unit, availableUnits]);
 
+  // HARVEST 默认单位固定为 TON，选中后自动带出
+  useEffect(() => {
+    if (tag === 'HARVEST' && unit !== 'TON') {
+      setUnit('TON');
+    }
+  }, [tag, unit]);
+
 
   // 切换工人选择
   const toggleWorker = (workerName: string) => {
