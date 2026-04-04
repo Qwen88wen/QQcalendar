@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { buildWorkerPanelData, filterWorkerPanelItems, type WorkerPanelStatus } from '../lib/workerPanel';
 import { clearWorkerDailyStatus, upsertWorkerDailyStatus } from '../lib/workerDailyStatus';
+import type { WorkerDailyStatus } from '../types/database';
 import './WorkerPanel.css';
 
 type StatusFilter = 'ALL' | WorkerPanelStatus;
@@ -68,14 +69,22 @@ export function WorkerPanel() {
 
     setUpdatingWorkerId(workerId);
     const dateKey = formatDateKey(activeDate);
+    const existing = workerDailyStatuses.find((s) => s.worker_id === workerId && s.date === dateKey);
+
+    const buildLocalStatus = (): WorkerDailyStatus => ({
+      id: existing?.id || `local-${dateKey}-${workerId}`,
+      date: dateKey,
+      worker_id: workerId,
+      status: 'REST',
+      note: existing?.note || null,
+    });
+
     try {
       if (nextStatus === 'WORKING') {
         const success = await clearWorkerDailyStatus(dateKey, workerId);
         if (!success) {
-          alert('切换为上班失败，请稍后重试');
-          return;
+          alert('云端更新失败，已先在当前设备更新为上班状态。');
         }
-        const existing = workerDailyStatuses.find((s) => s.worker_id === workerId && s.date === dateKey);
         if (existing) {
           removeStatusInStore(existing.id);
         }
@@ -87,10 +96,11 @@ export function WorkerPanel() {
         });
 
         if (!updated) {
-          alert('更新状态失败，请稍后重试');
-          return;
+          upsertStatusInStore(buildLocalStatus());
+          alert('云端更新失败，已先在当前设备更新为休息状态。');
+        } else {
+          upsertStatusInStore(updated);
         }
-        upsertStatusInStore(updated);
       }
     } finally {
       setUpdatingWorkerId(null);
