@@ -1,6 +1,6 @@
 import type { Customer, Diary, Worker, WorkerDailyStatus } from '../types/database';
 
-export type WorkerPanelStatus = 'REST' | 'WORKING' | 'UNASSIGNED';
+export type WorkerPanelStatus = 'REST' | 'WORKING';
 
 export interface WorkerPanelCustomerRef {
   diaryId: string;
@@ -21,7 +21,6 @@ export interface WorkerPanelStats {
   totalWorkers: number;
   workingWorkers: number;
   restWorkers: number;
-  unassignedWorkers: number;
   totalCustomers: number;
 }
 
@@ -40,10 +39,10 @@ function toDateKey(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-function resolveWorkerStatus(hasCustomers: boolean, restStatus?: WorkerDailyStatus): WorkerPanelStatus {
+function resolveWorkerStatus(_hasCustomers: boolean, restStatus?: WorkerDailyStatus): WorkerPanelStatus {
   if (restStatus?.status === 'REST') return 'REST';
-  if (hasCustomers) return 'WORKING';
-  return 'UNASSIGNED';
+  if (restStatus?.status === 'WORKING') return 'WORKING';
+  return 'WORKING';
 }
 
 function extractDiaryWorkerIds(diary: Diary, workersByName: Map<string, Worker>): string[] {
@@ -119,7 +118,6 @@ export function buildWorkerPanelData(params: BuildWorkerPanelParams): {
     totalWorkers: workerItems.length,
     workingWorkers: workerItems.filter((item) => item.status === 'WORKING').length,
     restWorkers: workerItems.filter((item) => item.status === 'REST').length,
-    unassignedWorkers: workerItems.filter((item) => item.status === 'UNASSIGNED').length,
     totalCustomers: new Set(workerItems.flatMap((item) => item.customers.map((c) => c.customerId))).size,
   };
 
