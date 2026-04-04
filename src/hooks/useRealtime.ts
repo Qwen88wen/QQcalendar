@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAppStore } from '../stores/appStore';
-import type { Diary, DiaryRemark, Todo } from '../types/database';
+import type { Diary, DiaryRemark, Todo, WorkerDailyStatus } from '../types/database';
 
 export function useRealtime() {
-  const { addDiary, updateDiary, removeDiary, addRemark, selectedDiary, addTodo, updateTodo, removeTodo } = useAppStore();
+  const { addDiary, updateDiary, removeDiary, addRemark, selectedDiary, addTodo, updateTodo, removeTodo, upsertWorkerDailyStatus, removeWorkerDailyStatus } = useAppStore();
 
   useEffect(() => {
     console.log('[Realtime] 正在建立实时连接...');
@@ -79,10 +79,30 @@ export function useRealtime() {
         console.log('[Realtime] todos 订阅状态:', status);
       });
 
+    const workerStatusChannel = supabase
+      .channel('worker-status-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'worker_daily_statuses',
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+            upsertWorkerDailyStatus(payload.new as WorkerDailyStatus);
+          } else if (payload.eventType === 'DELETE') {
+            removeWorkerDailyStatus((payload.old as { id: string }).id);
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(diariesChannel);
       supabase.removeChannel(remarksChannel);
       supabase.removeChannel(todosChannel);
+      supabase.removeChannel(workerStatusChannel);
     };
-  }, [addDiary, updateDiary, removeDiary, addRemark, selectedDiary, addTodo, updateTodo, removeTodo]);
+  }, [addDiary, updateDiary, removeDiary, addRemark, selectedDiary, addTodo, updateTodo, removeTodo, upsertWorkerDailyStatus, removeWorkerDailyStatus]);
 }
