@@ -4,6 +4,7 @@ import { getActiveCustomers } from '../lib/customers';
 import { getActiveWorkers } from '../lib/workers';
 import { getActiveVehicles } from '../lib/vehicles';
 import { getAllWorkPrices } from '../lib/workPrices';
+import { getWorkerDailyStatuses } from '../lib/workerDailyStatus';
 import { useAppStore } from '../stores/appStore';
 
 export function useAuth() {
@@ -16,6 +17,7 @@ export function useAuth() {
     setWorkers,
     setVehicles,
     setWorkPrices,
+    setWorkerDailyStatuses,
   } = useAppStore();
 
   useEffect(() => {
@@ -25,13 +27,14 @@ export function useAuth() {
 
       try {
         // 获取所有日记、待办和主档数据
-        const [diaries, todos, customers, workers, vehicles, workPrices] = await Promise.all([
+        const [diaries, todos, customers, workers, vehicles, workPrices, workerDailyStatuses] = await Promise.all([
           getDiaries(),
           getTodos(),
           getActiveCustomers(),
           getActiveWorkers(),
           getActiveVehicles(),
           getAllWorkPrices(),
+          getWorkerDailyStatuses(),
         ]);
         setDiaries(diaries);
         setTodos(todos);
@@ -39,6 +42,7 @@ export function useAuth() {
         setWorkers(workers);
         setVehicles(vehicles);
         setWorkPrices(workPrices);
+        setWorkerDailyStatuses(workerDailyStatuses);
       } catch (err) {
         console.error('数据加载失败:', err);
         setError(err instanceof Error ? err.message : '数据加载失败，请检查网络连接');
@@ -48,5 +52,5 @@ export function useAuth() {
     };
 
     loadData();
-  }, [setDiaries, setTodos, setLoading, setError, setCustomers, setWorkers, setVehicles, setWorkPrices]);
+  }, [setDiaries, setTodos, setLoading, setError, setCustomers, setWorkers, setVehicles, setWorkPrices, setWorkerDailyStatuses]);
 }
