@@ -197,7 +197,7 @@ export interface WorkerUpdate {
   is_active?: boolean;
 }
 
-export type WorkerDailyStatusType = 'WORKING' | 'REST';
+export type WorkerDailyStatusType = 'REST';
 
 export interface WorkerDailyStatus {
   id: string;
