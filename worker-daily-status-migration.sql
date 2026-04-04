@@ -3,7 +3,7 @@ create table if not exists public.worker_daily_statuses (
   id uuid primary key default gen_random_uuid(),
   date date not null,
   worker_id uuid not null references public.workers(id) on delete cascade,
-  status text not null check (status in ('REST')),
+  status text not null check (status in ('WORKING', 'REST')),
   note text,
   unique (date, worker_id)
 );

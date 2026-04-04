@@ -127,16 +127,59 @@
   color: #1b5e20;
 }
 
-.worker-card .status {
-  font-size: 12px;
-  border-radius: 999px;
-  padding: 2px 8px;
-  color: #fff;
+.status-dropdown {
+  position: relative;
 }
 
-.worker-card .status.working { background: #2e7d32; }
-.worker-card .status.rest { background: #ef6c00; }
-.worker-card .status.unassigned { background: #607d8b; }
+.worker-card .status-btn {
+  border: 1px solid transparent;
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.worker-card .status-btn:hover:not(:disabled) {
+  filter: brightness(0.92);
+  border-color: rgba(255, 255, 255, 0.75);
+}
+
+.worker-card .status-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.worker-card .status-btn.working { background: #2e7d32; }
+.worker-card .status-btn.rest { background: #ef6c00; }
+
+.status-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #fff;
+  border: 1px solid #dcedc8;
+  border-radius: 10px;
+  min-width: 140px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+  z-index: 20;
+  overflow: hidden;
+}
+
+.status-menu button {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.status-menu button:hover {
+  background: #f1f8e9;
+}
 
 .worker-card-body {
   margin-top: 8px;
