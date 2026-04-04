@@ -197,6 +197,28 @@ export interface WorkerUpdate {
   is_active?: boolean;
 }
 
+export type WorkerDailyStatusType = 'WORKING' | 'REST';
+
+export interface WorkerDailyStatus {
+  id: string;
+  date: string;              // YYYY-MM-DD
+  worker_id: string;
+  status: WorkerDailyStatusType;
+  note: string | null;
+}
+
+export interface WorkerDailyStatusInsert {
+  date: string;
+  worker_id: string;
+  status: WorkerDailyStatusType;
+  note?: string | null;
+}
+
+export interface WorkerDailyStatusUpdate {
+  status?: WorkerDailyStatusType;
+  note?: string | null;
+}
+
 // vehicles 表 (车辆主档)
 export interface Vehicle {
   id: string;
@@ -314,6 +336,11 @@ export interface Database {
         Row: Worker;
         Insert: WorkerInsert;
         Update: WorkerUpdate;
+      };
+      worker_daily_statuses: {
+        Row: WorkerDailyStatus;
+        Insert: WorkerDailyStatusInsert;
+        Update: WorkerDailyStatusUpdate;
       };
       vehicles: {
         Row: Vehicle;

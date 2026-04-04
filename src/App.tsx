@@ -11,6 +11,7 @@ import { LoginModal } from './components/LoginModal';
 import { MasterDataManager } from './components/MasterDataManager';
 import { SalaryReport } from './components/SalaryReport';
 import { FloatingTodoButton } from './components/FloatingTodoButton';
+import { WorkerPanel } from './components/WorkerPanel';
 import { useAuth } from './hooks/useAuth';
 import { useRealtime } from './hooks/useRealtime';
 import { useAppStore, isSessionValid } from './stores/appStore';
@@ -242,6 +243,7 @@ function MainAppContent() {
       <MasterDataManager />
       <SalaryReport />
       <FloatingTodoButton />
+      <WorkerPanel />
     </div>
   );
 }
