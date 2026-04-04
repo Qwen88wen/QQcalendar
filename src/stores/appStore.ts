@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Diary, DiaryRemark, UserRole, FlowerType, Todo, Customer, Worker, Vehicle, WorkPrice } from '../types/database';
+import type { Diary, DiaryRemark, UserRole, FlowerType, Todo, Customer, Worker, Vehicle, WorkPrice, WorkerDailyStatus } from '../types/database';
 import type { LocalUser } from '../lib/users';
 
 // 花朵筛选类型
@@ -36,6 +36,7 @@ interface AppState {
   workers: Worker[];
   vehicles: Vehicle[];
   workPrices: WorkPrice[];
+  workerDailyStatuses: WorkerDailyStatus[];
 
   // UI 状态
   selectedDiary: Diary | null;
@@ -109,6 +110,9 @@ interface AppState {
   addVehicle: (vehicle: Vehicle) => void;
   updateVehicle: (vehicle: Vehicle) => void;
   setWorkPrices: (workPrices: WorkPrice[]) => void;
+  setWorkerDailyStatuses: (statuses: WorkerDailyStatus[]) => void;
+  upsertWorkerDailyStatus: (status: WorkerDailyStatus) => void;
+  removeWorkerDailyStatus: (id: string) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -128,6 +132,7 @@ export const useAppStore = create<AppState>()(
       workers: [],
       vehicles: [],
       workPrices: [],
+      workerDailyStatuses: [],
 
       selectedDiary: null,
       isModalOpen: false,
@@ -270,6 +275,19 @@ export const useAppStore = create<AppState>()(
       })),
 
       setWorkPrices: (workPrices: WorkPrice[]) => set({ workPrices }),
+      setWorkerDailyStatuses: (workerDailyStatuses: WorkerDailyStatus[]) => set({ workerDailyStatuses }),
+      upsertWorkerDailyStatus: (status: WorkerDailyStatus) => set((state) => {
+        const exists = state.workerDailyStatuses.some((s) => s.id === status.id);
+        if (!exists) {
+          return { workerDailyStatuses: [status, ...state.workerDailyStatuses] };
+        }
+        return {
+          workerDailyStatuses: state.workerDailyStatuses.map((s) => s.id === status.id ? status : s),
+        };
+      }),
+      removeWorkerDailyStatus: (id: string) => set((state) => ({
+        workerDailyStatuses: state.workerDailyStatuses.filter((s) => s.id !== id),
+      })),
     }),
     {
       name: 'qq-calendar-auth',
