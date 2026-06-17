@@ -16,6 +16,7 @@ const TAG_OPTIONS: DiaryTag[] = [
   'SAND/ STONE',
   'WELDING',
   'BUILDING HOUSE',
+  'TRANSPORTATION',
 ];
 
 // 工作类型对应的单位选项
@@ -28,6 +29,7 @@ const WORK_TYPE_UNIT_MAP: Record<WorkType, UnitType[]> = {
   'SAND/ STONE': ['TON', 'JOB'],
   'WELDING': ['JOB'],
   'BUILDING HOUSE': ['JOB'],
+  'TRANSPORTATION': ['JOB'],
 };
 
 // 所有单位选项 (用于未选择工作类型时)

@@ -8,7 +8,7 @@ export type FlowerType = 1 | 2 | 3 | 4 | 5;
 export type DiaryStatus = 'complete' | 'incomplete';
 
 // 工作类型
-export type WorkType = 'HARVEST' | 'PRUNNING' | 'FERTILIZE' | 'POISON' | 'SEEDLING' | 'SAND/ STONE' | 'WELDING' | 'BUILDING HOUSE';
+export type WorkType = 'HARVEST' | 'PRUNNING' | 'FERTILIZE' | 'POISON' | 'SEEDLING' | 'SAND/ STONE' | 'WELDING' | 'BUILDING HOUSE' | 'TRANSPORTATION';
 
 // 标签类型 (与工作类型相同)
 export type DiaryTag = WorkType;
@@ -29,6 +29,7 @@ export const WORK_TYPE_UNITS: Record<WorkType, UnitType[]> = {
   'SAND/ STONE': ['TON', 'JOB'],
   'WELDING': ['JOB'],
   'BUILDING HOUSE': ['JOB'],
+  'TRANSPORTATION': ['JOB'],
 };
 
 // profiles 表
