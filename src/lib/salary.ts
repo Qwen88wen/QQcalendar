@@ -54,6 +54,8 @@ export function calculateSalary(
     if (Number.isNaN(diaryMs) || diaryMs < startMs || diaryMs > endMs) continue;
 
     const workType = (diary.tag || 'HARVEST') as WorkType;
+    if (workType === 'TRANSPORTATION') continue;
+
     const displayDate = formatKlDate(diary.created_at);
     const displayUnit = diary.unit || diary.remark || '-';
 

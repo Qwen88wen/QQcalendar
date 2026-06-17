@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '../stores/appStore';
 import { createCustomer, updateCustomer, deactivateCustomer, activateCustomer, importCustomers } from '../lib/customers';
-import { createWorker, updateWorker, deactivateWorker, activateWorker } from '../lib/workers';
+import { createWorker, updateWorker, deactivateWorker, activateWorker, getAllWorkers, getWorkerByName } from '../lib/workers';
 import { createVehicle, updateVehicle, deactivateVehicle, activateVehicle } from '../lib/vehicles';
 import type { Customer, Worker, Vehicle, CustomerInsert, SalaryGroup } from '../types/database';
 import './MasterDataManager.css';
@@ -117,6 +117,8 @@ export function MasterDataManager() {
   const [newWorkerName, setNewWorkerName] = useState('');
   const [newVehiclePlate, setNewVehiclePlate] = useState('');
 
+  const [masterWorkers, setMasterWorkers] = useState<Worker[]>(workers);
+
   // 搜索状态
   const [customerSearch, setCustomerSearch] = useState('');
   const [workerSearch, setWorkerSearch] = useState('');
@@ -124,7 +126,30 @@ export function MasterDataManager() {
 
   // 过滤数据
   const visibleCustomers = showInactive ? customers : customers.filter(c => c.is_active);
-  const visibleWorkers = showInactive ? workers : workers.filter(w => w.is_active);
+  useEffect(() => {
+    setMasterWorkers(prev => {
+      const byId = new Map(prev.map(w => [w.id, w]));
+      workers.forEach(w => byId.set(w.id, w));
+      return Array.from(byId.values());
+    });
+  }, [workers]);
+
+  useEffect(() => {
+    if (!isOpen || activeTab !== 'workers') return;
+
+    let cancelled = false;
+    getAllWorkers().then((allWorkers) => {
+      if (!cancelled) {
+        setMasterWorkers(allWorkers);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, activeTab]);
+
+  const visibleWorkers = showInactive ? masterWorkers : masterWorkers.filter(w => w.is_active);
   const visibleVehicles = showInactive ? vehicles : vehicles.filter(v => v.is_active);
 
   const customerKeyword = customerSearch.trim().toLowerCase();
@@ -147,15 +172,48 @@ export function MasterDataManager() {
       if (codeCompare !== 0) return codeCompare;
       return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
     });
-  const filteredWorkers = visibleWorkers.filter((w) =>
-    !workerKeyword ||
-    w.name.toLowerCase().includes(workerKeyword) ||
-    (w.code || '').toLowerCase().includes(workerKeyword)
-  );
+  const filteredWorkers = visibleWorkers
+    .filter((w) =>
+      !workerKeyword ||
+      w.name.toLowerCase().includes(workerKeyword) ||
+      (w.code || '').toLowerCase().includes(workerKeyword)
+    )
+    .sort((a, b) => {
+      const codeA = (a.code || '').trim();
+      const codeB = (b.code || '').trim();
+      if (!codeA && codeB) return 1;
+      if (codeA && !codeB) return -1;
+      const codeCompare = codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' });
+      if (codeCompare !== 0) return codeCompare;
+      return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+    });
   const filteredVehicles = visibleVehicles.filter((v) =>
     !vehicleKeyword ||
     v.plate_number.toLowerCase().includes(vehicleKeyword)
   );
+
+  const upsertMasterWorker = (worker: Worker) => {
+    setMasterWorkers(prev => {
+      const exists = prev.some(w => w.id === worker.id);
+      const next = exists
+        ? prev.map(w => w.id === worker.id ? worker : w)
+        : [...prev, worker];
+      return next.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+    });
+  };
+
+  const syncActiveWorkerStore = (worker: Worker) => {
+    if (workers.some(w => w.id === worker.id)) {
+      updateWorkerInStore(worker);
+    } else if (worker.is_active) {
+      addWorker(worker);
+    }
+  };
+
+  const resetWorkerForm = () => {
+    setNewWorkerCode('');
+    setNewWorkerName('');
+  };
 
   // 新增园主
   const handleAddCustomer = async () => {
@@ -185,16 +243,41 @@ export function MasterDataManager() {
   const handleAddWorker = async () => {
     if (!newWorkerName.trim()) return;
     setIsSubmitting(true);
-    const result = await createWorker({
-      code: newWorkerCode.trim() || null,
-      name: newWorkerName.trim().toUpperCase(),
-    });
-    if (result) {
-      addWorker(result);
-      setNewWorkerCode('');
-      setNewWorkerName('');
+    try {
+      const normalizedName = newWorkerName.trim().toUpperCase();
+      const normalizedCode = newWorkerCode.trim() || null;
+      const existingWorker = await getWorkerByName(normalizedName);
+
+      if (existingWorker) {
+        const result = await updateWorker(existingWorker.id, {
+          code: normalizedCode || existingWorker.code,
+          name: normalizedName,
+          is_active: true,
+        });
+
+        if (result) {
+          upsertMasterWorker(result);
+          syncActiveWorkerStore(result);
+          resetWorkerForm();
+          alert(existingWorker.is_active
+            ? '工人已存在，已更新资料，可直接在工人列表选择。'
+            : '已重新启用这个工人，可直接在工人列表选择。');
+        }
+        return;
+      }
+
+      const result = await createWorker({
+        code: normalizedCode,
+        name: normalizedName,
+      });
+      if (result) {
+        upsertMasterWorker(result);
+        addWorker(result);
+        resetWorkerForm();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   // 新增车辆
@@ -246,7 +329,10 @@ export function MasterDataManager() {
       if (result) updateCustomerInStore(result);
     } else if (type === 'workers') {
       const result = await updateWorker(editingId, { name: editForm.name });
-      if (result) updateWorkerInStore(result);
+      if (result) {
+        upsertMasterWorker(result);
+        syncActiveWorkerStore(result);
+      }
     } else {
       const result = await updateVehicle(editingId, { plate_number: editForm.plate_number });
       if (result) updateVehicleInStore(result);
@@ -281,10 +367,18 @@ export function MasterDataManager() {
       const w = item as Worker;
       if (w.is_active) {
         result = await deactivateWorker(w.id);
-        if (result) updateWorkerInStore({ ...w, is_active: false });
+        if (result) {
+          const updatedWorker = { ...w, is_active: false };
+          upsertMasterWorker(updatedWorker);
+          updateWorkerInStore(updatedWorker);
+        }
       } else {
         result = await activateWorker(w.id);
-        if (result) updateWorkerInStore({ ...w, is_active: true });
+        if (result) {
+          const updatedWorker = { ...w, is_active: true };
+          upsertMasterWorker(updatedWorker);
+          syncActiveWorkerStore(updatedWorker);
+        }
       }
     } else {
       const v = item as Vehicle;

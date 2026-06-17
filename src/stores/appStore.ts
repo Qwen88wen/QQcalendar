@@ -259,12 +259,30 @@ export const useAppStore = create<AppState>()(
       })),
 
       setWorkers: (workers: Worker[]) => set({ workers }),
-      addWorker: (worker: Worker) => set((state) => ({
-        workers: [...state.workers, worker].sort((a, b) => a.name.localeCompare(b.name)),
-      })),
-      updateWorker: (worker: Worker) => set((state) => ({
-        workers: state.workers.map((w) => w.id === worker.id ? worker : w),
-      })),
+      addWorker: (worker: Worker) => set((state) => {
+        const exists = state.workers.some((w) => w.id === worker.id);
+        const nextWorkers = exists
+          ? state.workers.map((w) => w.id === worker.id ? worker : w)
+          : [...state.workers, worker];
+
+        return {
+          workers: nextWorkers
+            .filter((w) => w.is_active)
+            .sort((a, b) => a.name.localeCompare(b.name)),
+        };
+      }),
+      updateWorker: (worker: Worker) => set((state) => {
+        const exists = state.workers.some((w) => w.id === worker.id);
+        const nextWorkers = exists
+          ? state.workers.map((w) => w.id === worker.id ? worker : w)
+          : [...state.workers, worker];
+
+        return {
+          workers: nextWorkers
+            .filter((w) => w.is_active)
+            .sort((a, b) => a.name.localeCompare(b.name)),
+        };
+      }),
 
       setVehicles: (vehicles: Vehicle[]) => set({ vehicles }),
       addVehicle: (vehicle: Vehicle) => set((state) => ({
